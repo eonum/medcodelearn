@@ -2,7 +2,7 @@
 Playground for machine learning with medical coding data and medical classifications.
 
 Tasks
-* propose codes (denoising, auto encoding, recommender systems)
+* propose codes (denoising, auto encoding, recommender systems, Analog collaborative filtering / matrix factorization)
 * learn a grouper algorithm (classification, outlier detection)
 * search codes (medical classification, NLP)
 * exploration and visualisation (Visualised Bayes Nets, common combinations of comorbidities)
