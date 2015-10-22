@@ -21,5 +21,5 @@ iris_y_test  = iris_y[indices[-10:]]
 svc = svm.SVC(kernel='linear')
 svc.fit(iris_X_train, iris_y_train)    
 
-plot(svc)
-
+print(svc.predict(iris_X_test))
+print(iris_y_test)
