@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import csv
 from drgtraininginstance import DRGTrainingInstance
+from drgtrainingset import DRGTrainingSet
+
 class DRGReader:
     def __init__(self, filename, drg_filename):
         self.FIELDNAMES = ['id', 'ageYears', 'ageDays', 'admWeight', 'sex', 'adm', 'sep', 'los', 'sdf', 'hmv', 'pdx']
@@ -10,14 +12,16 @@ class DRGReader:
         self.filename = filename
         self.drg_filename = drg_filename
         self.feature_names = []  
-        self.drg_instances = []
+        self.drg_trainingset = DRGTrainingSet()
 
     def read_from_file(self):
         with open(self.filename, 'r') as csvFile:
             reader = csv.DictReader(csvFile, fieldnames=self.FIELDNAMES, restkey=self.RESTKEY, delimiter=';')
             for row in reader:
-                self.drg_instances.extend(self.get_drg_instances_from_row(row))
-            
+                for instance in self.get_drg_instances_from_row(row):
+                    self.drg_trainingset.add_drg_training_instance(instance)
+    
+          
 
 class DRGCodeProposalReader(DRGReader):
     def get_drg_instances_from_row(self, row):

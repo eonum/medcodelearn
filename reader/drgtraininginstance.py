@@ -9,6 +9,9 @@ class DRGTrainingInstance:
         self.contained_hierarchically_coded_feature_names = None
                     
     def get_sparse_hierarchically_coded_features(self):
+        if self.sparse_hierarchically_coded_features:
+            return self.sparse_hierarchically_coded_features
+        
         self.sparse_hierarchically_coded_features = {}
         self.contained_hierarchically_coded_feature_names =  []
         for diag in self.diags:
@@ -17,7 +20,12 @@ class DRGTrainingInstance:
         for proc in self.procs:
             self.add_code(proc, 1)
         
-        return (self.sparse_hierarchically_coded_features, self.contained_hierarchically_coded_feature_names)
+        return self.sparse_hierarchically_coded_features
+        
+    def get_contained_hierarchically_coded_feature_names(self):
+        if not self.contained_hierarchically_coded_feature_names:
+            self.get_contained_hierarchically_coded_feature_names
+        return self.contained_hierarchically_coded_feature_names
 
     def get_full_hierarchically_coded_features(self, all_hierarchically_coded_feature_names):
         full_hierarchically_coded_features = dict(self.sparse_hierarchically_coded_features)
