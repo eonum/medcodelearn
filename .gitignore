@@ -1,2 +1,4 @@
 data/
 .spyderproject
+__pycache__/
+
