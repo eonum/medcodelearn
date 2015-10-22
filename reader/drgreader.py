@@ -4,13 +4,12 @@ from drgtraininginstance import DRGTrainingInstance
 from drgtrainingset import DRGTrainingSet
 
 class DRGReader:
-    def __init__(self, filename, drg_filename):
+    def __init__(self, filename):
         self.FIELDNAMES = ['id', 'ageYears', 'ageDays', 'admWeight', 'sex', 'adm', 'sep', 'los', 'sdf', 'hmv', 'pdx']
         self.RESTKEY = 'diagproc'
         self.MAX_ADDITIONAL_DIAGNOSES = 99
         self.MAX_PROCEDURES = 100 
         self.filename = filename
-        self.drg_filename = drg_filename
         self.feature_names = []  
         self.drg_trainingset = DRGTrainingSet()
 
@@ -20,6 +19,7 @@ class DRGReader:
             for row in reader:
                 for instance in self.get_drg_instances_from_row(row):
                     self.drg_trainingset.add_drg_training_instance(instance)
+        return self.drg_trainingset
     
           
 
@@ -37,5 +37,5 @@ class DRGCodeProposalReader(DRGReader):
 
 
 if __name__ == '__main__':
-    r = DRGCodeProposalReader('../data/2015/trainingData2015_20151001.csv', '../data/2015/drg_file.csv')
+    r = DRGCodeProposalReader('../data/2015/trainingData2015_20151001.csv')
     r.read_from_file()
