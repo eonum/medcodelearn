@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
-class DRGInstance:
-    def __init__(self, infos, diags, procs, drg):
+class DRGTrainingInstance:
+    def __init__(self, infos, diags, procs, gt=None):
         self.diags = diags
         self.procs = procs
+        self.gt = gt
         
         self.sparse_hierarchically_coded_features = None
         self.contained_hierarchically_coded_feature_names = None
                     
     def get_sparse_hierarchically_coded_features(self):
-        if self.sparse_hierarchically_coded_features:
-            return (self.sparse_hierarchically_coded_features, self.contained_hierarchically_coded_feature_names) 
-        
         self.sparse_hierarchically_coded_features = {}
         self.contained_hierarchically_coded_feature_names =  []
         for diag in self.diags:
