@@ -6,7 +6,6 @@ class DRGInstance:
         
         self.sparse_hierarchically_coded_features = None
         self.contained_hierarchically_coded_feature_names = None
-        self.full_hierarchically_coded_features = None
                     
     def get_sparse_hierarchically_coded_features(self):
         if self.sparse_hierarchically_coded_features:
@@ -23,11 +22,15 @@ class DRGInstance:
         return (self.sparse_hierarchically_coded_features, self.contained_hierarchically_coded_feature_names)
 
     def get_full_hierarchically_coded_features(self, all_hierarchically_coded_feature_names):
-        pass
-    
+        full_hierarchically_coded_features = dict(self.sparse_hierarchically_coded_features)
+        for code in all_hierarchically_coded_feature_names:
+            if code not in self.contained_hierarchically_coded_feature_names:
+                full_hierarchically_coded_features[code] = 0
+        return full_hierarchically_coded_features                    
+            
     def add_code(self, code, weight):
         code = code.upper().replace(' ', '')
-        for i in range(1,len(code)):
+        for i in range(0,len(code)+1):
             subcode = code[:i]
             if len(subcode) == 0:
                 continue
@@ -38,4 +41,4 @@ class DRGInstance:
             if subcode not in self.contained_hierarchically_coded_feature_names:
                 self.contained_hierarchically_coded_feature_names.append(subcode)
     
-    
+
