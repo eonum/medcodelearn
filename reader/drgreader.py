@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import csv
-from drgtraininginstance import DRGTrainingInstance
-from drgtrainingset import DRGTrainingSet
+from reader.drgtraininginstance import DRGTrainingInstance
+from reader.drgtrainingset import DRGTrainingSet
 
 class DRGReader:
     def __init__(self, filename):
@@ -29,7 +29,7 @@ class DRGCodeProposalReader(DRGReader):
         diags = diagproc[0:self.MAX_ADDITIONAL_DIAGNOSES]
         procs = diagproc[self.MAX_ADDITIONAL_DIAGNOSES:self.MAX_ADDITIONAL_DIAGNOSES+self.MAX_PROCEDURES]
         infos = [row[fieldname] for fieldname in self.FIELDNAMES]        
-        print(' '.join([row['id'],row['sex'],diags[0],procs[0]])) # TODO: Delete this line.
+        #print(' '.join([row['id'],row['sex'],diags[0],procs[0]])) # TODO: Delete this line.
         
         instance_per_diag = [DRGTrainingInstance(infos, [diag for diag in diags if diag != gt], procs, gt) for gt in diags]
         instance_per_proc = [DRGTrainingInstance(infos, diags, [proc for proc in procs if proc != gt], gt) for gt in procs]        

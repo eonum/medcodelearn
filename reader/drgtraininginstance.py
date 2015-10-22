@@ -27,6 +27,10 @@ class DRGTrainingInstance:
             self.get_contained_hierarchically_coded_feature_names
         return self.contained_hierarchically_coded_feature_names
 
+    def get_hierarchically_coded_features_and_targets(self, all_hierarchically_coded_feature_names):
+        return (self.get_full_hierarchically_coded_features, self.gt)
+
+
     def get_full_hierarchically_coded_features(self, all_hierarchically_coded_feature_names):
         full_hierarchically_coded_features = dict(self.sparse_hierarchically_coded_features)
         for code in all_hierarchically_coded_feature_names:
