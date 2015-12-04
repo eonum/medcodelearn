@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from nltk.stem.snowball import GermanStemmer
 import re
+import os
+import csv
 
 class Tokenizer:
     def __init__self():
@@ -15,13 +17,38 @@ class Tokenizer:
        return self.process_words(words)
 
 
-# Move into own file later
+# TODO: Move into own file later
 class GermanTokenizer(Tokenizer):
     def __init__(self):
         super()
-    
+# Hack (Using a Java library). This is only a prototype. Should choose one language later.    
+    def split_compound_words(self, words): 
+        try:
+            os.remove('compound_words.tmp')
+            os.remove('split_compound_words.tmp')
+        except OSError:
+            pass        
+        with open('compound_words.tmp', 'w') as file:        
+            for word in words:
+                file.write("%s\n" % word)        
+        os.system("java -jar ../java/lib/jwordsplitter-4.1.jar compound_words.tmp > split_compound_words.tmp")
+        split_compound_words = []        
+        with open('split_compound_words.tmp', 'r') as csvFile:
+            reader = csv.reader(csvFile, delimiter=',')
+            for row in reader:
+                split_compound_words += row
+        try:
+            os.remove('compound_words.tmp')
+            os.remove('split_compound_words.tmp')
+        except OSError:
+            pass  
+        return split_compound_words
+        
+        
     def process_words(self, words):
-        stemmed_words = self.stem_words(words)
+        split_compound_words = self.split_compound_words(words)
+        stemmed_words = self.stem_words(split_compound_words)
+        
         return stemmed_words
         
     def stem_words(self, words):
@@ -30,9 +57,5 @@ class GermanTokenizer(Tokenizer):
         for word in words:
             stemmed_words.append(stemmer.stem(word))
         return stemmed_words
-        
-        
-        
 
-tok = GermanTokenizer()
-print(tok.tokenize("WIr gehen nach hause"))
+
