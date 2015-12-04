@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from nltk.stem.snowball import GermanStemmer
 import re
+from nltk.stem.snowball import GermanStemmer
 import os
 import csv
 
@@ -15,31 +15,29 @@ class Tokenizer:
     def tokenize(self, sentence):
        words = self.split_to_words(sentence)
        return self.process_words(words)
-
-
-# TODO: Move into own file later
+       
 class GermanTokenizer(Tokenizer):
     def __init__(self):
         super()
 # Hack (Using a Java library). This is only a prototype. Should choose one language later.    
-    def split_compound_words(self, words): 
+    def split_compound_words(self, words, basepath=''): 
         try:
-            os.remove('compound_words.tmp')
-            os.remove('split_compound_words.tmp')
+            os.remove('/tmp/compound_words.tmp')
+            os.remove('/tmp/split_compound_words.tmp')
         except OSError:
             pass        
-        with open('compound_words.tmp', 'w') as file:        
+        with open('/tmp/compound_words.tmp', 'w') as file:        
             for word in words:
                 file.write("%s\n" % word)        
-        os.system("java -jar ../java/lib/jwordsplitter-4.1.jar compound_words.tmp > split_compound_words.tmp")
+        os.system("java -jar "+basepath+"java/lib/jwordsplitter-4.1.jar /tmp/compound_words.tmp > /tmp/split_compound_words.tmp")
         split_compound_words = []        
-        with open('split_compound_words.tmp', 'r') as csvFile:
+        with open('/tmp/split_compound_words.tmp', 'r') as csvFile:
             reader = csv.reader(csvFile, delimiter=',')
             for row in reader:
                 split_compound_words += row
         try:
-            os.remove('compound_words.tmp')
-            os.remove('split_compound_words.tmp')
+            os.remove('/tmp/compound_words.tmp')
+            os.remove('/tmp/split_compound_words.tmp')
         except OSError:
             pass  
         return split_compound_words

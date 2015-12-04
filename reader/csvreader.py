@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import csv
 
-class DRGCodesReader:
+class CSVReader:
     def __init__(self, filename):
         self.filename = filename
         self.codes = []
@@ -11,6 +11,6 @@ class DRGCodesReader:
             reader = csv.DictReader(csvFile, delimiter=',')
             print(reader)
             for row in reader:
-                codes.append(row)
+                self.codes.append(row)
         return self.codes
     
