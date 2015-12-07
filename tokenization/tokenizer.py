@@ -55,5 +55,7 @@ class GermanTokenizer(Tokenizer):
         for word in words:
             stemmed_words.append(stemmer.stem(word))
         return stemmed_words
+        
+    
 
 
