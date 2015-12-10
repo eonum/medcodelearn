@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import word2vec
-
+import os
+# mysteriously doesn't work anymore... instead using vectorize.sh at the moment.
 if __name__  == "__main__":
-    word2vec.word2vec('data/chop_codes_tokenized.txt', 'data/chop_codes.bin', size=150, verbose=True)
-    word2vec.word2vec('data/drgs_tokenized.txt', 'data/drgs.bin', size=150, verbose=True)
-    word2vec.word2vec('data/icd_codes_tokenized.txt', 'data/icd_codes.bin', size=150, verbose=True)    
+    datapath = os.path.join(os.path.dirname(__file__), 'data')
+    word2vec.word2vec(os.path.join(datapath,'tokenization', 'tokens.csv'), os.path.join(datapath,'vectorization', 'tokens.bin'), size=150, verbose=True)   
