@@ -44,7 +44,7 @@ class GermanTokenizer(Tokenizer):
         
         
     def process_words(self, words):
-        split_compound_words = words  # self.split_compound_words(words) ; Skipping this step at the moment
+        split_compound_words = words # skipping self.split_compound_words(words) for now
         stemmed_words = self.stem_words(split_compound_words)
         
         return stemmed_words
