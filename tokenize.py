@@ -6,7 +6,7 @@ from pprint import pprint
 
 def tokenize_code(code):
     code = re.sub(r'[^\w\s]','',code)
-    return ['CODEPREFIX'+code[0:x] for x in reversed(range(1,len(code)))]
+    return ['CODEPREFIX'+code[0:x] for x in reversed(range(1,len(code)+1))]
 
 def tokenize_and_output(csv_filename, tokenizer, output_filename, key_of_code, key_of_description, vocab):
     reader = CSVReader(csv_filename)
