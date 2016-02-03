@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
+from drgtraininginstance import DRGTrainingInstance
 
 class TestDRGInstance(unittest.TestCase):        
     def test_sparse_hierarchical_features(self):

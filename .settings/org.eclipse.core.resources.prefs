@@ -1,2 +1,11 @@
 eclipse.preferences.version=1
+encoding//reader/csvreader.py=utf-8
 encoding//reader/drgreader.py=utf-8
+encoding//reader/drgtraininginstance.py=utf-8
+encoding//reader/drgtrainingset.py=utf-8
+encoding//reader/test_drginstance.py=utf-8
+encoding//snipplets/game_of_life.py=utf-8
+encoding//snipplets/gray_scott.py=utf-8
+encoding//tokenization/tokenizer.py=utf-8
+encoding/svm_experiment.py=utf-8
+encoding/tokenize.py=utf-8

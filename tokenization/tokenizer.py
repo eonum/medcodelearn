@@ -5,7 +5,7 @@ import os
 import csv
 
 class Tokenizer:
-    def __init__self():
+    def __init__(self):
         pass
 
     def split_to_words(self, s, delimiter=' '):
@@ -13,8 +13,8 @@ class Tokenizer:
         return s.split(delimiter)
     
     def tokenize(self, sentence):
-       words = self.split_to_words(sentence)
-       return self.process_words(words)
+        words = self.split_to_words(sentence)
+        return self.process_words(words)
        
 class GermanTokenizer(Tokenizer):
     def __init__(self):
