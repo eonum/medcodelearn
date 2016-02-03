@@ -8,8 +8,8 @@ def tokenize_code(code):
     code = re.sub(r'[^\w\s]','',code)
     return ['CODEPREFIX'+code[0:x] for x in reversed(range(1,len(code)+1))]
 
-def tokenize_and_output(csv_filename, tokenizer, output_filename, key_of_code, key_of_description, vocab):
-    reader = CSVReader(csv_filename)
+def tokenize_and_output(csv_filename, tokenizer, output_filename, key_of_code, key_of_description, vocab, delimiter):
+    reader = CSVReader(csv_filename, delimiter)
     dataset = reader.read_from_file()
     try:
         #os.remove(output_filename)
@@ -42,9 +42,9 @@ if __name__ == '__main__':
     tokenizer = GermanTokenizer()
    
     vocab_de = set()
-    tokenize_and_output('data/2015/drgs.csv', tokenizer, 'data/tokenization/drgs_tokenized.csv', 'code', 'text_de', vocab_de)
-    #tokenize_and_output('data/2015/chop_codes.csv', tokenizer, 'data/tokenization/chop_codes_tokenized.csv', 'code', 'text_de', vocab_de)
-    #tokenize_and_output('data/2015/icd_codes.csv', tokenizer, 'data/tokenization/icd_codes_tokenized.csv', 'code', 'text_de', vocab_de)
-    #combine_files(['data/tokenization/drgs_tokenized.csv', 'data/tokenization/chop_codes_tokenized.csv', 'data/tokenization/icd_codes_tokenized.csv'],  'data/tokenization/tokens.csv')
-    output_vocab('data/tokenization/vocab_only_drgs.csv', vocab_de)
+    tokenize_and_output('data/2015/drgs.csv', tokenizer, 'data/tokenization/drgs_tokenized.csv', 'code', 'text_de', vocab_de, ';')
+    tokenize_and_output('data/2015/chop_codes.csv', tokenizer, 'data/tokenization/chop_codes_tokenized.csv', 'code', 'text_de', vocab_de, ',')
+    tokenize_and_output('data/2015/icd_codes.csv', tokenizer, 'data/tokenization/icd_codes_tokenized.csv', 'code', 'text_de', vocab_de, ',')
+    combine_files(['data/tokenization/drgs_tokenized.csv', 'data/tokenization/chop_codes_tokenized.csv', 'data/tokenization/icd_codes_tokenized.csv'],  'data/tokenization/tokens.csv')
+    output_vocab('data/tokenization/vocab_all.csv', vocab_de)
     pprint(vocab_de)
