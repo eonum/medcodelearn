@@ -42,7 +42,7 @@ if __name__ == '__main__':
     tokenizer = GermanTokenizer()
    
     vocab_de = set()
-    tokenize_and_output('data/2015/drgs.csv', tokenizer, 'data/tokenization/drgs_tokenized.csv', 'code', 'text_de', vocab_de, ';', 'DRG')
+    tokenize_and_output('data/2015/drgs.csv', tokenizer, 'data/tokenization/drgs_tokenized.csv', 'code', 'text_de', vocab_de, ',', 'DRG')
     tokenize_and_output('data/2015/chop_codes.csv', tokenizer, 'data/tokenization/chop_codes_tokenized.csv', 'code', 'text_de', vocab_de, ',', 'CHOP')
     tokenize_and_output('data/2015/icd_codes.csv', tokenizer, 'data/tokenization/icd_codes_tokenized.csv', 'code', 'text_de', vocab_de, ',', 'ICD')
     combine_files(['data/tokenization/drgs_tokenized.csv', 'data/tokenization/chop_codes_tokenized.csv', 'data/tokenization/icd_codes_tokenized.csv'],  'data/tokenization/tokens.csv')
