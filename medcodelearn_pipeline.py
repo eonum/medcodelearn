@@ -1,6 +1,7 @@
 from tokenize_codes import tokenize_catalogs
 import os
 from subprocess import call
+import json
 
 def run (config):
     base_folder = config['base_folder']
@@ -37,6 +38,9 @@ if __name__ == '__main__':
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
+    
+    json.dump(config, open(base_folder + 'configuration.json','w'), indent=4, sort_keys=True)    
+    
     
     run(config)
     
