@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import csv
-from reader.drgtraininginstance import DRGTrainingInstance
-from reader.drgtrainingset import DRGTrainingSet
+from reader.sparsehierarchical.drgtraininginstance import DRGTrainingInstance
+from reader.sparsehierarchical.drgtrainingset import DRGTrainingSet
 
 class DRGReader:
     def __init__(self, filename):

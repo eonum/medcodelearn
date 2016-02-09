@@ -3,6 +3,7 @@ import os
 from subprocess import call
 import json
 from json import encoder
+from reader.flatvectors.drgreaderflatvectorized import FlatVectorizedDRGReader
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
 from vectorize import read_code_vectors, read_vectors
@@ -37,7 +38,10 @@ def run (config):
         json.dump(tokens_by_codes, open(config['code-tokens'],'w'), indent=4, sort_keys=True)
         
     print('Read patient cases..')
-    
+    reader = FlatVectorizedDRGReader(config['training-set'])
+    reader.read_from_file(vectors_by_codes)
+    data = reader.data
+    targets = reader.targets
     
     
 if __name__ == '__main__':
@@ -59,7 +63,9 @@ if __name__ == '__main__':
         'all-vectors' : base_folder + 'vectorization/vectors.csv',
         'word2vec-dim-size' : 50,
         'word2vec-vocab': base_folder + 'vectorization/vocab.csv',
-        'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json' }
+        'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json',
+        'training-set' : 'data/2015/trainingData2015_20151001.csv',
+        'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out' }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
