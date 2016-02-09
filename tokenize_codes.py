@@ -38,13 +38,13 @@ def output_vocab(vocab_filename, vocab):
         for word in vocab:
             print(word, file=out_file)
     
-if __name__ == '__main__':
+def tokenize_catalogs(config):
     tokenizer = GermanTokenizer()
-   
+
     vocab_de = set()
-    tokenize_and_output('data/2015/drgs.csv', tokenizer, 'data/tokenization/drgs_tokenized.csv', 'code', 'text_de', vocab_de, ',', 'DRG')
-    tokenize_and_output('data/2015/chop_codes.csv', tokenizer, 'data/tokenization/chop_codes_tokenized.csv', 'code', 'text_de', vocab_de, ',', 'CHOP')
-    tokenize_and_output('data/2015/icd_codes.csv', tokenizer, 'data/tokenization/icd_codes_tokenized.csv', 'code', 'text_de', vocab_de, ',', 'ICD')
-    combine_files(['data/tokenization/drgs_tokenized.csv', 'data/tokenization/chop_codes_tokenized.csv', 'data/tokenization/icd_codes_tokenized.csv'],  'data/tokenization/tokens.csv')
-    output_vocab('data/tokenization/vocab_all.csv', vocab_de)
+    tokenize_and_output(config['drg-catalog'], tokenizer, config['drg-tokenizations'], 'code', 'text_de', vocab_de, ',', 'DRG')
+    tokenize_and_output(config['chop-catalog'], tokenizer, config['chop-tokenizations'], 'code', 'text_de', vocab_de, ',', 'CHOP')
+    tokenize_and_output(config['icd-catalog'], tokenizer, config['icd-tokenizations'], 'code', 'text_de', vocab_de, ',', 'ICD')
+    combine_files([config['drg-tokenizations'], config['chop-tokenizations'], config['icd-tokenizations']],  config['all-tokens'])
+    output_vocab(config['all-vocab'], vocab_de)
     pprint(vocab_de)
