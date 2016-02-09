@@ -35,7 +35,7 @@ if __name__ == '__main__':
     
     scores = []
     params = []
-    for i in range(10, 15):
+    for i in range(1, 100):
         config['word2vec-dim-size'] = i
         score = run(config)
         scores.append(score)
@@ -45,4 +45,4 @@ if __name__ == '__main__':
     print(scores)
     
     plt.plot(params, scores)
-    plt,show
+    plt.savefig(base_folder + 'word2vec_dimensions_validation.pdf')
