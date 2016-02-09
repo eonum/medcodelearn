@@ -5,7 +5,7 @@ from sklearn import svm
 from sklearn import cross_validation
 import sklearn.metrics as metrics
 
-from reader.drgreader import DRGCodeProposalReader
+from reader.sparsehierarchical.drgreader import DRGCodeProposalReader 
 
 r = DRGCodeProposalReader('data/2015/trainingData2015_20151001.csv')
 training_set = r.read_from_file()

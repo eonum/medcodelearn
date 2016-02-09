@@ -41,6 +41,8 @@ if __name__ == '__main__':
     base_folder = 'data/pipelinetest/'
     config = {
         'base_folder' : base_folder,
+        # Store all intermediate results. 
+        # Disable this to speed up a run and to reduce disk space usage.
         'store-everything' : False,
         'drg-catalog' : 'data/2015/drgs.csv',
         'chop-catalog' : 'data/2015/chop_codes.csv',
