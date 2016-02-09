@@ -47,7 +47,9 @@ def run (config):
     print("Training data dimensionality: " + str(data.shape))
     
     print('Train Random Forest for DRG Code Proposals..')
-    rf_model = train_and_evaluate_random_forest(config, data, targets)
+    rf_model, score = train_and_evaluate_random_forest(config, data, targets)
+    
+    return score
     
     
 if __name__ == '__main__':
@@ -70,8 +72,9 @@ if __name__ == '__main__':
         'word2vec-dim-size' : 50,
         'word2vec-vocab': base_folder + 'vectorization/vocab.csv',
         'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json',
-        'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
-        'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small' }
+        'training-set' : 'data/2015/trainingData2015_20151001.csv',
+        'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small',
+        'num-cores' : 4 }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
