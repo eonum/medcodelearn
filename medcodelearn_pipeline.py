@@ -3,6 +3,9 @@ import os
 from subprocess import call
 import json
 from json import encoder
+from sklearn.cross_validation import train_test_split
+from sklearn.externals import joblib
+
 from reader.flatvectors.drgreaderflatvectorized import FlatVectorizedDRGReader
 from classification.random_forest import train_and_evaluate_random_forest
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
@@ -44,10 +47,16 @@ def run (config):
     reader.read_from_file(vectors_by_codes)
     data = reader.data
     targets = reader.targets
+    X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=0.33, random_state=42)
     print("Training data dimensionality: " + str(data.shape))
     
     print('Train Random Forest for DRG Code Proposals..')
-    rf_model, score = train_and_evaluate_random_forest(config, data, targets)
+    rf_model, score = train_and_evaluate_random_forest(config, X_train, X_test, y_train, y_test)
+    if config['store-everything']:
+        if not os.path.exists(base_folder + 'classification'):
+            os.makedirs(base_folder + 'classification')
+        joblib.dump(rf_model, base_folder + 'classification/random-forest.pkl')
+    
     
     return score
     
