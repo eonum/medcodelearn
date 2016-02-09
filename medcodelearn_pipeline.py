@@ -23,6 +23,7 @@ def run (config):
     print("\nRead vectors. Assign vectors to codes..")
     # one vector for each token in the vocabulary
     vector_by_token = read_vectors(config['all-vectors'])
+    json.dump({k: v.tolist() for k, v in vector_by_token.items()}, open(config['all-vectors'] + '.json','w'), indent=4, sort_keys=True)
     # several vectors for each code. The first vector is from the code token.
     vectors_by_codes = read_code_vectors(vector_by_token, config['all-tokens'])
     json.dump(vectors_by_codes, open(config['code-vectors'],'w'), indent=4, sort_keys=True)
