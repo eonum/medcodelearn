@@ -38,11 +38,11 @@ class FlatVectorizedDRGReader(DRGReader):
         infos = [row[fieldname] for fieldname in self.FIELDNAMES]        
         
         instance_per_diag = [self.flat_instance(infos, [diag for diag in diags if diag != gt], procs, gt) for gt in diags]
-        instance_per_proc = [self.flat_instance(infos, diags, [proc for proc in procs if proc != gt], gt) for gt in procs]
-        return instance_per_diag + instance_per_proc  
+        #instance_per_proc = [self.flat_instance(infos, diags, [proc for proc in procs if proc != gt], gt) for gt in procs]
+        return instance_per_diag #+ instance_per_proc  
     
     def flat_instance(self, infos, diags, procs, gt):
-        data = np.empty(self.vector_size, dtype=np.float)
+        data = np.zeros(self.vector_size, dtype=np.float)
         # sum over all first vectors (first vector is the code token)
         for diag in diags:
             data += self.vectors_by_code['ICD_' + diag][0]

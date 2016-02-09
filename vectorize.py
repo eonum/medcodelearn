@@ -28,7 +28,8 @@ def read_vectors(fname, vocabUnicodeSize=78, desired_vocab=None, encoding="utf-8
     return vectors
     
 def unitvec(vec):
-    return (1.0 / LA.norm(vec, ord=2)) * vec
+    norm = LA.norm(vec, ord=2)
+    return vec if norm == 0 else (1.0 / norm) * vec
 
 def read_code_vectors(vector_by_token, code_token_file, encoding="utf-8"): 
     with open(code_token_file, 'rb') as fin:
