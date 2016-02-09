@@ -2,6 +2,9 @@ from tokenize_codes import tokenize_catalogs
 import os
 from subprocess import call
 import json
+from json import encoder
+encoder.FLOAT_REPR = lambda o: format(o, '.8f')
+
 from vectorize import read_code_vectors, read_vectors
 
 def run (config):
@@ -23,16 +26,22 @@ def run (config):
     print("\nRead vectors. Assign vectors to codes..")
     # one vector for each token in the vocabulary
     vector_by_token = read_vectors(config['all-vectors'])
-    json.dump({k: v.tolist() for k, v in vector_by_token.items()}, open(config['all-vectors'] + '.json','w'), indent=4, sort_keys=True)
+    if config['store-everything']:
+        json.dump({k: v.tolist() for k, v in vector_by_token.items()}, open(config['all-vectors'] + '.json','w'), indent=4, sort_keys=True)
     # several vectors for each code. The first vector is from the code token.
-    vectors_by_codes = read_code_vectors(vector_by_token, config['all-tokens'])
-    json.dump(vectors_by_codes, open(config['code-vectors'],'w'), indent=4, sort_keys=True)
+    res = read_code_vectors(vector_by_token, config['all-tokens'])
+    vectors_by_codes = res['vectors']
+    tokens_by_codes = res['tokens']
+    if config['store-everything']:
+        json.dump({k: v.tolist() for k, v in vectors_by_codes.items()}, open(config['code-vectors'],'w'), sort_keys=True)
+        json.dump(tokens_by_codes, open(config['code-tokens'],'w'), indent=4, sort_keys=True)
     
     
 if __name__ == '__main__':
     base_folder = 'data/pipelinetest/'
     config = {
         'base_folder' : base_folder,
+        'store-everything' : False,
         'drg-catalog' : 'data/2015/drgs.csv',
         'chop-catalog' : 'data/2015/chop_codes.csv',
         'icd-catalog' : 'data/2015/icd_codes.csv',
@@ -40,11 +49,12 @@ if __name__ == '__main__':
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
         'all-tokens' : base_folder + 'tokenization/all_tokens.csv',
+        'code-tokens' : base_folder + 'tokenization/all_tokens_by_code.json',
         'all-vocab' : base_folder + 'tokenization/vocab_all.csv',
         'all-vectors' : base_folder + 'vectorization/vectors.csv',
         'word2vec-dim-size' : 50,
         'word2vec-vocab': base_folder + 'vectorization/vocab.csv',
-        'code-vectors' : base_folder + 'vectorization/code-vectors.json' }
+        'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json' }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
