@@ -1,4 +1,4 @@
-from tokenize_codes import tokenize_catalogs
+from tokenization.tokenize_codes import tokenize_catalogs
 import os
 from subprocess import call
 import json
@@ -35,6 +35,9 @@ def run (config):
     if config['store-everything']:
         json.dump({k: v.tolist() for k, v in vectors_by_codes.items()}, open(config['code-vectors'],'w'), sort_keys=True)
         json.dump(tokens_by_codes, open(config['code-tokens'],'w'), indent=4, sort_keys=True)
+        
+    print('Read patient cases..')
+    
     
     
 if __name__ == '__main__':

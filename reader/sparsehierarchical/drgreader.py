@@ -26,7 +26,7 @@ class DRGReader:
 class DRGCodeProposalReader(DRGReader):
     def get_drg_instances_from_row(self, row):
         diagproc = row[self.RESTKEY]
-        diags = diagproc[0:self.MAX_ADDITIONAL_DIAGNOSES]
+        diags = diagproc[0:self.MAX_ADDITIONAL_DIAGNOSES] + row['pdx']
         procs = diagproc[self.MAX_ADDITIONAL_DIAGNOSES:self.MAX_ADDITIONAL_DIAGNOSES+self.MAX_PROCEDURES]
         infos = [row[fieldname] for fieldname in self.FIELDNAMES]        
         #print(' '.join([row['id'],row['sex'],diags[0],procs[0]])) # TODO: Delete this line.
