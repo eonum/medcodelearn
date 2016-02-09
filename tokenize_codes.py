@@ -25,7 +25,7 @@ def tokenize_and_output(csv_filename, tokenizer, output_filename, key_of_code, k
             output_line = " ".join(tokenized_record)
             vocab.update(tokenized_record)
             print(output_line, file=out_file) 
-            print(output_line)
+            #print(output_line)
     
     
 def combine_files(files, big_file):
@@ -47,4 +47,3 @@ def tokenize_catalogs(config):
     tokenize_and_output(config['icd-catalog'], tokenizer, config['icd-tokenizations'], 'code', 'text_de', vocab_de, ',', 'ICD')
     combine_files([config['drg-tokenizations'], config['chop-tokenizations'], config['icd-tokenizations']],  config['all-tokens'])
     output_vocab(config['all-vocab'], vocab_de)
-    pprint(vocab_de)
