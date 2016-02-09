@@ -28,17 +28,17 @@ class FlatVectorizedDRGReader(DRGReader):
         diagproc = row[self.RESTKEY]
         diags = diagproc[0:self.MAX_ADDITIONAL_DIAGNOSES] + [row['pdx']]
         procs = map(lambda x: x.split(':')[0], diagproc[self.MAX_ADDITIONAL_DIAGNOSES:self.MAX_ADDITIONAL_DIAGNOSES+self.MAX_PROCEDURES])
-        diags = filter(lambda c: c != '', diags)
-        procs = filter(lambda c: c != '', procs)
+        diags = [d for d in diags if d != '']
+        procs = [p for p in procs if p != '']
         diags = map(lambda c: c.replace('.', '').upper(), diags)
         procs = map(lambda c: c.replace('.', '').upper(), procs)
-        diags = filter(lambda c: c in self.vectors_by_code, diags)
-        procs = filter(lambda c: c in self.vectors_by_code, procs)
+        diags = [d for d in diags if 'ICD_' + d in self.vectors_by_code]
+        procs = [p for p in procs if 'CHOP_' + p in self.vectors_by_code]
         
         infos = [row[fieldname] for fieldname in self.FIELDNAMES]        
         
-        instance_per_diag = [self.flat_instance(infos, [diag for diag in diags if diag != gt and diag != ''], procs, gt) for gt in diags]
-        instance_per_proc = [self.flat_instance(infos, diags, [proc for proc in procs if proc != gt and  diag != ''], gt) for gt in procs]        
+        instance_per_diag = [self.flat_instance(infos, [diag for diag in diags if diag != gt], procs, gt) for gt in diags]
+        instance_per_proc = [self.flat_instance(infos, diags, [proc for proc in procs if proc != gt], gt) for gt in procs]
         return instance_per_diag + instance_per_proc  
     
     def flat_instance(self, infos, diags, procs, gt):

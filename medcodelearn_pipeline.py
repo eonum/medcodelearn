@@ -4,9 +4,11 @@ from subprocess import call
 import json
 from json import encoder
 from reader.flatvectors.drgreaderflatvectorized import FlatVectorizedDRGReader
+from classification.random_forest import train_and_evaluate_random_forest
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
 from vectorize import read_code_vectors, read_vectors
+
 
 def run (config):
     base_folder = config['base_folder']
@@ -42,6 +44,10 @@ def run (config):
     reader.read_from_file(vectors_by_codes)
     data = reader.data
     targets = reader.targets
+    print("Training data dimensionality: " + str(data.shape))
+    
+    print('Train Random Forest for DRG Code Proposals..')
+    rf_model = train_and_evaluate_random_forest(config, data, targets)
     
     
 if __name__ == '__main__':
@@ -64,8 +70,8 @@ if __name__ == '__main__':
         'word2vec-dim-size' : 50,
         'word2vec-vocab': base_folder + 'vectorization/vocab.csv',
         'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json',
-        'training-set' : 'data/2015/trainingData2015_20151001.csv',
-        'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out' }
+        'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
+        'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small' }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
