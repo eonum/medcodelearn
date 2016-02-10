@@ -44,7 +44,7 @@ def run (config):
         
     print('Read patient cases..')
     reader = FlatVectorizedDRGReader(config['training-set'])
-    reader.read_from_file(vectors_by_codes)
+    reader.read_from_file(vectors_by_codes, 'sdx')
     data = reader.data
     targets = reader.targets
     X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=0.33, random_state=42)

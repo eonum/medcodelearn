@@ -35,7 +35,8 @@ if __name__ == '__main__':
     
     scores = []
     params = []
-    for i in range(1, 100):
+    for i in range(1, 200):
+        print("Validate parameter " + str(i))
         config['word2vec-dim-size'] = i
         score = run(config)
         scores.append(score)
@@ -45,4 +46,8 @@ if __name__ == '__main__':
     print(scores)
     
     plt.plot(params, scores)
+    plt.title('validation on the size of the word2vec dimensionality')
+    plt.ylabel('accuracy')
+    plt.xlabel('vector size')
+    plt.grid(True)
     plt.savefig(base_folder + 'word2vec_dimensions_validation.pdf')
