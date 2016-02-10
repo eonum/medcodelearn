@@ -79,6 +79,8 @@ if __name__ == '__main__':
         'drg-tokenizations' : base_folder + 'tokenization/drgs_tokenized.csv',
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
+        # Use the code descriptions for tokenization
+        'use-descriptions' : False,
         'all-tokens' : base_folder + 'tokenization/all_tokens.csv',
         'code-tokens' : base_folder + 'tokenization/all_tokens_by_code.json',
         'all-vocab' : base_folder + 'tokenization/vocab_all.csv',
@@ -89,7 +91,7 @@ if __name__ == '__main__':
         'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
         'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small',
         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
-        'num-cores' : 1 }
+        'num-cores' : 4 }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
