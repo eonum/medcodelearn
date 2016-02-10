@@ -5,10 +5,13 @@ from vectorize import unitvec
 
 
 class FlatVectorizedPCReader(DRGReader):
-    def read_from_file(self, vectors_by_code, code_type = 'pdx', drg_out_file = None):
+    def read_from_file(self, vectors_by_code, 
+                       code_type = 'pdx', 
+                       drg_out_file = None,
+                       demo_variables_to_use= ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']):
         # available demographic variables:
         # 'id', 'ageYears', 'ageDays', 'admWeight', 'sex', 'adm', 'sep', 'los', 'sdf', 'hmv'
-        self.demo_variables_to_use = ['sex']
+        self.demo_variables_to_use = demo_variables_to_use
         self.code_type = code_type
         self.vectors_by_code = vectors_by_code
         self.invalid_pdx = 0
@@ -76,9 +79,15 @@ class FlatVectorizedPCReader(DRGReader):
         data = unitvec(data)
         data.resize(self.vector_size)
         for i, var in enumerate(self.demo_variables_to_use):
-            data[50 + i] = float(row[var])
+            data[50 + i] = self.convert_demographic_variable(row, var)
         
         return [data, gt]
+    
+    def convert_demographic_variable(self, row, var):
+        value = row[var]
+        if var == 'sex':
+            return 1.0 if value.upper() == 'M' else 0.0
+        return float(value)
     
     def read_drg_output(self):
         drg_by_id = {}

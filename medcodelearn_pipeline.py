@@ -47,7 +47,7 @@ def run (config):
     for task in tasks:
         print('Read patient cases..')
         reader = FlatVectorizedPCReader(config['training-set'])
-        reader.read_from_file(vectors_by_codes, task, drg_out_file=config['training-set-drgs'])
+        reader.read_from_file(vectors_by_codes, task, drg_out_file=config['training-set-drgs'], demo_variables_to_use=config['demo-variables'])
         data = reader.data
         targets = reader.targets
         X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=0.33, random_state=42)
@@ -91,7 +91,10 @@ if __name__ == '__main__':
         'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
         'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small',
         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
-        'num-cores' : 4 }
+        'num-cores' : 1,
+        # which demographic variables should be used.
+        # a subset from ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']
+        'demo-variables' : [] }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
