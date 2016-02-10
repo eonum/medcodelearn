@@ -14,6 +14,7 @@ if __name__ == '__main__':
         'drg-catalog' : 'data/2015/drgs.csv',
         'chop-catalog' : 'data/2015/chop_codes.csv',
         'icd-catalog' : 'data/2015/icd_codes.csv',
+        'use-descriptions' : False,
         'drg-tokenizations' : base_folder + 'tokenization/drgs_tokenized.csv',
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
@@ -26,7 +27,11 @@ if __name__ == '__main__':
         'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json',
         'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
         'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small',
-        'num-cores' : 4 }
+         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
+        'num-cores' : 4,
+        # which demographic variables should be used.
+        # a subset from ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']
+        'demo-variables' : [] }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)

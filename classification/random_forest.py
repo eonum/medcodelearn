@@ -6,7 +6,7 @@ def train_and_evaluate_random_forest(config, X_train, X_test, y_train, y_test):
     model.fit(X_train, y_train)
     print("Predicting using Random Forest..")
     score = model.score(X_test, y_test)
-    print("Accuraccy for classification task on a test set: " + str(score))
+    print("Accuracy for classification task on a test set: " + str(score))
     
     
     return [model, score]
