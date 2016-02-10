@@ -41,24 +41,29 @@ def run (config):
     if config['store-everything']:
         json.dump({k: v.tolist() for k, v in vectors_by_codes.items()}, open(config['code-vectors'],'w'), sort_keys=True)
         json.dump(tokens_by_codes, open(config['code-tokens'],'w'), indent=4, sort_keys=True)
+    
+    total_score = 0.0 
+    tasks = ['pdx', 'sdx', 'srg', 'drg']   
+    for task in tasks:
+        print('Read patient cases..')
+        reader = FlatVectorizedPCReader(config['training-set'])
+        reader.read_from_file(vectors_by_codes, task, drg_out_file=config['training-set-drgs'])
+        data = reader.data
+        targets = reader.targets
+        X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=0.33, random_state=42)
+        print("Training data dimensionality: " + str(data.shape))
         
-    print('Read patient cases..')
-    reader = FlatVectorizedPCReader(config['training-set'])
-    reader.read_from_file(vectors_by_codes, 'sdx', drg_out_file=config['training-set-drgs'])
-    data = reader.data
-    targets = reader.targets
-    X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=0.33, random_state=42)
-    print("Training data dimensionality: " + str(data.shape))
+        print('Train Random Forest for ' + reader.code_type + ' classification task..')
+        rf_model, score = train_and_evaluate_random_forest(config, X_train, X_test, y_train, y_test)
+        total_score += score
+        if config['store-everything']:
+            if not os.path.exists(base_folder + 'classification'):
+                os.makedirs(base_folder + 'classification')
+            joblib.dump(rf_model, base_folder + 'classification/random-forest.pkl')
     
-    print('Train Random Forest for ' + reader.code_type + ' classification task..')
-    rf_model, score = train_and_evaluate_random_forest(config, X_train, X_test, y_train, y_test)
-    if config['store-everything']:
-        if not os.path.exists(base_folder + 'classification'):
-            os.makedirs(base_folder + 'classification')
-        joblib.dump(rf_model, base_folder + 'classification/random-forest.pkl')
-    
-    
-    return score
+    total_score /= len(tasks)
+    print('Total average score over all tasks: ' + total_score)
+    return total_score
     
     
 if __name__ == '__main__':
