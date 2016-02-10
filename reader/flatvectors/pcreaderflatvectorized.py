@@ -6,11 +6,14 @@ from vectorize import unitvec
 
 class FlatVectorizedPCReader(DRGReader):
     def read_from_file(self, vectors_by_code, code_type = 'pdx', drg_out_file = None):
+        # available demographic variables:
+        # 'id', 'ageYears', 'ageDays', 'admWeight', 'sex', 'adm', 'sep', 'los', 'sdf', 'hmv'
+        self.demo_variables_to_use = ['sex']
         self.code_type = code_type
         self.vectors_by_code = vectors_by_code
         self.invalid_pdx = 0
         self.drg_out_file = drg_out_file
-        self.vector_size = len(vectors_by_code[list(vectors_by_code.keys())[0]][0])
+        self.vector_size = len(vectors_by_code[list(vectors_by_code.keys())[0]][0]) + len(self.demo_variables_to_use)
         if self.code_type == 'drg':
             if self.drg_out_file == None:
                 raise ValueError('You must specify a corresponding DRG output file for the "drg" classification task')
@@ -48,22 +51,21 @@ class FlatVectorizedPCReader(DRGReader):
         if pdx == '' or 'ICD_' + pdx not in self.vectors_by_code:
             self.invalid_pdx += 1
             return []
-        
-        infos = [row[fieldname] for fieldname in self.FIELDNAMES]        
+             
        
         if self.code_type == 'pdx':
-            return [self.flat_instance(infos, diags, procs, pdx)]
+            return [self.flat_instance(row, diags, procs, pdx)]
         elif self.code_type == 'sdx':
-            return [self.flat_instance(infos, [diag for diag in diags if diag != gt] + [pdx], procs, gt) for gt in diags]
+            return [self.flat_instance(row, [diag for diag in diags if diag != gt] + [pdx], procs, gt) for gt in diags]
         elif self.code_type == 'srg':
-            return [self.flat_instance(infos, diags + [pdx], [proc for proc in procs if proc != gt], gt) for gt in procs]
+            return [self.flat_instance(row, diags + [pdx], [proc for proc in procs if proc != gt], gt) for gt in procs]
         elif self.code_type == 'drg':
-            return [self.flat_instance(infos, diags + [pdx], procs, self.drg_by_id[row['id']])]
+            return [self.flat_instance(row, diags + [pdx], procs, self.drg_by_id[row['id']])]
 
         raise ValueError('code_type should be one of "drg", "pdx", "sdx" or "srg" but was ' + self.code_type)
     
-    def flat_instance(self, infos, diags, procs, gt):
-        data = np.zeros(self.vector_size, dtype=np.float)
+    def flat_instance(self, row, diags, procs, gt):
+        data = np.zeros(self.vector_size - len(self.demo_variables_to_use), dtype=np.float)
         # sum over all vectors (first vector is the code token)
         for diag in diags:
             for t in self.vectors_by_code['ICD_' + diag]:
@@ -72,6 +74,10 @@ class FlatVectorizedPCReader(DRGReader):
             for t in self.vectors_by_code['CHOP_' + proc]:
                 data += t
         data = unitvec(data)
+        data.resize(self.vector_size)
+        for i, var in enumerate(self.demo_variables_to_use):
+            data[50 + i] = float(row[var])
+        
         return [data, gt]
     
     def read_drg_output(self):
