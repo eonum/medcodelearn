@@ -27,7 +27,7 @@ def run (config):
     call(["word2vec", "-train", config['all-tokens'], "-binary",
            "0", "-cbow", "0", "-output", config['all-vectors'],
             "-size", str(config['word2vec-dim-size']), "-save-vocab",
-            config['word2vec-vocab'], "-min-count", "1"])
+            config['word2vec-vocab'], "-min-count", "1", "-threads", str(config['num-cores'])])
     
     print("\nRead vectors. Assign vectors to codes..")
     # one vector for each token in the vocabulary
@@ -44,13 +44,13 @@ def run (config):
         
     print('Read patient cases..')
     reader = FlatVectorizedPCReader(config['training-set'])
-    reader.read_from_file(vectors_by_codes, 'drg', drg_out_file=config['training-set-drgs'])
+    reader.read_from_file(vectors_by_codes, 'sdx', drg_out_file=config['training-set-drgs'])
     data = reader.data
     targets = reader.targets
     X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=0.33, random_state=42)
     print("Training data dimensionality: " + str(data.shape))
     
-    print('Train Random Forest for DRG Code Proposals..')
+    print('Train Random Forest for ' + reader.code_type + ' classification task..')
     rf_model, score = train_and_evaluate_random_forest(config, X_train, X_test, y_train, y_test)
     if config['store-everything']:
         if not os.path.exists(base_folder + 'classification'):
@@ -83,7 +83,8 @@ if __name__ == '__main__':
         'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json',
         'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
         'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small',
-        'num-cores' : 4 }
+        # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
+        'num-cores' : 1 }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
