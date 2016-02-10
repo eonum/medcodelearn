@@ -62,7 +62,7 @@ def run (config):
             joblib.dump(rf_model, base_folder + 'classification/random-forest.pkl')
     
     total_score /= len(tasks)
-    print('Total average score over all tasks: ' + total_score)
+    print('Total average score over all tasks: ' + str(total_score))
     return total_score
     
     

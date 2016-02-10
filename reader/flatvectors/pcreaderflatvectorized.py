@@ -64,11 +64,13 @@ class FlatVectorizedPCReader(DRGReader):
     
     def flat_instance(self, infos, diags, procs, gt):
         data = np.zeros(self.vector_size, dtype=np.float)
-        # sum over all first vectors (first vector is the code token)
+        # sum over all vectors (first vector is the code token)
         for diag in diags:
-            data += self.vectors_by_code['ICD_' + diag][0]
+            for t in self.vectors_by_code['ICD_' + diag]:
+                data += t
         for proc in procs:
-            data += self.vectors_by_code['CHOP_' + proc][0]
+            for t in self.vectors_by_code['CHOP_' + proc]:
+                data += t
         data = unitvec(data)
         return [data, gt]
     
