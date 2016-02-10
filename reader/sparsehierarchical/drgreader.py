@@ -6,6 +6,7 @@ from reader.sparsehierarchical.drgtrainingset import DRGTrainingSet
 class DRGReader:
     def __init__(self, filename):
         self.FIELDNAMES = ['id', 'ageYears', 'ageDays', 'admWeight', 'sex', 'adm', 'sep', 'los', 'sdf', 'hmv', 'pdx']
+        self.DRG_OUT_FIELDNAMES = ['id', 'drg', 'mdc', 'gage', 'gsex', 'gst', 'pccl', 'ecw', 'cflag']
         self.RESTKEY = 'diagproc'
         self.MAX_ADDITIONAL_DIAGNOSES = 99
         self.MAX_PROCEDURES = 100 

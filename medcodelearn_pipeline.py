@@ -6,7 +6,7 @@ from json import encoder
 from sklearn.cross_validation import train_test_split
 from sklearn.externals import joblib
 
-from reader.flatvectors.drgreaderflatvectorized import FlatVectorizedDRGReader
+from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
 from classification.random_forest import train_and_evaluate_random_forest
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
@@ -43,8 +43,8 @@ def run (config):
         json.dump(tokens_by_codes, open(config['code-tokens'],'w'), indent=4, sort_keys=True)
         
     print('Read patient cases..')
-    reader = FlatVectorizedDRGReader(config['training-set'])
-    reader.read_from_file(vectors_by_codes, 'sdx')
+    reader = FlatVectorizedPCReader(config['training-set'])
+    reader.read_from_file(vectors_by_codes, 'drg', drg_out_file=config['training-set-drgs'])
     data = reader.data
     targets = reader.targets
     X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=0.33, random_state=42)
@@ -81,7 +81,7 @@ if __name__ == '__main__':
         'word2vec-dim-size' : 50,
         'word2vec-vocab': base_folder + 'vectorization/vocab.csv',
         'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json',
-        'training-set' : 'data/2015/trainingData2015_20151001.csv',
+        'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
         'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small',
         'num-cores' : 4 }
     

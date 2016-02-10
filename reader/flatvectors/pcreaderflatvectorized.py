@@ -4,12 +4,18 @@ import numpy as np
 from vectorize import unitvec
 
 
-class FlatVectorizedDRGReader(DRGReader):
-    def read_from_file(self, vectors_by_code, code_type = 'pdx'):
+class FlatVectorizedPCReader(DRGReader):
+    def read_from_file(self, vectors_by_code, code_type = 'pdx', drg_out_file = None):
         self.code_type = code_type
         self.vectors_by_code = vectors_by_code
         self.invalid_pdx = 0
+        self.drg_out_file = drg_out_file
         self.vector_size = len(vectors_by_code[list(vectors_by_code.keys())[0]][0])
+        if self.code_type == 'drg':
+            if self.drg_out_file == None:
+                raise ValueError('You must specify a corresponding DRG output file for the "drg" classification task')
+            self.drg_by_id = self.read_drg_output()
+        
         dataset = []
         with open(self.filename, 'r') as csvFile:
             reader = csv.DictReader(csvFile, fieldnames=self.FIELDNAMES, restkey=self.RESTKEY, delimiter=';')
@@ -26,7 +32,7 @@ class FlatVectorizedDRGReader(DRGReader):
         
         print('Skipped patient cases due to invalid PDX: ' + str(self.invalid_pdx))
         return {'data' : self.data, 'targets' : self.targets}          
-
+    
     def get_drg_instances_from_row(self, row):
         diagproc = row[self.RESTKEY]
         diags = diagproc[0:self.MAX_ADDITIONAL_DIAGNOSES]
@@ -51,7 +57,10 @@ class FlatVectorizedDRGReader(DRGReader):
             return [self.flat_instance(infos, [diag for diag in diags if diag != gt] + [pdx], procs, gt) for gt in diags]
         elif self.code_type == 'srg':
             return [self.flat_instance(infos, diags + [pdx], [proc for proc in procs if proc != gt], gt) for gt in procs]
-        raise ValueError('code_type should be one of "pdx", "sdx" or "srg" but was ' + self.code_type)
+        elif self.code_type == 'drg':
+            return [self.flat_instance(infos, diags + [pdx], procs, self.drg_by_id[row['id']])]
+
+        raise ValueError('code_type should be one of "drg", "pdx", "sdx" or "srg" but was ' + self.code_type)
     
     def flat_instance(self, infos, diags, procs, gt):
         data = np.zeros(self.vector_size, dtype=np.float)
@@ -62,3 +71,12 @@ class FlatVectorizedDRGReader(DRGReader):
             data += self.vectors_by_code['CHOP_' + proc][0]
         data = unitvec(data)
         return [data, gt]
+    
+    def read_drg_output(self):
+        drg_by_id = {}
+        with open(self.drg_out_file, 'r') as csvFile:
+            reader = csv.DictReader(csvFile, self.DRG_OUT_FIELDNAMES, delimiter=';')
+            for row in reader:
+                drg_by_id[row['id']] = row['drg']
+        return drg_by_id
+    
