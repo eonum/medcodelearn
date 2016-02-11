@@ -48,6 +48,8 @@ def tokenize_catalogs(config):
     tokenizer = GermanTokenizer()
 
     vocab_de = set()
+    # You have to install the stopwords corpus by executing nltk.download()
+    # and install Corpora -> stopwords
     stop_words = stopwords.words('german')
     tokenize_and_output(config['drg-catalog'], tokenizer, config['drg-tokenizations'],
                          'code', 'text_de', vocab_de, ',', 'DRG',
