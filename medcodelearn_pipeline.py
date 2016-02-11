@@ -26,7 +26,10 @@ def run (config):
         os.makedirs(base_folder + 'vectorization')
     word2vec_trainset = config['all-tokens']
     if config['use-training-data-for-word2vec']:
-        create_word2vec_training_data(config['training-set-word2vec'], config['all-tokens'], base_folder + 'vectorization/train.txt')
+        create_word2vec_training_data(config['training-set-word2vec'], config['all-tokens'], 
+                                      base_folder + 'vectorization/train.txt',
+                                      do_shuffle=config['shuffle-word2vec-traindata'],
+                                      use_n_times=config['num-shuffles'])
         word2vec_trainset = base_folder + 'vectorization/train.txt'
     call(["word2vec", "-train", word2vec_trainset, "-binary",
            "0", "-cbow", "0", "-output", config['all-vectors'],
@@ -84,8 +87,10 @@ if __name__ == '__main__':
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
         # Use the code descriptions for tokenization
-        'use-descriptions' : True,
+        'use-descriptions' : False,
         'use-training-data-for-word2vec' : True,
+        'shuffle-word2vec-traindata' : True,
+        'num-shuffles' : 1,
         'all-tokens' : base_folder + 'tokenization/all_tokens.csv',
         'code-tokens' : base_folder + 'tokenization/all_tokens_by_code.json',
         'all-vocab' : base_folder + 'tokenization/vocab_all.csv',
@@ -97,7 +102,7 @@ if __name__ == '__main__':
         'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
         'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small',
         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
-        'num-cores' : 1,
+        'num-cores' : 4,
         # which demographic variables should be used.
         # a subset from ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']
         'demo-variables' : [] }

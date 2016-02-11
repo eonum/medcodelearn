@@ -3,6 +3,7 @@ import numpy as np
 from numpy import linalg as LA
 from reader.sparsehierarchical.drgreader import DRGReader
 import csv
+import random
 
 def read_vectors(fname, vocabUnicodeSize=78, desired_vocab=None, encoding="utf-8"):
     """
@@ -50,7 +51,7 @@ def read_code_vectors(vector_by_token, code_token_file, encoding="utf-8"):
     return {'vectors' : vectors, 'tokens' : tokens} 
 
 
-def create_word2vec_training_data(train_file, token_by_code_file, out_file_name, encoding="utf-8"):
+def create_word2vec_training_data(train_file, token_by_code_file, out_file_name, encoding="utf-8", do_shuffle=False, use_n_times=1):
     tokens_by_code = {}
     out_file = open(out_file_name, 'w')
 
@@ -75,9 +76,14 @@ def create_word2vec_training_data(train_file, token_by_code_file, out_file_name,
             diagproc = diags + procs
             diagproc = [p for p in diagproc if p in tokens_by_code]
             
-            for d in diagproc:
-                for t in tokens_by_code[d]:
-                    out_file.write(t + ' ')         
-            out_file.write("\n")
+            for i in range(use_n_times):
+                random.seed(i)
+                r = random.random()
+                if do_shuffle:
+                    random.shuffle(diagproc, lambda: r)
+                for d in diagproc:
+                    for t in tokens_by_code[d]:
+                        out_file.write(t + ' ')         
+                out_file.write("\n")
 
     out_file.close()
