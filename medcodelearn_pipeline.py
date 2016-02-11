@@ -24,8 +24,11 @@ def run (config):
     print("Vectorize catalogs..")
     if not os.path.exists(base_folder + 'vectorization'):
         os.makedirs(base_folder + 'vectorization')
-    create_word2vec_training_data(config['training-set-word2vec'], config['all-tokens'], base_folder + 'vectorization/train.txt')
-    call(["word2vec", "-train", base_folder + 'vectorization/train.txt', "-binary",
+    word2vec_trainset = config['all-tokens']
+    if config['use-training-data-for-word2vec']:
+        create_word2vec_training_data(config['training-set-word2vec'], config['all-tokens'], base_folder + 'vectorization/train.txt')
+        word2vec_trainset = base_folder + 'vectorization/train.txt'
+    call(["word2vec", "-train", word2vec_trainset, "-binary",
            "0", "-cbow", "0", "-output", config['all-vectors'],
             "-size", str(config['word2vec-dim-size']), "-save-vocab",
             config['word2vec-vocab'], "-min-count", "1", "-threads", str(config['num-cores'])])
@@ -82,6 +85,7 @@ if __name__ == '__main__':
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
         # Use the code descriptions for tokenization
         'use-descriptions' : True,
+        'use-training-data-for-word2vec' : True,
         'all-tokens' : base_folder + 'tokenization/all_tokens.csv',
         'code-tokens' : base_folder + 'tokenization/all_tokens_by_code.json',
         'all-vocab' : base_folder + 'tokenization/vocab_all.csv',
@@ -93,7 +97,7 @@ if __name__ == '__main__':
         'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
         'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small',
         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
-        'num-cores' : 4,
+        'num-cores' : 1,
         # which demographic variables should be used.
         # a subset from ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']
         'demo-variables' : [] }
