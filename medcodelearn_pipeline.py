@@ -8,6 +8,8 @@ from sklearn.externals import joblib
 
 from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
 from classification.random_forest import train_and_evaluate_random_forest
+from classification.ffnn import train_and_evaluate_ffnn
+
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
 from vectorize import read_code_vectors, read_vectors, create_word2vec_training_data
@@ -60,13 +62,19 @@ def run (config):
         X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=0.33, random_state=42)
         print("Training data dimensionality: " + str(data.shape))
         
-        print('Train Random Forest for ' + reader.code_type + ' classification task..')
-        rf_model, score = train_and_evaluate_random_forest(config, X_train, X_test, y_train, y_test)
+        model, score = None, 0
+        if config['classifier'] == 'random-forest':
+            print('Train Random Forest for ' + reader.code_type + ' classification task..')
+            model, score = train_and_evaluate_random_forest(config, X_train, X_test, y_train, y_test)
+        elif config['classifier'] == 'ffnn':
+            print('Train Feed Forward Neural Net for ' + reader.code_type + ' classification task..')
+            model, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test)
+        
         total_score += score
         if config['store-everything']:
             if not os.path.exists(base_folder + 'classification'):
                 os.makedirs(base_folder + 'classification')
-            joblib.dump(rf_model, base_folder + 'classification/random-forest.pkl')
+            joblib.dump(model, base_folder + 'classification/' + config['classifier'] + '.pkl')
     
     total_score /= len(tasks)
     print('Total average score over all tasks: ' + str(total_score))
@@ -77,6 +85,8 @@ if __name__ == '__main__':
     base_folder = 'data/pipelinetest/'
     config = {
         'base_folder' : base_folder,
+        # classifier, one of 'random-forest', 'ffnn' (feed forward neural net) or 'lstm' (long short term memory, coming soon)
+        'classifier' : 'ffnn',
         # Store all intermediate results. 
         # Disable this to speed up a run and to reduce disk space usage.
         'store-everything' : False,
