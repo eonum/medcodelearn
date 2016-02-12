@@ -60,6 +60,8 @@ def run (config):
         data = reader.data
         targets = reader.targets
         X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=0.33, random_state=42)
+        print('NUmber of classes: ' + str(len(set(y_train))))
+        print(y_train)
         print("Training data dimensionality: " + str(data.shape))
         
         model, score = None, 0
@@ -86,7 +88,7 @@ if __name__ == '__main__':
     config = {
         'base_folder' : base_folder,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net) or 'lstm' (long short term memory, coming soon)
-        'classifier' : 'ffnn',
+        'classifier' : 'random-forest',
         # Store all intermediate results. 
         # Disable this to speed up a run and to reduce disk space usage.
         'store-everything' : False,
