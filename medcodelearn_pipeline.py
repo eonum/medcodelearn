@@ -54,7 +54,7 @@ def run (config):
     total_score = 0.0 
     tasks = ['pdx', 'sdx', 'srg', 'drg']   
     for task in tasks:
-        print('Read patient cases..')
+        print('\n==== ' + task + ' ====')
         reader = FlatVectorizedPCReader(config['training-set'])
         reader.read_from_file(vectors_by_codes, task, drg_out_file=config['training-set-drgs'], demo_variables_to_use=config['demo-variables'])
         data = reader.data
