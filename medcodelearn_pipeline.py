@@ -61,7 +61,8 @@ def run (config):
         X = reader.data
         targets = reader.targets
         classes = list(set(targets))
-        y = np.array((X.shape[0], 1), dtype=np.uint)
+        print(X.shape[1])
+        y = np.empty(X.shape[0], dtype=np.uint)
         for i, target in enumerate(targets):
             y[i] = classes.index(target)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
@@ -76,7 +77,7 @@ def run (config):
             model, score = train_and_evaluate_random_forest(config, X_train, X_test, y_train, y_test)
         elif config['classifier'] == 'ffnn':
             print('Train Feed Forward Neural Net for ' + reader.code_type + ' classification task..')
-            model, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test)
+            model, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim)
         
         total_score += score
         if config['store-everything']:
