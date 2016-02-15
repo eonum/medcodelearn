@@ -26,7 +26,7 @@ def read_vectors(fname, vocabUnicodeSize=78, desired_vocab=None, encoding="utf-8
             word = parts[0]
             include = desired_vocab is None or word in desired_vocab
             if include:
-                vector = np.array(parts[1:], dtype=np.float)
+                vector = np.array(parts[1:], dtype=np.float32)
                 vectors[word] = unitvec(vector)
     return vectors
     
@@ -42,7 +42,7 @@ def read_code_vectors(vector_by_token, code_token_file, encoding="utf-8"):
             line = line.decode(encoding).strip()
             ts = line.split(' ')
             tokens[ts[0]] = ts
-            vs =  np.empty((len(ts), len(vector_by_token[ts[0]])), dtype=np.float)
+            vs =  np.empty((len(ts), len(vector_by_token[ts[0]])), dtype=np.float32)
             for i, token in enumerate(ts):
                 # empty token
                 token = '</s>' if token == '' else token

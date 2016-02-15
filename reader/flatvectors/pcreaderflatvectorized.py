@@ -31,7 +31,7 @@ class FlatVectorizedPCReader(DRGReader):
                 for instance in self.get_drg_instances_from_row(row):
                     dataset.append(instance)
                     
-        self.data = np.empty((len(dataset), self.vector_size), dtype=np.float)
+        self.data = np.empty((len(dataset), self.vector_size), dtype=np.float32)
         self.targets = np.empty(len(dataset), dtype='|S6')
         
         for i, instance in enumerate(dataset):
@@ -71,7 +71,7 @@ class FlatVectorizedPCReader(DRGReader):
         raise ValueError('code_type should be one of "drg", "pdx", "sdx" or "srg" but was ' + self.code_type)
     
     def flat_instance(self, row, diags, procs, gt):
-        data = np.zeros(self.vector_size - len(self.demo_variables_to_use), dtype=np.float)
+        data = np.zeros(self.vector_size - len(self.demo_variables_to_use), dtype=np.float32)
         # sum over all vectors (first vector is the code token)
         for diag in diags:
             for t in self.vectors_by_code['ICD_' + diag]:
