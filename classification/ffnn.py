@@ -40,10 +40,10 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
               verbose=2)
     
     print("Prediction using FFNN..")
-    score = model.evaluate(X_test, y_test, batch_size=16)
-    print("Accuracy for classification task on the test set: " + str(score))
+    score = model.evaluate(X_test, y_test, show_accuracy=True, verbose=0)
+    print('Test score:', score[0])
+    print('Test accuracy:', score[1])  
     
-    
-    return [model, score]
+    return [model, score[1]]
 
 
