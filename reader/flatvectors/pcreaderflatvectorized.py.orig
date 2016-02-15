@@ -31,8 +31,13 @@ class FlatVectorizedPCReader(DRGReader):
                 for instance in self.get_drg_instances_from_row(row):
                     dataset.append(instance)
                     
-        self.data = np.empty((len(dataset), self.vector_size), dtype=np.float32)
+<<<<<<< HEAD
+        self.data = np.empty((len(dataset), self.vector_size), dtype=np.float)
         self.targets = []
+=======
+        self.data = np.empty((len(dataset), self.vector_size), dtype=np.float32)
+        self.targets = np.empty(len(dataset), dtype='|S6')
+>>>>>>> origin
         
         for i, instance in enumerate(dataset):
             self.data[i] = instance[0]
