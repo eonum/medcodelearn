@@ -61,14 +61,12 @@ def run (config):
         X = reader.data
         targets = reader.targets
         classes = list(set(targets))
-        print(X.shape[1])
         y = np.empty(X.shape[0], dtype=np.uint)
         for i, target in enumerate(targets):
             y[i] = classes.index(target)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
         output_dim = len(set(targets))
-        print('NUmber of classes: ' + str(output_dim))
-        print(classes)
+        print('Number of classes: ' + str(output_dim))
         print("Training data dimensionality: " + str(X.shape))
         
         model, score = None, 0
