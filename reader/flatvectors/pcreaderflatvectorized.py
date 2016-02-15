@@ -17,6 +17,8 @@ class FlatVectorizedPCReader(DRGReader):
         self.invalid_pdx = 0
         self.drg_out_file = drg_out_file
         self.vector_size = len(vectors_by_code[list(vectors_by_code.keys())[0]][0]) + len(self.demo_variables_to_use)
+        self.word2vec_dims = self.vector_size - len(self.demo_variables_to_use)
+        
         if self.code_type == 'drg':
             if self.drg_out_file == None:
                 raise ValueError('You must specify a corresponding DRG output file for the "drg" classification task')
@@ -79,8 +81,9 @@ class FlatVectorizedPCReader(DRGReader):
                 data += t
         data = unitvec(data)
         data.resize(self.vector_size)
+        
         for i, var in enumerate(self.demo_variables_to_use):
-            data[50 + i] = self.convert_demographic_variable(row, var)
+            data[self.word2vec_dims + i] = self.convert_demographic_variable(row, var)
         
         return [data, gt]
     
