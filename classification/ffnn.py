@@ -1,39 +1,47 @@
-#from sknn.platform import cpu64, threads4
-from sknn.platform import gpu64
-# pip install scikit-neuralnetwork
 from sklearn import preprocessing
-from sknn.mlp import Classifier, Layer
 from sklearn.cross_validation import train_test_split
 
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Activation
+from keras.optimizers import SGD
+
 def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test):
+    output_dim = len(set(y_train))
     X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.15, random_state=23)
     scaler = preprocessing.MaxAbsScaler().fit(X_train)
     scaler.transform(X_train)
     scaler.transform(X_test)
     scaler.transform(X_validation)
     
-    nn = Classifier(
-    layers=[
-        Layer("Rectifier", units=20),
-        Layer("Softmax")],
-    learning_rate=0.001,
-    n_iter=40,
-    n_stable=5,
-    verbose=True,
-    valid_set= (X_validation, y_validation))
+    model = Sequential()
+    # Dense(64) is a fully-connected layer with 64 hidden units.
+    # in the first layer, you must specify the expected input data shape:
+    # here, 20-dimensional vectors.
+    model.add(Dense(50, input_dim=X_train.shape[1], init='uniform'))
+    model.add(Activation('tanh'))
+    model.add(Dropout(0.5))
+    model.add(Dense(64, init='uniform'))
+    model.add(Activation('tanh'))
+    model.add(Dropout(0.5))
+    model.add(Dense(output_dim, init='uniform'))
+    model.add(Activation('softmax'))
     
-    print("Training FFNN..")
-    try:
-        nn.fit(X_train, y_train)
-        # you can interrupt training with CTRL-C without stopping the script.
-    except KeyboardInterrupt:
-        pass
+    sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=sgd)
+    
+    model.fit(X_train, y_train,
+              nb_epoch=20,
+              batch_size=16,
+              show_accuracy=True,
+              validation_data=(X_validation, y_validation),
+              verbose=2)
     
     print("Prediction using FFNN..")
-    score = nn.score(X_test, y_test)
+    score = model.evaluate(X_test, y_test, batch_size=16)
     print("Accuracy for classification task on the test set: " + str(score))
     
     
-    return [nn, score]
+    return [model, score]
 
 

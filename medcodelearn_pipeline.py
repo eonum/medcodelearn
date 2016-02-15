@@ -5,6 +5,7 @@ import json
 from json import encoder
 from sklearn.cross_validation import train_test_split
 from sklearn.externals import joblib
+import numpy as np
 
 from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
 from classification.random_forest import train_and_evaluate_random_forest
@@ -57,12 +58,17 @@ def run (config):
         print('\n==== ' + task + ' ====')
         reader = FlatVectorizedPCReader(config['training-set'])
         reader.read_from_file(vectors_by_codes, task, drg_out_file=config['training-set-drgs'], demo_variables_to_use=config['demo-variables'])
-        data = reader.data
+        X = reader.data
         targets = reader.targets
-        X_train, X_test, y_train, y_test = train_test_split(data, targets, test_size=0.33, random_state=42)
-        print('NUmber of classes: ' + str(len(set(y_train))))
-        print(y_train)
-        print("Training data dimensionality: " + str(data.shape))
+        classes = list(set(targets))
+        y = np.array((X.shape[0], 1), dtype=np.uint)
+        for i, target in enumerate(targets):
+            y[i] = classes.index(target)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+        output_dim = len(set(targets))
+        print('NUmber of classes: ' + str(output_dim))
+        print(classes)
+        print("Training data dimensionality: " + str(X.shape))
         
         model, score = None, 0
         if config['classifier'] == 'random-forest':
@@ -88,7 +94,7 @@ if __name__ == '__main__':
     config = {
         'base_folder' : base_folder,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net) or 'lstm' (long short term memory, coming soon)
-        'classifier' : 'random-forest',
+        'classifier' : 'ffnn',
         # Store all intermediate results. 
         # Disable this to speed up a run and to reduce disk space usage.
         'store-everything' : False,
@@ -99,7 +105,7 @@ if __name__ == '__main__':
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
         # Use the code descriptions for tokenization
-        'use-descriptions' : False,
+        'use-descriptions' : True,
         'use-training-data-for-word2vec' : True,
         'shuffle-word2vec-traindata' : True,
         'num-shuffles' : 1,

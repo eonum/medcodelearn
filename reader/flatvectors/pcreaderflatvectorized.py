@@ -32,11 +32,11 @@ class FlatVectorizedPCReader(DRGReader):
                     dataset.append(instance)
                     
         self.data = np.empty((len(dataset), self.vector_size), dtype=np.float)
-        self.targets = np.empty(len(dataset), dtype='|S6')
+        self.targets = []
         
         for i, instance in enumerate(dataset):
             self.data[i] = instance[0]
-            self.targets[i] = instance[1]
+            self.targets.append(instance[1])
             #print(self.targets[i])
         
         print('Skipped patient cases due to invalid PDX: ' + str(self.invalid_pdx))
