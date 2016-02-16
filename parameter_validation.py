@@ -11,6 +11,7 @@ if __name__ == '__main__':
               'base_folder' : base_folder,
         # Store all intermediate results. 
         # Disable this to speed up a run and to reduce disk space usage.
+        'classifier' : 'ffnn',
         'store-everything' : False,
         'drg-catalog' : 'data/2015/drgs.csv',
         'chop-catalog' : 'data/2015/chop_codes.csv',
@@ -34,7 +35,7 @@ if __name__ == '__main__':
         'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
         'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small',
         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
-        'num-cores' : 4,
+        'num-cores' : 8,
         # which demographic variables should be used.
         # a subset from ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']
         'demo-variables' : [] }
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     
     scores = []
     params = []
-    for i in range(1, 150, 2):
+    for i in range(1, 150, 5):
         print("Validate parameter " + str(i))
         config['word2vec-dim-size'] = i
         score = run(config)
