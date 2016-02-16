@@ -36,7 +36,7 @@ def run (config):
                                           use_n_times=config['num-shuffles'])
             word2vec_trainset = base_folder + 'vectorization/train.txt'
         call(["word2vec", "-train", word2vec_trainset, "-binary",
-               "0", "-cbow", "0", "-output", config['all-vectors'],
+               "0", "-cbow", '1' if config['word2vec-cbow'] else '0', "-output", config['all-vectors'],
                 "-size", str(config['word2vec-dim-size']), "-save-vocab",
                 config['word2vec-vocab'], "-min-count", "1", "-threads", str(config['num-cores'])])
     
@@ -106,6 +106,8 @@ if __name__ == '__main__':
         'drg-tokenizations' : base_folder + 'tokenization/drgs_tokenized.csv',
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
+        # use skip grams (False) or CBOW (True) for word2vec
+        'word2vec-cbow' : False,
         # Use the code descriptions for tokenization
         'use-descriptions' : True,
         'use-training-data-for-word2vec' : True,

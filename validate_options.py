@@ -34,6 +34,8 @@ if __name__ == '__main__':
         'drg-tokenizations' : base_folder + 'tokenization/drgs_tokenized.csv',
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
+        # use skip grams (0) or CBOW (1) for word2vec
+        'word2vec-cbow' : False,
         # Use the code descriptions for tokenization
         'use-descriptions' : True,
         'use-training-data-for-word2vec' : True,
@@ -65,8 +67,10 @@ if __name__ == '__main__':
     
     baseline = run(config)
         
-    for bool_var in ['use-descriptions', 'use-training-data-for-word2vec', 'shuffle-word2vec-traindata']:
+    for bool_var in ['use-descriptions', 'use-training-data-for-word2vec', 'shuffle-word2vec-traindata', 'word2vec-cbow']:
         validate_bool_var(bool_var, scores, options)
+        
+    
     
     temp = config['num-shuffles']
     config['num-shuffles'] = 10
