@@ -20,18 +20,16 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     # Dense(64) is a fully-connected layer with 64 hidden units.
     # in the first layer, you must specify the expected input data shape:
     # here, 20-dimensional vectors.
-    model.add(Dense(50, input_dim=X_train.shape[1], init='uniform'))
-    model.add(Activation('sigmoid'))
+    model.add(Dense(64, input_dim=X_train.shape[1], activation='relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(output_dim, init='uniform'))
-    model.add(Activation('softmax'))
+    model.add(Dense(output_dim, activation='softmax'))
     
-    sgd = SGD(lr=0.01, decay=1e-6, momentum=0.8, nesterov=True)
+    # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.8, nesterov=True)
     model.compile(loss='categorical_crossentropy',
-                  optimizer=sgd)
+                  optimizer='adadelta')
     
     model.fit(X_train, y_train,
-              nb_epoch=40,
+              nb_epoch=35,
               batch_size=16,
               show_accuracy=True,
               validation_data=(X_validation, y_validation),

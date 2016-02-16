@@ -119,7 +119,7 @@ if __name__ == '__main__':
         'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
         'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.out.small',
         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
-        'num-cores' : 4,
+        'num-cores' : 8,
         # which demographic variables should be used.
         # a subset from ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']
         'demo-variables' : [] }
