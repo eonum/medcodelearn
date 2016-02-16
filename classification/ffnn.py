@@ -8,7 +8,7 @@ from keras.utils import np_utils
 from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 
-def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim):
+def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task):
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
     
@@ -31,7 +31,7 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
                   optimizer='adadelta')
     
     early_stopping = EarlyStopping(monitor='val_loss', patience=5)
-    visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs.png')
+    visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit(X_train, y_train,
               nb_epoch=35,
               batch_size=16,

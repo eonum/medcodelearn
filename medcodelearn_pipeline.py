@@ -78,7 +78,7 @@ def run (config):
             model, score = train_and_evaluate_random_forest(config, X_train, X_test, y_train, y_test)
         elif config['classifier'] == 'ffnn':
             print('Train Feed Forward Neural Net for ' + reader.code_type + ' classification task..')
-            model, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim)
+            model, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task)
         
         total_score += score
         if config['store-everything']:
