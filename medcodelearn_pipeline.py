@@ -19,25 +19,26 @@ from vectorize import read_code_vectors, read_vectors, create_word2vec_training_
 def run (config):
     base_folder = config['base_folder']
     
-    print("Tokenize catalogs..")
-    if not os.path.exists(base_folder + 'tokenization'):
-        os.makedirs(base_folder + 'tokenization')
-    tokenize_catalogs(config)
-    
-    print("Vectorize catalogs..")
-    if not os.path.exists(base_folder + 'vectorization'):
-        os.makedirs(base_folder + 'vectorization')
-    word2vec_trainset = config['all-tokens']
-    if config['use-training-data-for-word2vec']:
-        create_word2vec_training_data(config['training-set-word2vec'], config['all-tokens'], 
-                                      base_folder + 'vectorization/train.txt',
-                                      do_shuffle=config['shuffle-word2vec-traindata'],
-                                      use_n_times=config['num-shuffles'])
-        word2vec_trainset = base_folder + 'vectorization/train.txt'
-    call(["word2vec", "-train", word2vec_trainset, "-binary",
-           "0", "-cbow", "0", "-output", config['all-vectors'],
-            "-size", str(config['word2vec-dim-size']), "-save-vocab",
-            config['word2vec-vocab'], "-min-count", "1", "-threads", str(config['num-cores'])])
+    if not config['skip-word2vec']:
+        print("Tokenize catalogs..")
+        if not os.path.exists(base_folder + 'tokenization'):
+            os.makedirs(base_folder + 'tokenization')
+        tokenize_catalogs(config)
+        
+        print("Vectorize catalogs..")
+        if not os.path.exists(base_folder + 'vectorization'):
+            os.makedirs(base_folder + 'vectorization')
+        word2vec_trainset = config['all-tokens']
+        if config['use-training-data-for-word2vec']:
+            create_word2vec_training_data(config['training-set-word2vec'], config['all-tokens'], 
+                                          base_folder + 'vectorization/train.txt',
+                                          do_shuffle=config['shuffle-word2vec-traindata'],
+                                          use_n_times=config['num-shuffles'])
+            word2vec_trainset = base_folder + 'vectorization/train.txt'
+        call(["word2vec", "-train", word2vec_trainset, "-binary",
+               "0", "-cbow", "0", "-output", config['all-vectors'],
+                "-size", str(config['word2vec-dim-size']), "-save-vocab",
+                config['word2vec-vocab'], "-min-count", "1", "-threads", str(config['num-cores'])])
     
     print("\nRead vectors. Assign vectors to codes..")
     # one vector for each token in the vocabulary
@@ -52,6 +53,8 @@ def run (config):
         json.dump({k: v.tolist() for k, v in vectors_by_codes.items()}, open(config['code-vectors'],'w'), sort_keys=True)
         json.dump(tokens_by_codes, open(config['code-tokens'],'w'), indent=4, sort_keys=True)
     
+    if not os.path.exists(base_folder + 'classification'):
+        os.makedirs(base_folder + 'classification')
     total_score = 0.0 
     tasks = ['pdx', 'sdx', 'srg', 'drg']   
     for task in tasks:
@@ -79,8 +82,6 @@ def run (config):
         
         total_score += score
         if config['store-everything']:
-            if not os.path.exists(base_folder + 'classification'):
-                os.makedirs(base_folder + 'classification')
             joblib.dump(model, base_folder + 'classification/' + config['classifier'] + '.pkl')
     
     total_score /= len(tasks)
@@ -92,6 +93,8 @@ if __name__ == '__main__':
     base_folder = 'data/pipelinetest/'
     config = {
         'base_folder' : base_folder,
+        # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
+        'skip-word2vec' : True,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net) or 'lstm' (long short term memory, coming soon)
         'classifier' : 'ffnn',
         # Store all intermediate results. 
