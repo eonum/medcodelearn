@@ -1,8 +1,9 @@
 from medcodelearn_pipeline import run
 import json
 import os
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
-from bokeh.io import show
 
 if __name__ == '__main__':
     base_folder = 'data/validate-word2vec-dimsize/'
