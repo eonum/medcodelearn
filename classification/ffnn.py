@@ -30,7 +30,7 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     model.compile(loss='categorical_crossentropy',
                   optimizer='adadelta')
     
-    early_stopping = EarlyStopping(monitor='val_loss', patience=5)
+    early_stopping = EarlyStopping(monitor='val_acc', patience=5)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit(X_train, y_train,
               nb_epoch=35,

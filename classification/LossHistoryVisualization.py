@@ -35,6 +35,6 @@ class LossHistoryVisualisation(keras.callbacks.Callback):
         par.yaxis.get_label().set_color(p2.get_color())
         leg.texts[1].set_color(p2.get_color())
         
-        plt.title('Accuracy by epoch')
+        plt.title('Accuracy by epoch on validation set')
         plt.savefig(self.filename)
         plt.close()
