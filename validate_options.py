@@ -92,6 +92,8 @@ if __name__ == '__main__':
     
     y_pos = np.arange(len(options))
     
+    fig = plt.figure()
+    fig.subplots_adjust(left=0.3)
     plt.barh(y_pos, scores, align='center', alpha=0.4)
     plt.yticks(y_pos, options)
     plt.xlabel('Accuracy relative to Baseline')
