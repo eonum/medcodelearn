@@ -5,6 +5,8 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation
 from keras.optimizers import SGD
 from keras.utils import np_utils
+from keras.callbacks import EarlyStopping
+from classification.LossHistoryVisualization import LossHistoryVisualisation
 
 def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim):
     y_train = np_utils.to_categorical(y_train, output_dim)
@@ -28,12 +30,15 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     model.compile(loss='categorical_crossentropy',
                   optimizer='adadelta')
     
+    early_stopping = EarlyStopping(monitor='val_loss', patience=5)
+    visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs.png')
     model.fit(X_train, y_train,
               nb_epoch=35,
               batch_size=16,
               show_accuracy=True,
               validation_data=(X_validation, y_validation),
-              verbose=2)
+              verbose=2,
+              callbacks=[early_stopping, visualizer])
     
     print("Prediction using FFNN..")
     score = model.evaluate(X_test, y_test, show_accuracy=True, verbose=0)
