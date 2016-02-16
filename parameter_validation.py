@@ -20,7 +20,7 @@ if __name__ == '__main__':
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
         # Use the code descriptions for tokenization
-        'use-descriptions' : False,
+        'use-descriptions' : True,
         'use-training-data-for-word2vec' : True,
         'shuffle-word2vec-traindata' : True,
         'num-shuffles' : 1,
