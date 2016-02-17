@@ -107,12 +107,12 @@ if __name__ == '__main__':
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
         # use skip grams (False) or CBOW (True) for word2vec
-        'word2vec-cbow' : False,
+        'word2vec-cbow' : True,
         # Use the code descriptions for tokenization
         'use-descriptions' : True,
         'use-training-data-for-word2vec' : True,
         'shuffle-word2vec-traindata' : True,
-        'num-shuffles' : 1,
+        'num-shuffles' : 10,
         'all-tokens' : base_folder + 'tokenization/all_tokens.csv',
         'code-tokens' : base_folder + 'tokenization/all_tokens_by_code.json',
         'all-vocab' : base_folder + 'tokenization/vocab_all.csv',
