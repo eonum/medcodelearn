@@ -1,4 +1,5 @@
 data/
 .spyderproject
 __pycache__/
-
+.pydevproject
+.settings/
