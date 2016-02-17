@@ -10,11 +10,12 @@ import numpy as np
 from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
 from classification.random_forest import train_and_evaluate_random_forest
 from classification.ffnn import train_and_evaluate_ffnn
+from classification.ffnn_word2vec import train_and_evaluate_ffnn_word2vec
+from reader.word2vec.util import transform_targets_to_word2vec
 
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
 from vectorize import read_code_vectors, read_vectors, create_word2vec_training_data
-
 
 def run (config):
     base_folder = config['base_folder']
@@ -59,6 +60,7 @@ def run (config):
     tasks = ['pdx', 'sdx', 'srg', 'drg']   
     for task in tasks:
         print('\n==== ' + task + ' ====')
+    
         reader = FlatVectorizedPCReader(config['training-set'])
         reader.read_from_file(vectors_by_codes, task, drg_out_file=config['training-set-drgs'], demo_variables_to_use=config['demo-variables'])
         X = reader.data
@@ -67,10 +69,15 @@ def run (config):
         y = np.empty(X.shape[0], dtype=np.uint)
         for i, target in enumerate(targets):
             y[i] = classes.index(target)
+        
+        if config['classifier'] == 'ffnn-word2vecout':
+            y = transform_targets_to_word2vec(targets, task, vectors_by_codes, config['word2vec-dim-size'])         
+        
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
         output_dim = len(set(targets))
         print('Number of classes: ' + str(output_dim))
-        print("Training data dimensionality: " + str(X.shape))
+        print("Input data dimensionality: " + str(X.shape))
+        print("Output data dimensionality: " + str(y.shape))
         
         model, score = None, 0
         if config['classifier'] == 'random-forest':
@@ -79,6 +86,9 @@ def run (config):
         elif config['classifier'] == 'ffnn':
             print('Train Feed Forward Neural Net for ' + reader.code_type + ' classification task..')
             model, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task)
+        elif config['classifier'] == 'ffnn-word2vecout':
+            print('Train Feed Forward Neural Net with word2vec output layer for ' + reader.code_type + ' classification task..')
+            model, score = train_and_evaluate_ffnn_word2vec(config, X_train, X_test, y_train, y_test, task)
         
         total_score += score
         if config['store-everything']:
@@ -96,7 +106,7 @@ if __name__ == '__main__':
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
         'skip-word2vec' : True,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net) or 'lstm' (long short term memory, coming soon)
-        'classifier' : 'ffnn',
+        'classifier' : 'ffnn-word2vecout',
         # Store all intermediate results. 
         # Disable this to speed up a run and to reduce disk space usage.
         'store-everything' : False,
