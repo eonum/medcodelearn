@@ -4,7 +4,6 @@ from sklearn.cross_validation import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation
 from keras.optimizers import SGD
-from keras.utils import np_utils
 from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 
@@ -21,11 +20,10 @@ def train_and_evaluate_ffnn_word2vec(config, X_train, X_test, y_train, y_test, t
     # here, 20-dimensional vectors.
     model.add(Dense(64, input_dim=X_train.shape[1], activation='relu'))
     model.add(Dropout(0.5))
-    model.add(Dense(y_train.shape[1], activation='softmax'))
+    model.add(Dense(y_train.shape[1], activation='sigmoid'))
     
     # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.8, nesterov=True)
-    model.compile(loss='categorical_crossentropy',
-                  optimizer='adadelta')
+    model.compile(loss="mean_squared_error", optimizer = "sgd")
     
     early_stopping = EarlyStopping(monitor='val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
