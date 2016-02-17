@@ -127,7 +127,7 @@ if __name__ == '__main__':
         'num-cores' : 8,
         # which demographic variables should be used.
         # a subset from ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']
-        'demo-variables' : [] }
+        'demo-variables' : ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays', 'ageYears'] }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)

@@ -14,9 +14,9 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     
     X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.15, random_state=23)
     scaler = preprocessing.MaxAbsScaler().fit(X_train)
-    scaler.transform(X_train)
-    scaler.transform(X_test)
-    scaler.transform(X_validation)
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
+    X_validation = scaler.transform(X_validation)
     
     model = Sequential()
     # Dense(64) is a fully-connected layer with 64 hidden units.
@@ -30,7 +30,7 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     model.compile(loss='categorical_crossentropy',
                   optimizer='adadelta')
     
-    early_stopping = EarlyStopping(monitor='val_acc', patience=5)
+    early_stopping = EarlyStopping(monitor='val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit(X_train, y_train,
               nb_epoch=35,
