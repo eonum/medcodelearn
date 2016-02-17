@@ -42,9 +42,11 @@ def transform_word2vec_to_targets(predictions, vectors_by_codes, task):
     for i in range(0, predictions.shape[0]):
         pred = predictions[i]
         metrics = np.dot(vectors, pred)
-        best = np.argsort(metrics)[::-1][1:2]  
+        best = np.argsort(metrics)[::1][0:4]  
         target = codes[best[0]]      
         pred_targets.append(target)
+        # for probabilities
+        # best_metrics = metrics[best]
             
     return pred_targets
 
