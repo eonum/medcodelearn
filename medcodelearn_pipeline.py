@@ -93,6 +93,7 @@ def run (config):
             model, score, predictions = train_and_evaluate_ffnn_word2vec(config, X_train, X_test, y_train, y_test, task)
             pred_targets = transform_word2vec_to_targets(predictions, vectors_by_codes, task)
             score = accuracy(pred_targets, targets) 
+            print('Score after transform: ' + str(score))
         
         total_score += score
         if config['store-everything']:

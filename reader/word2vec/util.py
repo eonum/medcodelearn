@@ -19,38 +19,38 @@ def transform_targets_to_word2vec(targets, task, vectors_by_codes, word2vec_size
 
 
 def transform_word2vec_to_targets(predictions, vectors_by_codes, task):
-    vector_by_code = {}
-    for code, vectors in vectors_by_codes.items():
-        prefix, code = code.split('_')
-        if prefix == 'DRG' and task != 'drg': 
+    codes = []
+    prefix = 'DRG' if task == 'drg' else 'CHOP' if task == 'srg' else 'ICD'
+    for code in vectors_by_codes:
+        p, code = code.split('_')
+        if p != prefix: 
             continue
-        if prefix == 'ICD' and task not in ['pdx', 'sdx']: 
-            continue
-        if prefix == 'CHOP' and task != 'srg': 
-            continue
-        data = np.zeros(vectors[0].shape[0], dtype=np.float32)
+        
+        codes.append(code)
+    
+    vectors = np.empty((len(codes), 50), dtype=np.float32)    
+    for i, code in enumerate(codes):
+        vs = vectors_by_codes[prefix + '_' + code]
+        data = np.zeros(vs[0].shape[0], dtype=np.float32)
         # sum over all vectors (first vector is the code token)
-        for t in vectors:
+        for t in vs:
                 data += t
         data = unitvec(data)
-        vector_by_code[code] = data
+        vectors[i] = data
     
     pred_targets = []
     for i in range(0, predictions.shape[0]):
         pred = predictions[i]
-        target = ''
-        min_cosine = float("inf")
-        for code, vector in vector_by_code.items():
-            cosine_distance = cosine(pred, vector)
-            if cosine_distance < min_cosine:
-                min_cosine = cosine_distance
-                target = code
+        metrics = np.dot(vectors, pred)
+        best = np.argsort(metrics)[::-1][1:2]  
+        target = codes[best[0]]      
         pred_targets.append(target)
+            
+    return pred_targets
 
 def accuracy(pred_targets, targets):
     num_true = 0.0
     for i, p in enumerate(pred_targets):
-        print(p + ' => ' + targets[i])
         if(p == targets[i]):
             num_true += 1.0
     return num_true / len(pred_targets)

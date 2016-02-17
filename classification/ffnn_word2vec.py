@@ -25,7 +25,7 @@ def train_and_evaluate_ffnn_word2vec(config, X_train, X_test, y_train, y_test, t
     # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.8, nesterov=True)
     model.compile(loss="mean_squared_error", optimizer = "sgd")
     
-    early_stopping = EarlyStopping(monitor='val_acc', patience=10)
+    early_stopping = EarlyStopping(monitor='val_loss', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit(X_train, y_train,
               nb_epoch=35,
