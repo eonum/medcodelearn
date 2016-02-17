@@ -90,7 +90,7 @@ class FlatVectorizedPCReader(DRGReader):
     def convert_demographic_variable(self, row, var):
         value = row[var]
         if var == 'sex':
-            return 1.0 if value.upper() == 'M' else 0.0
+            return 1.0 if value.upper() == 'M' else -1.0
         return float(value)
     
     def read_drg_output(self):
