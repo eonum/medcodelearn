@@ -40,6 +40,9 @@ def train_and_evaluate_ffnn_word2vec(config, X_train, X_test, y_train, y_test, t
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  
     
-    return [model, score[1]]
+    predictions = model.predict(X_test, batch_size=128, verbose=0)
+    
+    
+    return [model, score[1], predictions]
 
 

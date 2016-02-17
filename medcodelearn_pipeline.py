@@ -12,6 +12,8 @@ from classification.random_forest import train_and_evaluate_random_forest
 from classification.ffnn import train_and_evaluate_ffnn
 from classification.ffnn_word2vec import train_and_evaluate_ffnn_word2vec
 from reader.word2vec.util import transform_targets_to_word2vec
+from reader.word2vec.util import transform_word2vec_to_targets
+from reader.word2vec.util import accuracy
 
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
@@ -88,7 +90,9 @@ def run (config):
             model, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task)
         elif config['classifier'] == 'ffnn-word2vecout':
             print('Train Feed Forward Neural Net with word2vec output layer for ' + reader.code_type + ' classification task..')
-            model, score = train_and_evaluate_ffnn_word2vec(config, X_train, X_test, y_train, y_test, task)
+            model, score, predictions = train_and_evaluate_ffnn_word2vec(config, X_train, X_test, y_train, y_test, task)
+            pred_targets = transform_word2vec_to_targets(predictions, vectors_by_codes, task)
+            score = accuracy(pred_targets, targets) 
         
         total_score += score
         if config['store-everything']:
