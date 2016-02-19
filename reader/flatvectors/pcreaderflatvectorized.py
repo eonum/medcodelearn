@@ -8,7 +8,11 @@ class FlatVectorizedPCReader(DRGReader):
     def read_from_file(self, vectors_by_code, 
                        code_type = 'pdx', 
                        drg_out_file = None,
-                       demo_variables_to_use= ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']):
+                       demo_variables_to_use= ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 
+                                               'ageDays', 'adm-normal', 'adm-transfer', 
+                                               'adm-transfer-short', 'adm-unknown',
+                                               'sep-normal', 'sep-dead', 'sep-doctor',
+                                               'sep-unknown', 'sep-transfer']):
         # available demographic variables:
         # 'id', 'ageYears', 'ageDays', 'admWeight', 'sex', 'adm', 'sep', 'los', 'sdf', 'hmv'
         self.demo_variables_to_use = demo_variables_to_use
@@ -88,9 +92,33 @@ class FlatVectorizedPCReader(DRGReader):
         return [data, gt]
     
     def convert_demographic_variable(self, row, var):
-        value = row[var]
+        value = row[var[0:3]] if var[0:3] in ['adm', 'sep'] else row[var]
         if var == 'sex':
             return 1.0 if value.upper() == 'M' else -1.0
+        if var[0:3] == 'adm':
+            if var[4:] == 'normal' and value == '01':
+                return 1.0
+            elif var[4:] == 'transfer' and value == '11':
+                return 1.0
+            elif var[4:] == 'transfer-short' and value== '06':
+                return 1.0
+            elif var[4:] == 'unknown' and value == '99':
+                return 1.0
+            else:
+                return 0.0
+        if var[0:3] == 'sep':
+            if var[4:] == 'normal' and value == '00':
+                return 1.0
+            elif var[4:] == 'transfer' and value == '06':
+                return 1.0
+            elif var[4:] == 'dead' and value== '07':
+                return 1.0
+            elif var[4:] == 'doctor' and value== '04':
+                return 1.0
+            elif var[4:] == 'unknown' and value == '99':
+                return 1.0
+            else:
+                return 0.0
         return float(value)
     
     def read_drg_output(self):
