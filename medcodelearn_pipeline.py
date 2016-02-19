@@ -73,9 +73,11 @@ def run (config):
             y[i] = classes.index(target)
         
         if config['classifier'] == 'ffnn-word2vecout':
+            yFinal = y
             y = transform_targets_to_word2vec(targets, task, vectors_by_codes, config['word2vec-dim-size'])         
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+        X_train, X_test, yFinal_train, yFinal_test = train_test_split(X, yFinal, test_size=0.33, random_state=42)
         output_dim = len(set(targets))
         print('Number of classes: ' + str(output_dim))
         print("Input data dimensionality: " + str(X.shape))
@@ -90,10 +92,7 @@ def run (config):
             model, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task)
         elif config['classifier'] == 'ffnn-word2vecout':
             print('Train Feed Forward Neural Net with word2vec output layer for ' + reader.code_type + ' classification task..')
-            model, score, predictions = train_and_evaluate_ffnn_word2vec(config, X_train, X_test, y_train, y_test, task)
-            pred_targets = transform_word2vec_to_targets(predictions, vectors_by_codes, task)
-            score = accuracy(pred_targets, targets) 
-            print('Score after transform: ' + str(score))
+            model, score = train_and_evaluate_ffnn_word2vec(config, X_train, X_test, y_train, y_test, yFinal_train, yFinal_test, task, output_dim)
         
         total_score += score
         if config['store-everything']:
