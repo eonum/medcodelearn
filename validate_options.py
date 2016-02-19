@@ -35,12 +35,12 @@ if __name__ == '__main__':
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
         # use skip grams (0) or CBOW (1) for word2vec
-        'word2vec-cbow' : False,
+        'word2vec-cbow' : True,
         # Use the code descriptions for tokenization
         'use-descriptions' : True,
         'use-training-data-for-word2vec' : True,
         'shuffle-word2vec-traindata' : True,
-        'num-shuffles' : 1,
+        'num-shuffles' : 10,
         'all-tokens' : base_folder + 'tokenization/all_tokens.csv',
         'code-tokens' : base_folder + 'tokenization/all_tokens_by_code.json',
         'all-vocab' : base_folder + 'tokenization/vocab_all.csv',
@@ -55,7 +55,7 @@ if __name__ == '__main__':
         'num-cores' : 8,
         # which demographic variables should be used.
         # a subset from ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']
-        'demo-variables' : [] }
+        'demo-variables' : ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays'] }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
@@ -73,18 +73,23 @@ if __name__ == '__main__':
     
     
     temp = config['num-shuffles']
+    config['num-shuffles'] = 1
+    score1 = run(config)
     config['num-shuffles'] = 10
-    score = run(config)
-    scores.append(score - baseline)
+    score2 = run(config)
+    scores.append(score1 - score2)
     options.append('num-shuffles=10')
-    config['num-shuffles'] = 10
+    config['num-shuffles'] = temp
     
     config['skip-word2vec'] = True
+
+    config['demo-variables'] = []
+    baseline_demo = run(config)
     
     for demovar in ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']:
         config['demo-variables'] = [demovar]
         score = run(config)
-        scores.append(score - baseline)
+        scores.append(score - baseline_demo)
         options.append(demovar)
     
     print(options)    
