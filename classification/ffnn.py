@@ -7,6 +7,7 @@ from keras.optimizers import SGD
 from keras.utils import np_utils
 from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
+import json
 
 def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task):
     y_train = np_utils.to_categorical(y_train, output_dim)
@@ -29,6 +30,10 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.8, nesterov=True)
     model.compile(loss='categorical_crossentropy',
                   optimizer='adadelta')
+    
+    json.dump(json.loads(model.to_json()), 
+              open(config['base_folder'] + 'classification/model_' + task + '.json','w'), indent=4, sort_keys=True)   
+
     
     early_stopping = EarlyStopping(monitor='val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
