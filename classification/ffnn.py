@@ -2,10 +2,10 @@ from sklearn import preprocessing
 from sklearn.cross_validation import train_test_split
 
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation
-from keras.optimizers import SGD
+from keras.layers import Dense, Dropout
 from keras.utils import np_utils
 from keras.callbacks import EarlyStopping
+from keras.utils.visualize_util import plot
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 
 def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task):
@@ -30,10 +30,13 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     model.compile(loss='categorical_crossentropy',
                   optimizer='adadelta')
     
+    
+    plot(model, to_file=config['base_folder'] + 'classification/model_' + task + '.png')
+    
     early_stopping = EarlyStopping(monitor='val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit(X_train, y_train,
-              nb_epoch=100,
+              nb_epoch=35,
               batch_size=128,
               show_accuracy=True,
               validation_data=(X_validation, y_validation),
