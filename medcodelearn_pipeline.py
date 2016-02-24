@@ -12,7 +12,7 @@ from classification.random_forest import train_and_evaluate_random_forest
 from classification.ffnn import train_and_evaluate_ffnn
 from classification.ffnn import adjust_score
 from reader.sequencevectors.pcreadersequencevectorized import SequenceVectorizedPCReader
-from classification.lstm import train_and_evaluate_lstm
+from classification.lstm import train_and_evaluate_lstm, pad_sequences
 
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
@@ -93,6 +93,7 @@ def run (config):
             print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])) + " | " + str(len(X[0][0])))
             print('Train LSTM Neural Net for ' + reader.code_type + ' classification task..')
             model, scaler, score = train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim, task)
+            X_test = pad_sequences(X_test, maxlen=17, dim=len(X_train[0][0]))
             score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
         
         total_score += score
