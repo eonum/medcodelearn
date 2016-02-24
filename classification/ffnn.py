@@ -2,8 +2,7 @@ from sklearn import preprocessing
 from sklearn.cross_validation import train_test_split
 
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation
-from keras.optimizers import SGD
+from keras.layers import Dense, Dropout
 from keras.utils import np_utils
 from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
@@ -27,6 +26,7 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     
     # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.8, nesterov=True)
     model.compile(loss='categorical_crossentropy',
+                  class_mode='categorical',
                   optimizer='adadelta')
     
     json.dump(json.loads(model.to_json()), 
@@ -48,6 +48,30 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  
     
-    return [model, score[1]]
+    return [model, scaler, score[1]]
+
+
+def adjust_score(model, scaler, X_test, classes, targets_test, excludes_test):
+    # TODO: this method can also be used for an Oracle
+    X_test = scaler.transform(X_test)
+    probabs = model.predict_proba(X_test, verbose=0)
+    score = 0.0
+    for i in range(0, probabs.shape[0]):
+        classes_sorted = probabs[i].argsort()[::-1]
+        print(classes_sorted)
+        result = None
+        best = 0
+        while result == None:
+            temp_result = classes[classes_sorted[best]]
+            if temp_result in excludes_test[i]:
+                best += 1
+            else:
+                result = temp_result
+        if result == targets_test[i]:
+            score += 1.0
+    
+    score /= len(targets_test)
+    print("New adjusted score " + str(score))
+    return score
 
 

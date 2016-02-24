@@ -10,6 +10,7 @@ import numpy as np
 from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
 from classification.random_forest import train_and_evaluate_random_forest
 from classification.ffnn import train_and_evaluate_ffnn
+from classification.ffnn import adjust_score
 
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
@@ -63,11 +64,12 @@ def run (config):
         reader.read_from_file(vectors_by_codes, task, drg_out_file=config['training-set-drgs'], demo_variables_to_use=config['demo-variables'])
         X = reader.data
         targets = reader.targets
+        excludes = reader.excludes
         classes = list(set(targets))
         y = np.zeros(X.shape[0], dtype=np.uint)
         for i, target in enumerate(targets):
             y[i] = classes.index(target)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+        X_train, X_test, y_train, y_test, _, targets_test, _, excludes_test = train_test_split(X, y, targets, excludes, test_size=0.33, random_state=42)
         output_dim = len(set(targets))
         print('Number of classes: ' + str(output_dim))
         print("Training data dimensionality: " + str(X.shape))
@@ -78,7 +80,8 @@ def run (config):
             model, score = train_and_evaluate_random_forest(config, X_train, X_test, y_train, y_test)
         elif config['classifier'] == 'ffnn':
             print('Train Feed Forward Neural Net for ' + reader.code_type + ' classification task..')
-            model, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task)
+            model, scaler, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task)
+            score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
         
         total_score += score
         if config['store-everything']:

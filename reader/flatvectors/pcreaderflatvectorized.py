@@ -37,13 +37,15 @@ class FlatVectorizedPCReader(DRGReader):
                     
         self.data = np.empty((len(dataset), self.vector_size), dtype=np.float32)
         self.targets = []
+        self.excludes = []
         
         for i, instance in enumerate(dataset):
             self.data[i] = instance[0]
             self.targets.append(instance[1])
-            #print(self.targets[i])
+            self.excludes.append(instance[2])
         
-        print('Skipped patient cases due to invalid PDX: ' + str(self.invalid_pdx))
+        if self.invalid_pdx > 0:
+            print('Skipped patient cases due to invalid PDX: ' + str(self.invalid_pdx))
         return {'data' : self.data, 'targets' : self.targets}          
     
     def get_drg_instances_from_row(self, row):
@@ -76,16 +78,22 @@ class FlatVectorizedPCReader(DRGReader):
     
     def flat_instance(self, row, diags, procs, gt):
         data = np.zeros(self.word2vec_dims / 2, dtype=np.float32)
+        excludes = []
         # sum over all vectors (first vector is the code token)
         for diag in diags:
+            if self.code_type in ['pdx', 'sdx']:
+                excludes.append(diag)
             for t in self.vectors_by_code['ICD_' + diag]:
                 data += t
         data = unitvec(data)
         
         data_procedures = np.zeros(self.word2vec_dims / 2, dtype=np.float32)
         for proc in procs:
+            if self.code_type == 'srg':
+                excludes.append(procs)
             for t in self.vectors_by_code['CHOP_' + proc]:
                 data_procedures += t
+                
         data_procedures = unitvec(data_procedures)
         data = np.append(data, data_procedures)
         
@@ -94,7 +102,7 @@ class FlatVectorizedPCReader(DRGReader):
         for i, var in enumerate(self.demo_variables_to_use):
             data[self.word2vec_dims + i] = self.convert_demographic_variable(row, var)
         
-        return [data, gt]
+        return [data, gt, excludes]
     
     def convert_demographic_variable(self, row, var):
         value = row[var[0:3]] if var[0:3] in ['adm', 'sep'] else row[var]
