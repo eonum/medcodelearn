@@ -20,7 +20,7 @@ class FlatVectorizedPCReader(DRGReader):
         self.vectors_by_code = vectors_by_code
         self.invalid_pdx = 0
         self.drg_out_file = drg_out_file
-        self.vector_size = len(vectors_by_code[list(vectors_by_code.keys())[0]][0]) + len(self.demo_variables_to_use)
+        self.vector_size = 2 * len(vectors_by_code[list(vectors_by_code.keys())[0]][0]) + len(self.demo_variables_to_use)
         self.word2vec_dims = self.vector_size - len(self.demo_variables_to_use)
         
         if self.code_type == 'drg':
@@ -75,15 +75,20 @@ class FlatVectorizedPCReader(DRGReader):
         raise ValueError('code_type should be one of "drg", "pdx", "sdx" or "srg" but was ' + self.code_type)
     
     def flat_instance(self, row, diags, procs, gt):
-        data = np.zeros(self.vector_size - len(self.demo_variables_to_use), dtype=np.float32)
+        data = np.zeros(self.word2vec_dims / 2, dtype=np.float32)
         # sum over all vectors (first vector is the code token)
         for diag in diags:
             for t in self.vectors_by_code['ICD_' + diag]:
                 data += t
+        data = unitvec(data)
+        
+        data_procedures = np.zeros(self.word2vec_dims / 2, dtype=np.float32)
         for proc in procs:
             for t in self.vectors_by_code['CHOP_' + proc]:
-                data += t
-        data = unitvec(data)
+                data_procedures += t
+        data_procedures = unitvec(data_procedures)
+        data = np.append(data, data_procedures)
+        
         data.resize(self.vector_size)
         
         for i, var in enumerate(self.demo_variables_to_use):
