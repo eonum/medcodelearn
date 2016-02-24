@@ -27,7 +27,7 @@ def train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim
     
     model.compile(loss='categorical_crossentropy',
                   class_mode='categorical',
-                  optimizer='adam')
+                  optimizer=config['optimizer'])
     
     json.dump(json.loads(model.to_json()), 
               open(config['base_folder'] + 'classification/model_lstm_' + task + '.json','w'), indent=4, sort_keys=True)   

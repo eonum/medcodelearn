@@ -162,7 +162,9 @@ if __name__ == '__main__':
                                                'ageDays', 'adm-normal', 'adm-transfer', 
                                                'adm-transfer-short', 'adm-unknown',
                                                'sep-normal', 'sep-dead', 'sep-doctor',
-                                               'sep-unknown', 'sep-transfer'] }
+                                               'sep-unknown', 'sep-transfer'],
+        # NN optimizer, one of ['sgd', 'rmsprop', 'adam', 'adagrad', 'adadelta', 'adamax']
+        'optimizer' : 'adam' }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)

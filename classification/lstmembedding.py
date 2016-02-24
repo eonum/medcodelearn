@@ -18,14 +18,14 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.15, random_state=23)
        
     model = Sequential()
-    model.add(Embedding(vocab_size, 128, mask_zero=True))
+    model.add(Embedding(vocab_size, 50, mask_zero=True))
     model.add(LSTM(output_dim=128, activation='sigmoid', inner_activation='hard_sigmoid'))
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.1))
     model.add(Dense(output_dim, activation='softmax'))
     
     model.compile(loss='categorical_crossentropy',
                   class_mode='categorical',
-                  optimizer='adam')
+                  optimizer=config['optimizer'])
     
     json.dump(json.loads(model.to_json()), 
               open(config['base_folder'] + 'classification/model_lstm_' + task + '.json','w'), indent=4, sort_keys=True)   
@@ -34,8 +34,8 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     early_stopping = EarlyStopping(monitor='val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit(X_train, y_train,
-              nb_epoch=100,
-              batch_size=64,
+              nb_epoch=50,
+              batch_size=128,
               show_accuracy=True,
               validation_data=(X_validation, y_validation),
               verbose=2,
