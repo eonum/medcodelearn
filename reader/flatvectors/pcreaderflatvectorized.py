@@ -5,6 +5,16 @@ from vectorize import unitvec
 
 
 class FlatVectorizedPCReader(DRGReader):
+
+    
+    def calculate_input_size(self):
+        return 2 * len(self.vectors_by_code[list(self.vectors_by_code.keys())[0]][0]) + len(self.demo_variables_to_use)
+    
+    
+    def empty_input(self, dataset):
+        return np.empty((len(dataset), self.vector_size), dtype=np.float32)
+    
+    
     def read_from_file(self, vectors_by_code, 
                        code_type = 'pdx', 
                        drg_out_file = None,
@@ -20,7 +30,7 @@ class FlatVectorizedPCReader(DRGReader):
         self.vectors_by_code = vectors_by_code
         self.invalid_pdx = 0
         self.drg_out_file = drg_out_file
-        self.vector_size = 2 * len(vectors_by_code[list(vectors_by_code.keys())[0]][0]) + len(self.demo_variables_to_use)
+        self.vector_size = self.calculate_input_size()
         self.word2vec_dims = self.vector_size - len(self.demo_variables_to_use)
         
         if self.code_type == 'drg':
@@ -32,10 +42,10 @@ class FlatVectorizedPCReader(DRGReader):
         with open(self.filename, 'r') as csvFile:
             reader = csv.DictReader(csvFile, fieldnames=self.FIELDNAMES, restkey=self.RESTKEY, delimiter=';')
             for row in reader:
-                for instance in self.get_drg_instances_from_row(row):
+                for instance in self.get_instances_from_row(row):
                     dataset.append(instance)
                     
-        self.data = np.empty((len(dataset), self.vector_size), dtype=np.float32)
+        self.data = self.empty_input(dataset)
         self.targets = []
         self.excludes = []
         
@@ -48,7 +58,7 @@ class FlatVectorizedPCReader(DRGReader):
             print('Skipped patient cases due to invalid PDX: ' + str(self.invalid_pdx))
         return {'data' : self.data, 'targets' : self.targets}          
     
-    def get_drg_instances_from_row(self, row):
+    def get_instances_from_row(self, row):
         diagproc = row[self.RESTKEY]
         diags = diagproc[0:self.MAX_ADDITIONAL_DIAGNOSES]
         procs = map(lambda x: x.split(':')[0], diagproc[self.MAX_ADDITIONAL_DIAGNOSES:self.MAX_ADDITIONAL_DIAGNOSES+self.MAX_PROCEDURES])
@@ -66,17 +76,17 @@ class FlatVectorizedPCReader(DRGReader):
              
         
         if self.code_type == 'pdx':
-            return [self.flat_instance(row, diags, procs, pdx)]
+            return [self.instance(row, diags, procs, pdx)]
         elif self.code_type == 'sdx':
-            return [self.flat_instance(row, [diag for diag in diags if diag != gt] + [pdx], procs, gt) for gt in diags]
+            return [self.instance(row, [diag for diag in diags if diag != gt] + [pdx], procs, gt) for gt in diags]
         elif self.code_type == 'srg':
-            return [self.flat_instance(row, diags + [pdx], [proc for proc in procs if proc != gt], gt) for gt in procs]
+            return [self.instance(row, diags + [pdx], [proc for proc in procs if proc != gt], gt) for gt in procs]
         elif self.code_type == 'drg':
-            return [self.flat_instance(row, diags + [pdx], procs, self.drg_by_id[row['id']])]
+            return [self.instance(row, diags + [pdx], procs, self.drg_by_id[row['id']])]
 
         raise ValueError('code_type should be one of "drg", "pdx", "sdx" or "srg" but was ' + self.code_type)
     
-    def flat_instance(self, row, diags, procs, gt):
+    def instance(self, row, diags, procs, gt):
         data = np.zeros(self.word2vec_dims / 2, dtype=np.float32)
         excludes = []
         # sum over all vectors (first vector is the code token)
