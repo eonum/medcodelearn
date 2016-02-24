@@ -16,12 +16,10 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     
     
     X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.15, random_state=23)
-   
-    # TODO normalization
-    
+       
     model = Sequential()
-    model.add(Embedding(vocab_size, 128, input_length=maxlen))
-    model.add(LSTM(output_dim=128, input_dim=X_train.shape[2], activation='sigmoid', inner_activation='hard_sigmoid'))
+    model.add(Embedding(vocab_size, 128, mask_zero=True))
+    model.add(LSTM(output_dim=128, activation='sigmoid', inner_activation='hard_sigmoid'))
     model.add(Dropout(0.5))
     model.add(Dense(output_dim, activation='softmax'))
     
@@ -48,4 +46,4 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  
 
-    return [model, None, score[1]]
+    return [model, score[1]]
