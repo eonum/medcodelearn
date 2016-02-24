@@ -4,19 +4,19 @@ from keras.utils import np_utils
 from sklearn.cross_validation import train_test_split
 from keras.models import Sequential
 from keras.layers.recurrent import LSTM
-from keras.layers.core import Dropout, Dense, Activation
+from keras.layers.core import Dropout, Dense
 import json
 from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 
 def train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim, task):
-    Y_train = np_utils.to_categorical(y_train, output_dim)
-    Y_test = np_utils.to_categorical(y_test, output_dim)
+    y_train = np_utils.to_categorical(y_train, output_dim)
+    y_test = np_utils.to_categorical(y_test, output_dim)
     
     X_train = pad_sequences(X_train, maxlen=17, dim=len(X_train[0][0]))
     X_test = pad_sequences(X_test, maxlen=17, dim=len(X_train[0][0]))
     
-    X_train, X_validation, Y_train, Y_validation = train_test_split(X_train, Y_train, test_size=0.15, random_state=23)
+    X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.15, random_state=23)
    
     # TODO normalization
     
@@ -39,12 +39,12 @@ def train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim
               nb_epoch=100,
               batch_size=128,
               show_accuracy=True,
-              validation_data=(X_validation, Y_validation),
+              validation_data=(X_validation, y_validation),
               verbose=2,
               callbacks=[early_stopping, visualizer])
     
     print("Prediction using LSTM..")
-    score = model.evaluate(X_test, Y_test, show_accuracy=True, verbose=0)
+    score = model.evaluate(X_test, y_test, show_accuracy=True, verbose=0)
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  
 
