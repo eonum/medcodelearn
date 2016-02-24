@@ -8,8 +8,9 @@ from keras.layers.core import Dropout, Dense
 import json
 from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
+from keras.layers.embeddings import Embedding
 
-def train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim, task):
+def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab_size):
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
     
@@ -19,7 +20,7 @@ def train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim
     # TODO normalization
     
     model = Sequential()
-    model.add(Embedding(num_features, 128, input_length=maxlen))
+    model.add(Embedding(vocab_size, 128, input_length=maxlen))
     model.add(LSTM(output_dim=128, input_dim=X_train.shape[2], activation='sigmoid', inner_activation='hard_sigmoid'))
     model.add(Dropout(0.5))
     model.add(Dense(output_dim, activation='softmax'))

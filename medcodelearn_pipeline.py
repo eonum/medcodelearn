@@ -13,6 +13,8 @@ from classification.ffnn import train_and_evaluate_ffnn
 from classification.ffnn import adjust_score
 from reader.sequencevectors.pcreadersequencevectorized import SequenceVectorizedPCReader
 from classification.lstm import train_and_evaluate_lstm, pad_sequences
+from classification.lstmembedding import train_and_evaluate_lstm_with_embedding
+from reader.sequence.pcreadersequence import SequencePCReader
 
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
@@ -65,6 +67,9 @@ def run (config):
         reader = None
         if config['classifier'] == 'lstm':
             reader = SequenceVectorizedPCReader(config['training-set'])
+        elif config['classifier'] == 'lstm-embedding':
+            reader = SequencePCReader(config['training-set'])
+            reader.tokens_by_code = tokens_by_codes
         else:
             reader = FlatVectorizedPCReader(config['training-set'])
         reader.read_from_file(vectors_by_codes, task, drg_out_file=config['training-set-drgs'], demo_variables_to_use=config['demo-variables'])
@@ -95,6 +100,13 @@ def run (config):
             model, scaler, score = train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim, task)
             X_test = pad_sequences(X_test, maxlen=17, dim=len(X_train[0][0]))
             score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
+        elif config['classifier'] == 'lstm':
+            print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])) + " | " + str(len(X[0][0])))
+            print('Train LSTM Neural Net with Embedding for ' + reader.code_type + ' classification task..')
+            vocab = reader.vocab             
+            model, score = train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, len(vocab))
+            X_test = pad_sequences(X_test, maxlen=17, dim=len(X_train[0][0]))
+            score = adjust_score(model, None, X_test, classes, targets_test, excludes_test)
         
         total_score += score
         if config['store-everything']:
@@ -112,7 +124,7 @@ if __name__ == '__main__':
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
         'skip-word2vec' : True,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net) or 'lstm' (long short term memory, coming soon)
-        'classifier' : 'lstm',
+        'classifier' : 'lstm-embedding',
         # Store all intermediate results. 
         # Disable this to speed up a run and to reduce disk space usage.
         'store-everything' : False,

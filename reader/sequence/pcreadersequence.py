@@ -8,7 +8,17 @@ class SequencePCReader(FlatVectorizedPCReader):
         pass
     
     def finalize(self):
-        pass
+        # replace codes with indices
+        input_set = set()
+        for sample in self.data:
+            for code in sample:
+                input_set.add(code)
+        self.vocab = list(input_set)
+        for i, codes in enumerate(self.data):
+            code_indices = []
+            for code in codes:
+                code_indices.append(self.vocab.index(code))
+            self.data[i] = code_indices
      
     def empty_input(self, dataset):
         # Use this if padding is done in the reader
