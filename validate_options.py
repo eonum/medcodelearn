@@ -24,7 +24,7 @@ if __name__ == '__main__':
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
         'skip-word2vec' : False,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net) or 'lstm' (long short term memory, coming soon)
-        'classifier' : 'ffnn',
+        'classifier' : 'lstm',
         # Store all intermediate results. 
         # Disable this to speed up a run and to reduce disk space usage.
         'store-everything' : False,
@@ -58,7 +58,8 @@ if __name__ == '__main__':
         'demo-variables' : ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays','ageDays', 'adm-normal', 'adm-transfer',
                                                'adm-transfer-short',
                                                'sep-normal', 'sep-dead', 'sep-doctor',
-                                               'sep-unknown', 'sep-transfer'] }
+                                               'sep-unknown', 'sep-transfer'],
+	'optimizer' : 'adam' }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
@@ -86,6 +87,12 @@ if __name__ == '__main__':
     
     config['skip-word2vec'] = True
 
+    for optimizer in ['adam', 'adagrad', 'adadelta', 'adamax']:
+        config['optimizer'] = optimizer
+        score = run(config)
+        scores.append(score - baseline)
+        options.append(optimizer)
+
     config['demo-variables'] = []
     baseline_demo = run(config)
     
@@ -97,8 +104,19 @@ if __name__ == '__main__':
         config['demo-variables'] = [demovar]
         score = run(config)
         scores.append(score - baseline_demo)
-        options.append(demovar)
-    
+        options.append(demoviar)
+    config['skip-word2vec'] = False
+    config['use-descrptions'] = False
+    config['classifier'] = 'lstm-embedding'
+    score = run(config)
+    scores.append(score - baseline_demo)
+    scores.append('embedding')
+
+    config['use-descriptions'] = True
+    score = run(config)
+    scores.append(score - baseline_demo)
+    scores.append('embedding-descr')
+
     print(options)    
     print(scores)
     
