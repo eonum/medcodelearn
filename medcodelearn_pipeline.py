@@ -90,7 +90,7 @@ def run (config):
             model, scaler, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task)
             score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
         elif config['classifier'] == 'lstm':
-            print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])))
+            print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])) + " | " + str(len(X[0][0])))
             print('Train LSTM Neural Net for ' + reader.code_type + ' classification task..')
             model, scaler, score = train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim, task)
             score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
