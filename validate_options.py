@@ -104,18 +104,18 @@ if __name__ == '__main__':
         config['demo-variables'] = [demovar]
         score = run(config)
         scores.append(score - baseline_demo)
-        options.append(demoviar)
+        options.append(demovar)
     config['skip-word2vec'] = False
     config['use-descrptions'] = False
     config['classifier'] = 'lstm-embedding'
     score = run(config)
     scores.append(score - baseline_demo)
-    scores.append('embedding')
+    options.append('embedding')
 
     config['use-descriptions'] = True
     score = run(config)
     scores.append(score - baseline_demo)
-    scores.append('embedding-descr')
+    options.append('embedding-descr')
 
     print(options)    
     print(scores)
