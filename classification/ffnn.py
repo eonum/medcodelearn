@@ -21,7 +21,7 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     model = Sequential()
     
     model.add(Dense(64, input_dim=X_train.shape[1], activation='relu'))
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.2))
     model.add(Dense(output_dim, activation='softmax'))
     
     # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.8, nesterov=True)

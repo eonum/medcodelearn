@@ -55,7 +55,10 @@ if __name__ == '__main__':
         'num-cores' : 8,
         # which demographic variables should be used.
         # a subset from ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']
-        'demo-variables' : ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays'] }
+        'demo-variables' : ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays','ageDays', 'adm-normal', 'adm-transfer',
+                                               'adm-transfer-short',
+                                               'sep-normal', 'sep-dead', 'sep-doctor',
+                                               'sep-unknown', 'sep-transfer'] }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
@@ -77,7 +80,7 @@ if __name__ == '__main__':
     score1 = run(config)
     config['num-shuffles'] = 10
     score2 = run(config)
-    scores.append(score1 - score2)
+    scores.append(score2 - score1)
     options.append('num-shuffles=10')
     config['num-shuffles'] = temp
     
@@ -86,7 +89,11 @@ if __name__ == '__main__':
     config['demo-variables'] = []
     baseline_demo = run(config)
     
-    for demovar in ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']:
+    for demovar in ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 
+                                               'ageDays', 'adm-normal', 'adm-transfer', 
+                                               'adm-transfer-short', 'adm-unknown',
+                                               'sep-normal', 'sep-dead', 'sep-doctor',
+                                               'sep-unknown', 'sep-transfer']:
         config['demo-variables'] = [demovar]
         score = run(config)
         scores.append(score - baseline_demo)
