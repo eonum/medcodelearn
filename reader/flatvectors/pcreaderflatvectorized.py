@@ -5,14 +5,15 @@ from vectorize import unitvec
 
 
 class FlatVectorizedPCReader(DRGReader):
-
-    
-    def calculate_input_size(self):
-        return 2 * len(self.vectors_by_code[list(self.vectors_by_code.keys())[0]][0]) + len(self.demo_variables_to_use)
-    
-    
     def empty_input(self, dataset):
         return np.empty((len(dataset), self.vector_size), dtype=np.float32)
+    
+    def init(self):
+        self.vector_size = 2 * len(self.vectors_by_code[list(self.vectors_by_code.keys())[0]][0]) + len(self.demo_variables_to_use)
+        self.word2vec_dims = self.vector_size - len(self.demo_variables_to_use)
+    
+    def finalize(self):
+        pass
     
     
     def read_from_file(self, vectors_by_code, 
@@ -30,8 +31,8 @@ class FlatVectorizedPCReader(DRGReader):
         self.vectors_by_code = vectors_by_code
         self.invalid_pdx = 0
         self.drg_out_file = drg_out_file
-        self.vector_size = self.calculate_input_size()
-        self.word2vec_dims = self.vector_size - len(self.demo_variables_to_use)
+        
+        self.init();
         
         if self.code_type == 'drg':
             if self.drg_out_file == None:
@@ -56,6 +57,9 @@ class FlatVectorizedPCReader(DRGReader):
         
         if self.invalid_pdx > 0:
             print('Skipped patient cases due to invalid PDX: ' + str(self.invalid_pdx))
+            
+        self.finalize()
+            
         return {'data' : self.data, 'targets' : self.targets}          
     
     def get_instances_from_row(self, row):
