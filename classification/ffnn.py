@@ -58,7 +58,6 @@ def adjust_score(model, scaler, X_test, classes, targets_test, excludes_test):
     score = 0.0
     for i in range(0, probabs.shape[0]):
         classes_sorted = probabs[i].argsort()[::-1]
-        print(classes_sorted)
         result = None
         best = 0
         while result == None:
