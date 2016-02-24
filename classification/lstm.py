@@ -21,13 +21,13 @@ def train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim
     # TODO normalization
     
     model = Sequential()
-    model.add(LSTM(output_dim=20, input_dim=X_train.shape[2], activation='sigmoid', inner_activation='hard_sigmoid'))
+    model.add(LSTM(output_dim=128, input_dim=X_train.shape[2], activation='sigmoid', inner_activation='hard_sigmoid'))
     model.add(Dropout(0.5))
     model.add(Dense(output_dim, activation='softmax'))
     
     model.compile(loss='categorical_crossentropy',
                   class_mode='categorical',
-                  optimizer='rmsprop')
+                  optimizer='adam')
     
     json.dump(json.loads(model.to_json()), 
               open(config['base_folder'] + 'classification/model_lstm_' + task + '.json','w'), indent=4, sort_keys=True)   
@@ -37,7 +37,7 @@ def train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit(X_train, y_train,
               nb_epoch=100,
-              batch_size=128,
+              batch_size=64,
               show_accuracy=True,
               validation_data=(X_validation, y_validation),
               verbose=2,

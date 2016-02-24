@@ -53,7 +53,8 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
 
 def adjust_score(model, scaler, X_test, classes, targets_test, excludes_test):
     # TODO: this method can also be used for an Oracle
-    X_test = scaler.transform(X_test)
+    if scale != None:
+        X_test = scaler.transform(X_test)
     probabs = model.predict_proba(X_test, verbose=0)
     score = 0.0
     for i in range(0, probabs.shape[0]):
