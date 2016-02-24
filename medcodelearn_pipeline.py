@@ -64,7 +64,7 @@ def run (config):
         X = reader.data
         targets = reader.targets
         classes = list(set(targets))
-        y = np.empty(X.shape[0], dtype=np.uint)
+        y = np.zeros(X.shape[0], dtype=np.uint)
         for i, target in enumerate(targets):
             y[i] = classes.index(target)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
@@ -127,7 +127,11 @@ if __name__ == '__main__':
         'num-cores' : 8,
         # which demographic variables should be used.
         # a subset from ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays']
-        'demo-variables' : ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 'ageDays', 'ageYears'] }
+        'demo-variables' : ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 
+                                               'ageDays', 'adm-normal', 'adm-transfer', 
+                                               'adm-transfer-short', 'adm-unknown',
+                                               'sep-normal', 'sep-dead', 'sep-doctor',
+                                               'sep-unknown', 'sep-transfer'] }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)

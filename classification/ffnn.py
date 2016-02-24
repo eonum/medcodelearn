@@ -20,9 +20,7 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     X_validation = scaler.transform(X_validation)
     
     model = Sequential()
-    # Dense(64) is a fully-connected layer with 64 hidden units.
-    # in the first layer, you must specify the expected input data shape:
-    # here, 20-dimensional vectors.
+    
     model.add(Dense(64, input_dim=X_train.shape[1], activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(output_dim, activation='softmax'))
