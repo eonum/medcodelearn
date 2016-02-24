@@ -90,7 +90,7 @@ class FlatVectorizedPCReader(DRGReader):
         data_procedures = np.zeros(self.word2vec_dims / 2, dtype=np.float32)
         for proc in procs:
             if self.code_type == 'srg':
-                excludes.append(procs)
+                excludes.append(proc)
             for t in self.vectors_by_code['CHOP_' + proc]:
                 data_procedures += t
                 
