@@ -125,7 +125,7 @@ if __name__ == '__main__':
     config = {
         'base_folder' : base_folder,
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
-        'skip-word2vec' : True,
+        'skip-word2vec' : False,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net) or 'lstm' (long short term memory, coming soon)
         'classifier' : 'lstm-embedding',
         # Store all intermediate results. 
@@ -143,7 +143,7 @@ if __name__ == '__main__':
         'use-descriptions' : False,
         'use-training-data-for-word2vec' : True,
         'shuffle-word2vec-traindata' : True,
-        'num-shuffles' : 1,
+        'num-shuffles' : 10,
         'all-tokens' : base_folder + 'tokenization/all_tokens.csv',
         'code-tokens' : base_folder + 'tokenization/all_tokens_by_code.json',
         'all-vocab' : base_folder + 'tokenization/vocab_all.csv',
@@ -152,8 +152,8 @@ if __name__ == '__main__':
         'word2vec-vocab': base_folder + 'vectorization/vocab.csv',
         'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json',
         'training-set-word2vec' : 'data/2015/trainingData2015_20151001.csv.last',
-        'training-set' : 'data/2015/tiny.txt',
-        'training-set-drgs' : 'data/2015/tiny.txt.out',
+        'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
+        'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.small.out',
         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
         'num-cores' : 8,
         # which demographic variables should be used.
