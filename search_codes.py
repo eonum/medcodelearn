@@ -4,26 +4,34 @@ import numpy as np
 from vectorize import read_code_vectors, read_vectors, unitvec
 from tokenization.tokenizer import GermanTokenizer
 from scipy.spatial.distance import cosine
+from reader.csvreader import CSVReader
 
 if __name__ == '__main__':
-    if len(sys.argv) != 5:
-        print("Usage: python search_codes.py token_file vector_file code_type search_phrase")
+    if len(sys.argv) != 6:
+        print("Usage: python search_codes.py token_file vector_file code_type catalog search_phrase")
         print("   code_type is one of DRG|ICD|CHOP")
         exit(-1)
     
     token_file = sys.argv[1]
     vector_file = sys.argv[2]
     code_type = sys.argv[3]
-    phrase = sys.argv[4]
+    catalog = sys.argv[4]
+    phrase = sys.argv[5]
     
     if code_type not in ['ICD', 'CHOP', 'DRG']:
         print("Code type has to be one of ICD|DRG|CHOP")
         exit(-2)
         
+    print("Reading catalog")
+    reader = CSVReader(catalog, ',')
+    descriptions_de = {}
+    dataset = reader.read_from_file()
+    for record in dataset:
+        descriptions_de[code_type + '_' + record['code'].replace('.', '').upper()] = record['text_de']
+        
     print("Reading vectors and tokens..")
     
     vector_by_token = read_vectors(vector_file)
-    # several vectors for each code. The first vector is from the code token.
     res = read_code_vectors(vector_by_token, token_file)
     vectors_by_codes = res['vectors']
     tokens_by_codes = res['tokens']
@@ -59,6 +67,9 @@ if __name__ == '__main__':
         if token in vector_by_token.keys():
             print("Found " + token)
             average_phrase += vector_by_token[token]
+        elif token.upper() in vector_by_token.keys():
+            print("Found upper case " + token)
+            average_phrase += vector_by_token[token.upper()]
     average_phrase = unitvec(average_phrase)
     
     distances = np.ones(len(code_vocab), dtype=np.float32)
@@ -67,7 +78,10 @@ if __name__ == '__main__':
         distances[i] = cosine(average_phrase, average_vector_by_code[i])
     
     most_similar_codes = distances.argsort()[:5]
-    for i in most_similar_codes:
-        print(str(i) + '. ' + code_vocab[i])
+    
+    print("\nSearch Results")
+    for rank, i in enumerate(most_similar_codes):
+        desc = descriptions_de[code_vocab[i]] if code_vocab[i] in descriptions_de.keys() else ''
+        print(str(rank) + '. ' + code_vocab[i] + ' ' + desc)
     
     
