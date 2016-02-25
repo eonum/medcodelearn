@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import time
 
 from vectorize import read_code_vectors, read_vectors, unitvec
 from tokenization.tokenizer import GermanTokenizer
@@ -17,6 +18,8 @@ if __name__ == '__main__':
     code_type = sys.argv[3]
     catalog = sys.argv[4]
     phrase = sys.argv[5]
+    
+    start = time.clock()
     
     if code_type not in ['ICD', 'CHOP', 'DRG']:
         print("Code type has to be one of ICD|DRG|CHOP")
@@ -58,6 +61,10 @@ if __name__ == '__main__':
         
     tokenizer = GermanTokenizer()
     
+    load_time = time.clock() - start
+    print('Loading vectors took ' + str(load_time) + ' seconds')
+    start = time.clock()
+    
     print("Search..")
     
     tokens = tokenizer.tokenize(phrase)
@@ -78,6 +85,9 @@ if __name__ == '__main__':
         distances[i] = cosine(average_phrase, average_vector_by_code[i])
     
     most_similar_codes = distances.argsort()[:5]
+    
+    load_time = time.clock() - start
+    print('Search took ' + str(load_time) + ' seconds')
     
     print("\nSearch Results")
     for rank, i in enumerate(most_similar_codes):
