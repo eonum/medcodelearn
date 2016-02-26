@@ -14,7 +14,23 @@ def validate_bool_var(bool_var, scores, options):
     score2 = run(config)
     scores.append(score2 - score)
     options.append(bool_var)
+    visualize(scores, options)
 
+def visualize(scores, options):
+    print(options)    
+    print(scores)
+    
+    y_pos = np.arange(len(options))
+    
+    fig = plt.figure()
+    fig.subplots_adjust(left=0.3)
+    plt.barh(y_pos, scores, align='center', alpha=0.4)
+    plt.yticks(y_pos, options)
+    plt.xlabel('Accuracy relative to Baseline')
+    plt.title('Validation on different options')
+    plt.grid(True)
+    plt.savefig(base_folder + 'validate_options.pdf')
+    plt.close()
 
 if __name__ == '__main__':
     base_folder = 'data/validate-options/'
@@ -85,6 +101,8 @@ if __name__ == '__main__':
     options.append('num-shuffles=10')
     config['num-shuffles'] = temp
     
+    visualize(scores, options)
+    
     config['skip-word2vec'] = True
 
     for optimizer in ['adam', 'adagrad', 'adadelta', 'adamax']:
@@ -92,6 +110,7 @@ if __name__ == '__main__':
         score = run(config)
         scores.append(score - baseline)
         options.append(optimizer)
+        visualize(scores, options)
 
     config['demo-variables'] = []
     baseline_demo = run(config)
@@ -105,28 +124,19 @@ if __name__ == '__main__':
         score = run(config)
         scores.append(score - baseline_demo)
         options.append(demovar)
+        visualize(scores, options)
     config['skip-word2vec'] = False
     config['use-descrptions'] = False
     config['classifier'] = 'lstm-embedding'
     score = run(config)
     scores.append(score - baseline_demo)
     options.append('embedding')
+    visualize(scores, options)
 
     config['use-descriptions'] = True
     score = run(config)
     scores.append(score - baseline_demo)
     options.append('embedding-descr')
+    visualize(scores, options)
 
-    print(options)    
-    print(scores)
     
-    y_pos = np.arange(len(options))
-    
-    fig = plt.figure()
-    fig.subplots_adjust(left=0.3)
-    plt.barh(y_pos, scores, align='center', alpha=0.4)
-    plt.yticks(y_pos, options)
-    plt.xlabel('Accuracy relative to Baseline')
-    plt.title('Validation on different options')
-    plt.grid(True)
-    plt.savefig(base_folder + 'validate_options.pdf')
