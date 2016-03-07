@@ -114,6 +114,8 @@ if __name__ == '__main__':
 
     config['demo-variables'] = []
     baseline_demo = run(config)
+    scores.append(baseline - baseline_demo)
+    options.append('all-demo-variables')
     
     for demovar in ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 
                                                'ageDays', 'adm-normal', 'adm-transfer', 

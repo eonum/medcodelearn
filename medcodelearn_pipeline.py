@@ -140,7 +140,7 @@ if __name__ == '__main__':
         # use skip grams (False) or CBOW (True) for word2vec
         'word2vec-cbow' : True,
         # Use the code descriptions for tokenization
-        'use-descriptions' : False,
+        'use-descriptions' : True,
         'use-training-data-for-word2vec' : True,
         'shuffle-word2vec-traindata' : True,
         'num-shuffles' : 10,

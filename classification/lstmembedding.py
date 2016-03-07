@@ -18,7 +18,7 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.15, random_state=23)
        
     model = Sequential()
-    model.add(Embedding(vocab_size, 50, mask_zero=True))
+    model.add(Embedding(vocab_size, config['word2vec-dim-size'], mask_zero=True))
     model.add(LSTM(output_dim=128, activation='sigmoid', inner_activation='hard_sigmoid'))
     model.add(Dropout(0.1))
     model.add(Dense(output_dim, activation='softmax'))
