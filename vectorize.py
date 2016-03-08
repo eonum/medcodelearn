@@ -36,6 +36,7 @@ def unitvec(vec):
 
 def read_code_vectors(vector_by_token, code_token_file, encoding="utf-8"): 
     with open(code_token_file, 'rb') as fin:
+        vector_by_code = {}
         vectors = {}
         tokens = {}
         for line in fin:
@@ -43,12 +44,15 @@ def read_code_vectors(vector_by_token, code_token_file, encoding="utf-8"):
             ts = line.split(' ')
             tokens[ts[0]] = ts
             vs =  np.empty((len(ts), len(vector_by_token[ts[0]])), dtype=np.float32)
+            v =  np.empty(len(vector_by_token[ts[0]]), dtype=np.float32)
             for i, token in enumerate(ts):
                 # empty token
                 token = '</s>' if token == '' else token
                 vs[i] = vector_by_token[token]
+                v += vector_by_token[token]
             vectors[ts[0]] = vs
-    return {'vectors' : vectors, 'tokens' : tokens} 
+            vector_by_code[ts[0]] = unitvec(v)
+    return {'vectors' : vectors, 'tokens' : tokens, 'vector_by_code' : vector_by_code} 
 
 
 def create_word2vec_training_data(train_file, token_by_code_file, out_file_name, encoding="utf-8", do_shuffle=False, use_n_times=1):

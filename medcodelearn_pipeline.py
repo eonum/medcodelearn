@@ -53,8 +53,17 @@ def run (config):
         json.dump({k: v.tolist() for k, v in vector_by_token.items()}, open(config['all-vectors'] + '.json','w'), indent=4, sort_keys=True)
     # several vectors for each code. The first vector is from the code token.
     res = read_code_vectors(vector_by_token, config['all-tokens'])
+    
+    # for each code a list of vectors of its tokens
     vectors_by_codes = res['vectors']
+    # for each code a list of its tokens
     tokens_by_codes = res['tokens']
+    # for each code a vector that is the normalized sum of all vectors from all tokens from this code.
+    vector_by_codes = res['vector_by_code']
+    
+    print(list(vector_by_codes.keys())[0])
+    print(vector_by_codes[list(vector_by_codes.keys())[0]])
+    
     if config['store-everything']:
         json.dump({k: v.tolist() for k, v in vectors_by_codes.items()}, open(config['code-vectors'],'w'), sort_keys=True)
         json.dump(tokens_by_codes, open(config['code-tokens'],'w'), indent=4, sort_keys=True)
