@@ -75,7 +75,7 @@ if __name__ == '__main__':
                                                'adm-transfer-short',
                                                'sep-normal', 'sep-dead', 'sep-doctor',
                                                'sep-unknown', 'sep-transfer'],
-	'optimizer' : 'adam' }
+	    'optimizer' : 'adam' }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)

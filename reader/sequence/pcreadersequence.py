@@ -13,7 +13,7 @@ class SequencePCReader(FlatVectorizedPCReader):
         for sample in self.data:
             for code in sample:
                 input_set.add(code)
-        self.vocab = list(input_set)
+        self.vocab = ['mask'] + list(input_set)
         for i, codes in enumerate(self.data):
             code_indices = []
             for code in codes:
@@ -37,14 +37,20 @@ class SequencePCReader(FlatVectorizedPCReader):
         for diag in diags:
             if self.code_type in ['pdx', 'sdx']:
                 excludes.append(diag)
-            for t in self.tokens_by_code['ICD_' + diag]:
-                sequence.append(t)
+            if self.use_all_tokens:
+                for t in self.tokens_by_code['ICD_' + diag]:
+                    sequence.append(t)
+            else:
+                sequence.append(self.tokens_by_code['ICD_' + diag][0])
         
         for proc in procs:
             if self.code_type == 'srg':
                 excludes.append(proc)
-            for t in self.tokens_by_code['CHOP_' + proc]:
-                sequence.append(t)
+            if self.use_all_tokens:
+                for t in self.tokens_by_code['CHOP_' + proc]:
+                    sequence.append(t)
+            else:
+                sequence.append(self.tokens_by_code['CHOP_' + proc][0])
         
         return [sequence, gt, excludes]
     
