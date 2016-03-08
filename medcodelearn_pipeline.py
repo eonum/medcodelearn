@@ -11,7 +11,7 @@ from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
 from classification.random_forest import train_and_evaluate_random_forest
 from classification.ffnn import train_and_evaluate_ffnn
 from classification.ffnn import adjust_score
-from classification.ffnn import get_oracle
+from classification.ffnn import plot_oracle
 from reader.sequencevectors.pcreadersequencevectorized import SequenceVectorizedPCReader
 from classification.lstm import train_and_evaluate_lstm, pad_sequences
 from classification.lstmembedding import train_and_evaluate_lstm_with_embedding
@@ -96,9 +96,7 @@ def run (config):
             print('Train Feed Forward Neural Net for ' + reader.code_type + ' classification task..')
             model, scaler, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task)
             score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
-            oracle = get_oracle(model, scaler, X_test, classes, targets_test, excludes_test)
-            #print("Oracle: ")
-            #print(oracle)
+            plot_oracle(config, task, model, scaler, X_test, classes, targets_test, excludes_test)
         elif config['classifier'] == 'lstm':
             print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])) + " | " + str(len(X[0][0])))
             print('Train LSTM Neural Net for ' + reader.code_type + ' classification task..')

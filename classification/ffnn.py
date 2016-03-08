@@ -41,7 +41,7 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     early_stopping = EarlyStopping(monitor='val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit(X_train, y_train,
-              nb_epoch=1,
+              nb_epoch=100,
               batch_size=128,
               show_accuracy=True,
               validation_data=(X_validation, y_validation),
@@ -79,7 +79,7 @@ def adjust_score(model, scaler, X_test, classes, targets_test, excludes_test):
     print("New adjusted score " + str(score))
     return score
 
-def get_oracle(model, scaler, X_test, classes, targets_test, excludes_test):
+def plot_oracle(config, task, model, scaler, X_test, classes, targets_test, excludes_test):
     oracle = [0] * len(classes)
     if scaler != None:
         X_test = scaler.transform(X_test)
@@ -96,6 +96,20 @@ def get_oracle(model, scaler, X_test, classes, targets_test, excludes_test):
                 result = temp_result
         if result == targets_test[i]:
             oracle[best] += 1
+    
+    oracle = [sum(oracle[0:i]) for i in range(1, len(oracle)+1)]
     oracle = [x/len(targets_test) for x in oracle]
+    
+    host = host_subplot(111)
+    par = host.twinx()
+    host.set_xlabel('Ranks')
+    host.set_ylabel("Recognition Rate")
+    
+    p1, = host.plot(list(range(0,10)), oracle[0:10], label='Recognition Rate')
+    
+    plt.title('Oracle')
+    plt.savefig(config['base_folder'] + 'classification/oracle_' + task + '.png')
+    print("Saving oracle plot to " + config['base_folder'] + 'classification/oracle_' + task + '.png')
+    plt.close()
     return oracle
 
