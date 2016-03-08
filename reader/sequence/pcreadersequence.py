@@ -13,7 +13,7 @@ class SequencePCReader(FlatVectorizedPCReader):
         for sample in self.data:
             for code in sample:
                 input_set.add(code)
-        self.vocab = ['mask'] + list(input_set)
+        self.vocab = list(input_set)
         for i, codes in enumerate(self.data):
             code_indices = []
             for code in codes:

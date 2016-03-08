@@ -108,7 +108,7 @@ def run (config):
             X_train = keras.preprocessing.sequence.pad_sequences(X_train, maxlen=150, dtype='int32', truncating='post')
             X_test = keras.preprocessing.sequence.pad_sequences(X_test, maxlen=150, dtype='int32', truncating='post')
                  
-            model, score = train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, len(vocab), vector_by_token)
+            model, score = train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab, vector_by_token)
             score = adjust_score(model, None, X_test, classes, targets_test, excludes_test)
         
         total_score += score
