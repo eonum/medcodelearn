@@ -8,6 +8,11 @@ from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 import json
 
+import matplotlib as mpl
+mpl.use('Agg')
+from mpl_toolkits.axes_grid1 import host_subplot
+import matplotlib.pyplot as plt
+
 def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task):
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
@@ -36,7 +41,7 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     early_stopping = EarlyStopping(monitor='val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit(X_train, y_train,
-              nb_epoch=100,
+              nb_epoch=1,
               batch_size=128,
               show_accuracy=True,
               validation_data=(X_validation, y_validation),
@@ -74,4 +79,23 @@ def adjust_score(model, scaler, X_test, classes, targets_test, excludes_test):
     print("New adjusted score " + str(score))
     return score
 
+def get_oracle(model, scaler, X_test, classes, targets_test, excludes_test):
+    oracle = [0] * len(classes)
+    if scaler != None:
+        X_test = scaler.transform(X_test)
+    probabs = model.predict_proba(X_test, verbose=0)
+    for i in range(0, probabs.shape[0]):
+        classes_sorted = probabs[i].argsort()[::-1]
+        result = None
+        best = 0
+        while result == None:
+            temp_result = classes[classes_sorted[best]]
+            if temp_result in excludes_test[i]:
+                best += 1
+            else:
+                result = temp_result
+        if result == targets_test[i]:
+            oracle[best] += 1
+    oracle = [x/len(targets_test) for x in oracle]
+    return oracle
 
