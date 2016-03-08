@@ -17,17 +17,16 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     
     X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.15, random_state=23)
     
-    index_dict = {}
-    for i, key in enumerate(vocab):
-        index_dict[key] = i + 1
-    
-    n_symbols = len(index_dict) + 1 # adding 1 to account for 0th index (for masking)
-    embedding_weights = np.zeros((n_symbols, config['word2vec-dim-size']))
-    for word,index in index_dict.items():
+    n_symbols = len(vocab)
+    embedding_weights = np.zeros((n_symbols, config['word2vec-dim-size']), dtype=np.float32)
+    for index, word in enumerate(vocab):
+        # skip first item 'mask'
+        if index == 0:
+            continue
         embedding_weights[index,:] = vector_by_token[word]
        
     model = Sequential()
-    model.add(Embedding(len(vocab) + 1, config['word2vec-dim-size'], mask_zero=True, weights=[embedding_weights]))
+    model.add(Embedding(n_symbols, config['word2vec-dim-size'], mask_zero=True, weights=[embedding_weights]))
     model.add(LSTM(output_dim=128, activation='sigmoid', inner_activation='hard_sigmoid'))
     model.add(Dropout(0.1))
     model.add(Dense(output_dim, activation='softmax'))
