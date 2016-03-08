@@ -10,15 +10,24 @@ from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 from keras.layers.embeddings import Embedding
 
-def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab_size):
+def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab_size, vector_by_token):
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
     
     
     X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.15, random_state=23)
+    
+    index_dict = {}
+    for i, key in enumerate(vector_by_token.keys()):
+        index_dict[key] = i + 1
+    
+    n_symbols = len(index_dict) + 1 # adding 1 to account for 0th index (for masking)
+    embedding_weights = np.zeros((n_symbols+1, config['word2vec-dim-size']))
+    for word,index in index_dict.items():
+        embedding_weights[index,:] = vector_by_token[word]
        
     model = Sequential()
-    model.add(Embedding(vocab_size, config['word2vec-dim-size'], mask_zero=True))
+    model.add(Embedding(vocab_size, config['word2vec-dim-size'], mask_zero=True, weights=[embedding_weights]))
     model.add(LSTM(output_dim=128, activation='sigmoid', inner_activation='hard_sigmoid'))
     model.add(Dropout(0.1))
     model.add(Dense(output_dim, activation='softmax'))
