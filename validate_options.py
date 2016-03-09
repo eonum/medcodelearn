@@ -7,12 +7,13 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 
-def validate_bool_var(bool_var, scores, options):
-    config[bool_var] = False
+def validate_bool_var(bool_var, scores, options, baseline):
+    temp = config[bool_var]
+    config[bool_var] = not temp
     score = run(config)
-    config[bool_var] = True
-    score2 = run(config)
-    scores.append(score2 - score)
+    config[bool_var] = temp
+    diff = (baseline - score) if temp else (score - baseline)
+    scores.append(diff)
     options.append(bool_var)
     visualize(scores, options)
 
@@ -40,7 +41,7 @@ if __name__ == '__main__':
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
         'skip-word2vec' : False,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net) or 'lstm' (long short term memory, coming soon)
-        'classifier' : 'lstm',
+        'classifier' : 'lstm-embedding',
         # Store all intermediate results. 
         # Disable this to speed up a run and to reduce disk space usage.
         'store-everything' : False,
@@ -75,7 +76,8 @@ if __name__ == '__main__':
                                                'adm-transfer-short',
                                                'sep-normal', 'sep-dead', 'sep-doctor',
                                                'sep-unknown', 'sep-transfer'],
-	    'optimizer' : 'adam' }
+	    'optimizer' : 'adam',
+        'use-all-tokens-in-embedding' : False }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
@@ -87,8 +89,8 @@ if __name__ == '__main__':
     
     baseline = run(config)
         
-    for bool_var in ['use-descriptions', 'use-training-data-for-word2vec', 'shuffle-word2vec-traindata', 'word2vec-cbow']:
-        validate_bool_var(bool_var, scores, options)
+    for bool_var in ['use-all-tokens-in-embedding', 'use-descriptions', 'use-training-data-for-word2vec', 'shuffle-word2vec-traindata', 'word2vec-cbow']:
+        validate_bool_var(bool_var, scores, options, baseline)
         
     
     
@@ -105,7 +107,7 @@ if __name__ == '__main__':
     
     config['skip-word2vec'] = True
 
-    for optimizer in ['adam', 'adagrad', 'adadelta', 'adamax']:
+    for optimizer in ['adam', 'rmsprop']:
         config['optimizer'] = optimizer
         score = run(config)
         scores.append(score - baseline)
@@ -127,18 +129,5 @@ if __name__ == '__main__':
         scores.append(score - baseline_demo)
         options.append(demovar)
         visualize(scores, options)
-    config['skip-word2vec'] = False
-    config['use-descrptions'] = False
-    config['classifier'] = 'lstm-embedding'
-    score = run(config)
-    scores.append(score - baseline_demo)
-    options.append('embedding')
-    visualize(scores, options)
-
-    config['use-descriptions'] = True
-    score = run(config)
-    scores.append(score - baseline_demo)
-    options.append('embedding-descr')
-    visualize(scores, options)
 
     
