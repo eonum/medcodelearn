@@ -177,7 +177,8 @@ if __name__ == '__main__':
         # NN optimizer, one of ['sgd', 'rmsprop', 'adam', 'adagrad', 'adadelta', 'adamax']
         'optimizer' : 'adam',
         # Whether to use all tokens for the LSTM embedding or only codes (normalized sum over all vectors)
-        'use-all-tokens-in-embedding' : False }
+        'use-all-tokens-in-embedding' : False,
+        'lstm-layers' : [{'output-size' : 128, 'dropout' : 0.1}, {'output-size' : 64, 'dropout' : 0.1}] }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
