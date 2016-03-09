@@ -151,7 +151,7 @@ if __name__ == '__main__':
         # use skip grams (False) or CBOW (True) for word2vec
         'word2vec-cbow' : True,
         # Use the code descriptions for tokenization
-        'use-descriptions' : False,
+        'use-descriptions' : True,
         'use-training-data-for-word2vec' : True,
         'shuffle-word2vec-traindata' : True,
         'num-shuffles' : 10,
@@ -177,7 +177,7 @@ if __name__ == '__main__':
         # NN optimizer, one of ['sgd', 'rmsprop', 'adam', 'adagrad', 'adadelta', 'adamax']
         'optimizer' : 'adam',
         # Whether to use all tokens for the LSTM embedding or only codes (normalized sum over all vectors)
-        'use-all-tokens-in-embedding' : True }
+        'use-all-tokens-in-embedding' : False }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
