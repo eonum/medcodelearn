@@ -120,6 +120,7 @@ def run (config):
             model, score = train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab, 
                                                                    vector_by_token if config['use-all-tokens-in-embedding'] else vector_by_code)
             score = adjust_score(model, None, X_test, classes, targets_test, excludes_test)
+            plot_oracle(config, task, model, None, X_test, classes, targets_test, excludes_test)
         
         total_score += score
         if config['store-everything']:
