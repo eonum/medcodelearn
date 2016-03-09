@@ -29,6 +29,8 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     model.add(Embedding(n_symbols, config['word2vec-dim-size'], input_length=150, mask_zero=True, weights=[embedding_weights]))
     model.add(LSTM(output_dim=128, activation='sigmoid', inner_activation='hard_sigmoid'))
     model.add(Dropout(0.1))
+    model.add(LSTM(output_dim=128, activation='sigmoid', inner_activation='hard_sigmoid'))
+    model.add(Dropout(0.1))
     model.add(Dense(output_dim, activation='softmax'))
     
     model.compile(loss='categorical_crossentropy',
