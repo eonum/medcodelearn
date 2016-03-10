@@ -21,12 +21,12 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     embedding_weights = np.zeros((n_symbols, config['word2vec-dim-size']), dtype=np.float32)
     for index, word in enumerate(vocab):
         # skip first item 'mask'
-        if index == 0:
+        if index == 0 or word == '':
             continue
         embedding_weights[index,:] = vector_by_token[word]
        
     model = Sequential()
-    model.add(Embedding(n_symbols, config['word2vec-dim-size'], input_length=150, mask_zero=True, weights=[embedding_weights]))
+    model.add(Embedding(n_symbols, config['word2vec-dim-size'], input_length=128, mask_zero=True, weights=[embedding_weights]))
     for i, layer in enumerate(config['lstm-layers']):
         model.add(LSTM(output_dim=layer['output-size'], activation='sigmoid', inner_activation='hard_sigmoid',  return_sequences=i != len(config['lstm-layers']) - 1))
         model.add(Dropout(layer['dropout']))
