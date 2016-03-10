@@ -10,8 +10,7 @@ import numpy as np
 from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
 from classification.random_forest import train_and_evaluate_random_forest
 from classification.ffnn import train_and_evaluate_ffnn
-from classification.evaluatiokn import adjust_score
-from classification.evaluation import plot_oracle
+from classification.evaluation import adjust_score, plot_oracle, plot_classification_confidence_histograms
 from reader.sequencevectors.pcreadersequencevectorized import SequenceVectorizedPCReader
 from classification.lstm import train_and_evaluate_lstm, pad_sequences
 from classification.lstmembedding import train_and_evaluate_lstm_with_embedding
@@ -104,6 +103,7 @@ def run (config):
             model, scaler, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task)
             score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
             plot_oracle(config, task, model, scaler, X_test, classes, targets_test, excludes_test)
+            plot_classification_confidence_histograms(config, task, model, scaler, X_test, classes, targets_test, excludes_test)
         elif config['classifier'] == 'lstm':
             print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])) + " | " + str(len(X[0][0])))
             print('Train LSTM Neural Net for ' + reader.code_type + ' classification task..')
@@ -136,9 +136,9 @@ if __name__ == '__main__':
     config = {
         'base_folder' : base_folder,
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
-        'skip-word2vec' : False,
+        'skip-word2vec' : True,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net), 'lstm', 'lstm-embedding'
-        'classifier' : 'lstm-embedding',
+        'classifier' : 'ffnn',
         # Store all intermediate results. 
         # Disable this to speed up a run and to reduce disk space usage.
         'store-everything' : False,
