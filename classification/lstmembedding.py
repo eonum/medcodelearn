@@ -26,8 +26,10 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
         embedding_weights[index,:] = vector_by_token[word]
        
     model = Graph()
-    model.add_input(name='codes_input', input_shape=(n_symbols,), dtype='int')
-    model.add_node(Embedding(n_symbols, config['word2vec-dim-size'], input_length=150, mask_zero=True, weights=[embedding_weights]), name='embedding', input='codes_input')
+    model.add_input(name='codes_input', input_shape=(128,), dtype='int')
+    model.add_node(Embedding(n_symbols, config['word2vec-dim-size'], input_length=128, 
+                             mask_zero=True, weights=[embedding_weights]), 
+                             name='embedding', input='codes_input')
     node = 'embedding'
     for i, layer in enumerate(config['lstm-layers']):
         inputnode = node
@@ -52,17 +54,16 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     
     early_stopping = EarlyStopping(monitor='val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
-    model.fit(X_train, y_train,
+    model.fit({'codes_input':X_train, 'output':y_train},
               nb_epoch=50,
               #batch_size=128,
               #show_accuracy=True,
-              validation_data=(X_validation, y_validation),
+              validation_data={'codes_input':X_validation, 'output':y_validation},
               verbose=2,
-              callbacks=[early_stopping, visualizer])
+              callbacks=[visualizer])
     
     print("Prediction using LSTM..")
-    score = model.evaluate(X_test, y_test, show_accuracy=True, verbose=0)
-    print('Test score:', score[0])
-    print('Test accuracy:', score[1])  
+    score = model.evaluate({'codes_input':X_test, 'output':y_test}, verbose=0)
+    print('Test score:', score)
 
-    return [model, score[1]]
+    return [model, score]

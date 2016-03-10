@@ -60,7 +60,7 @@ def adjust_score(model, scaler, X_test, classes, targets_test, excludes_test):
     # TODO: this method can also be used for an Oracle
     if scaler != None:
         X_test = scaler.transform(X_test)
-    probabs = model.predict_proba(X_test, verbose=0)
+    probabs = model.predict({'codes_input':X_test}, verbose=0)['output']
     score = 0.0
     for i in range(0, probabs.shape[0]):
         classes_sorted = probabs[i].argsort()[::-1]
@@ -83,7 +83,7 @@ def plot_oracle(config, task, model, scaler, X_test, classes, targets_test, excl
     oracle = [0] * len(classes)
     if scaler != None:
         X_test = scaler.transform(X_test)
-    probabs = model.predict_proba(X_test, verbose=0)
+    probabs = model.predict({'codes_input':X_test}, verbose=0)['output']
     for i in range(0, probabs.shape[0]):
         classes_sorted = probabs[i].argsort()[::-1]
         adjusted_classes_sorted = []
