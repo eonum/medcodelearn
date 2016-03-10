@@ -40,7 +40,8 @@ def run (config):
             create_word2vec_training_data(config['training-set-word2vec'], config['all-tokens'], 
                                           base_folder + 'vectorization/train.txt',
                                           do_shuffle=config['shuffle-word2vec-traindata'],
-                                          use_n_times=config['num-shuffles'])
+                                          use_n_times=config['num-shuffles'],
+                                          use_demographic_tokens=config['use_demographic_tokens'])
             word2vec_trainset = base_folder + 'vectorization/train.txt'
         call(["word2vec", "-train", word2vec_trainset, "-binary",
                "0", "-cbow", '1' if config['word2vec-cbow'] else '0', "-output", config['all-vectors'],
@@ -52,7 +53,7 @@ def run (config):
     vector_by_token = read_vectors(config['all-vectors'])
     if config['store-everything']:
         json.dump({k: v.tolist() for k, v in vector_by_token.items()}, open(config['all-vectors'] + '.json','w'), indent=4, sort_keys=True)
-    # several vectors for each code. The first vector is from the code token.
+
     res = read_code_vectors(vector_by_token, config['all-tokens'])
     
     # for each code a list of vectors of its tokens
@@ -78,6 +79,7 @@ def run (config):
         elif config['classifier'] == 'lstm-embedding':
             reader = SequencePCReader(config['training-set'])
             reader.tokens_by_code = tokens_by_code
+            reader.use_demographic_tokens = config['use_demographic_tokens']
             reader.use_all_tokens = config['use-all-tokens-in-embedding']
         else:
             reader = FlatVectorizedPCReader(config['training-set'])
@@ -118,7 +120,8 @@ def run (config):
             X_test = keras.preprocessing.sequence.pad_sequences(X_test, maxlen=128, dtype='int', truncating='pre')
                  
             model, score = train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab, 
-                                                                   vector_by_token if config['use-all-tokens-in-embedding'] else vector_by_code)
+                                                                  vector_by_token,
+                                                                  vector_by_code)
             score = adjust_score(model, None, X_test, classes, targets_test, excludes_test)
             plot_oracle(config, task, model, None, X_test, classes, targets_test, excludes_test)
         
@@ -148,6 +151,7 @@ if __name__ == '__main__':
         'drg-tokenizations' : base_folder + 'tokenization/drgs_tokenized.csv',
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
+        'use_demographic_tokens' : True,
         # use skip grams (False) or CBOW (True) for word2vec
         'word2vec-cbow' : True,
         # Use the code descriptions for tokenization

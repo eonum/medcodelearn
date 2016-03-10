@@ -54,7 +54,7 @@ def read_code_vectors(vector_by_token, code_token_file, encoding="utf-8"):
             vector_by_code[ts[0]] = unitvec(v)
     return {'vectors' : vectors, 'tokens' : tokens, 'vector_by_code' : vector_by_code} 
 
-def create_word2vec_training_data(train_file, token_by_code_file, out_file_name, encoding="utf-8", do_shuffle=False, use_n_times=1):
+def create_word2vec_training_data(train_file, token_by_code_file, out_file_name, encoding="utf-8", do_shuffle=False, use_n_times=1, use_demographic_tokens=False):
     tokens_by_code = {}
     out_file = open(out_file_name, 'w')
 
@@ -78,7 +78,7 @@ def create_word2vec_training_data(train_file, token_by_code_file, out_file_name,
             diags = list(map(lambda x: 'ICD_' + x.replace('.', '').upper(), diags))
             diagproc = diags + procs
             diagproc = [p for p in diagproc if p in tokens_by_code]
-            alltokens = diagproc + demographic_tokens(row)
+            alltokens = diagproc + demographic_tokens(row) if use_demographic_tokens else diagproc
             
             for i in range(use_n_times):
                 random.seed(i)
