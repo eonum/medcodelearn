@@ -114,8 +114,8 @@ def run (config):
             print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])))
             print('Train LSTM Neural Net with Embedding for ' + reader.code_type + ' classification task..')
             vocab = reader.vocab
-            X_train = keras.preprocessing.sequence.pad_sequences(X_train, maxlen=150, dtype='int32', truncating='post')
-            X_test = keras.preprocessing.sequence.pad_sequences(X_test, maxlen=150, dtype='int32', truncating='post')
+            X_train = keras.preprocessing.sequence.pad_sequences(X_train, maxlen=128, dtype='int', truncating='pre')
+            X_test = keras.preprocessing.sequence.pad_sequences(X_test, maxlen=128, dtype='int', truncating='pre')
                  
             model, score = train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab, 
                                                                    vector_by_token if config['use-all-tokens-in-embedding'] else vector_by_code)
@@ -178,7 +178,7 @@ if __name__ == '__main__':
         'optimizer' : 'adam',
         # Whether to use all tokens for the LSTM embedding or only codes (normalized sum over all vectors)
         'use-all-tokens-in-embedding' : False,
-        'lstm-layers' : [{'output-size' : 128, 'dropout' : 0.1}, {'output-size' : 64, 'dropout' : 0.1}] }
+        'lstm-layers' : [{'output-size' : 128, 'dropout' : 0.1}] }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
