@@ -113,5 +113,19 @@ def demographic_tokens(row):
     los = int(row['los'])
     tokens.append('LOS_' + str(min(los, 50)))
     
+    weight = int(row['admWeight'])
+    if weight > 0:
+        for t in [750, 1000, 1250, 1500, 2000, 2500, 10000]:
+            if weight < t:
+                tokens.append('WEIGHT_LT_' + str(t))
+                break
+                
+    hmv = int(row['hmv'])
+    if hmv > 0:
+        for t in [500, 480, 240, 180, 95, 60, 48, 0]:
+            if hmv >= t:
+                tokens.append('HMV_GT_' + str(t))
+                break
+    
     return tokens
 

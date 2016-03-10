@@ -51,6 +51,8 @@ def run (config):
     print("\nRead vectors. Assign vectors to codes..")
     # one vector for each token in the vocabulary
     vector_by_token = read_vectors(config['all-vectors'])
+    vocab = vector_by_token.keys()
+    
     if config['store-everything']:
         json.dump({k: v.tolist() for k, v in vector_by_token.items()}, open(config['all-vectors'] + '.json','w'), indent=4, sort_keys=True)
 
@@ -79,6 +81,7 @@ def run (config):
         elif config['classifier'] == 'lstm-embedding':
             reader = SequencePCReader(config['training-set'])
             reader.tokens_by_code = tokens_by_code
+            reader.vocab = vocab
             reader.use_demographic_tokens = config['use_demographic_tokens']
             reader.use_all_tokens = config['use-all-tokens-in-embedding']
         else:
