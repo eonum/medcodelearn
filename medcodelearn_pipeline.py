@@ -10,8 +10,8 @@ import numpy as np
 from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
 from classification.random_forest import train_and_evaluate_random_forest
 from classification.ffnn import train_and_evaluate_ffnn
-from classification.ffnn import adjust_score
-from classification.ffnn import plot_oracle
+from classification.evaluatiokn import adjust_score
+from classification.evaluation import plot_oracle
 from reader.sequencevectors.pcreadersequencevectorized import SequenceVectorizedPCReader
 from classification.lstm import train_and_evaluate_lstm, pad_sequences
 from classification.lstmembedding import train_and_evaluate_lstm_with_embedding
