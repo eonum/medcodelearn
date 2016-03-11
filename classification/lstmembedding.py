@@ -9,6 +9,8 @@ import json
 from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 from keras.layers.embeddings import Embedding
+from classification.GraphMonitor import GraphMonitor
+
 
 def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab, vector_by_token):
     y_train = np_utils.to_categorical(y_train, output_dim)
@@ -27,7 +29,7 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
        
     model = Graph()
     model.add_input(name='codes_input', input_shape=(config['maxlen'],), dtype='int')
-    model.add_node(Embedding(n_symbols, config['word2vec-dim-size'], input_length=128, 
+    model.add_node(Embedding(n_symbols, config['word2vec-dim-size'], input_length=config['maxlen'], 
                              mask_zero=True, weights=[embedding_weights]), 
                              name='embedding', input='codes_input')
     node = 'embedding'
@@ -54,13 +56,13 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     
     early_stopping = EarlyStopping(monitor='val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
+    graphmonitor = GraphMonitor(config['base_folder'] + 'classification/', task_name=task, patience=10, output_names=['output'])
     model.fit({'codes_input':X_train, 'output':y_train},
               nb_epoch=50,
-              #batch_size=128,
-              #show_accuracy=True,
+              batch_size=128,
               validation_data={'codes_input':X_validation, 'output':y_validation},
               verbose=2,
-              callbacks=[visualizer])
+              callbacks=[graphmonitor])
     
     print("Prediction using LSTM..")
     score = model.evaluate({'codes_input':X_test, 'output':y_test}, verbose=0)
