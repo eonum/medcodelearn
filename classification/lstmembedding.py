@@ -21,12 +21,12 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     embedding_weights = np.zeros((n_symbols, config['word2vec-dim-size']), dtype=np.float32)
     for index, word in enumerate(vocab):
         # skip first item 'mask'
-        if index == 0:
+        if index == 0 or word == '':
             continue
         embedding_weights[index,:] = vector_by_token[word]
        
     model = Graph()
-    model.add_input(name='codes_input', input_shape=(128,), dtype='int')
+    model.add_input(name='codes_input', input_shape=(config['maxlen'],), dtype='int')
     model.add_node(Embedding(n_symbols, config['word2vec-dim-size'], input_length=128, 
                              mask_zero=True, weights=[embedding_weights]), 
                              name='embedding', input='codes_input')
