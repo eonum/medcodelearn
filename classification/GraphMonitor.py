@@ -59,9 +59,12 @@ class GraphMonitor(keras.callbacks.Callback):
         self.val_losses.append(logs.get('val_loss'))
         self.epochs.append(epoch)
         
+        probabs_train = self.model.predict(self.X_train, verbose=0)
+        probabs_val = self.model.predict(self.X_val, verbose=0)
+        
         for out_layer in self.output_names:            
-            acc_val = self.accuracy(self.X_val, self.y_val[out_layer], out_layer)
-            acc_train = self.accuracy(self.X_train, self.y_train[out_layer] , out_layer)
+            acc_val = self.accuracy(probabs_val, self.y_val[out_layer], out_layer)
+            acc_train = self.accuracy(probabs_train, self.y_train[out_layer] , out_layer)
             print('train_acc: ' + str(acc_train) + ', val_acc: ' + str(acc_val))
         
             self.val_accs[out_layer].append(acc_val)
@@ -100,8 +103,8 @@ class GraphMonitor(keras.callbacks.Callback):
         # Do also flush STDOUT
         sys.stdout.flush()
     
-    def accuracy(self, X, y, out_layer):
-        probabs = self.model.predict(X, verbose=0)[out_layer]
+    def accuracy(self, probabs, y, out_layer):
+        probabs = probabs[out_layer]
         acc = 0.0
         for i in range(0, probabs.shape[0]):
             label = probabs[i].argsort()[::-1][0]
