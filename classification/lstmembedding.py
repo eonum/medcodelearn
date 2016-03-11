@@ -12,7 +12,7 @@ from keras.layers.embeddings import Embedding
 from classification.GraphMonitor import GraphMonitor
 
 
-def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab, vector_by_token):
+def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab, vector_by_token, vector_by_code):
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
     
@@ -25,7 +25,7 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
         # skip first item 'mask'
         if index == 0 or word == '':
             continue
-        embedding_weights[index,:] = vector_by_token[word]
+        embedding_weights[index,:] = vector_by_token[word] if config['use-all-tokens-in-embedding'] or word not in vector_by_code else vector_by_code[word]
        
     model = Graph()
     model.add_input(name='codes_input', input_shape=(config['maxlen'],), dtype='int')
