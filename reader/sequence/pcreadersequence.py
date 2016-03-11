@@ -1,8 +1,11 @@
 from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
+from vectorize import demographic_tokens
 
 # Sequence to Flat classification
 class SequencePCReader(FlatVectorizedPCReader):
     tokens_by_code = None
+    use_demographic_tokens = False
+    vocab = None
     
     def init(self):
         pass
@@ -26,7 +29,10 @@ class SequencePCReader(FlatVectorizedPCReader):
         return [None] * len(dataset)
     
     def instance(self, row, diags, procs, gt):
-        sequence = []
+        sequence = demographic_tokens(row) if self.use_demographic_tokens else []
+        # remove tokens that have not been in the training set for word2vec
+        sequence = [t for t in sequence if t in self.vocab]
+        
         #demographic = np.zeros(len(self.demo_variables_to_use), dtype=np.float32)
         #for i, var in enumerate(self.demo_variables_to_use):
         #    demographic[i] = self.convert_demographic_variable(row, var)
