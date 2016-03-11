@@ -54,8 +54,6 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
               open(config['base_folder'] + 'classification/model_lstm_' + task + '.json','w'), indent=4, sort_keys=True)   
 
     
-    early_stopping = EarlyStopping(monitor='val_acc', patience=10)
-    visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     graphmonitor = GraphMonitor(config['base_folder'] + 'classification/', task_name=task, patience=10, output_names=['output'])
     model.fit({'codes_input':X_train, 'output':y_train},
               nb_epoch=50,

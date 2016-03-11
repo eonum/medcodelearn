@@ -16,6 +16,9 @@ class GraphMonitor(keras.callbacks.Callback):
         self.output_names = output_names
         
     def on_train_begin(self, logs={}):
+        self.max_val_acc = 0.0
+        self.max_epoch = 0
+        
         self.val_losses = []
         self.epochs = []
         
@@ -91,6 +94,13 @@ class GraphMonitor(keras.callbacks.Callback):
             plt.title('Accuracy by epoch on validation set for layer ' + out_layer)
             plt.savefig(self.base_folder + self.task_name + '_epochs_' + out_layer + '.png')
             plt.close()
+            
+            if acc_val > self.max_val_acc:
+                self.max_val_acc = acc_val
+                self.max_epoch = epoch
+            elif epoch - self.max_epoch > self.patience:
+                print('Epoch %05d: early stopping' % (epoch))
+                self.model.stop_training = True
         
         # Do also flush STDOUT
         sys.stdout.flush()
