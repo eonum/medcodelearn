@@ -186,7 +186,7 @@ if __name__ == '__main__':
         # Whether to use all tokens for the LSTM embedding or only codes (normalized sum over all vectors)
         'use-all-tokens-in-embedding' : False,
         # maximum sequence length for training
-        'maxlen' : 128,
+        'maxlen' : 32,
         'lstm-layers' : [{'output-size' : 128, 'dropout' : 0.1}] }
     
     if not os.path.exists(base_folder):
