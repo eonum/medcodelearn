@@ -8,11 +8,12 @@ import numpy as np
 
 class GraphMonitor(keras.callbacks.Callback):
     
-    def __init__(self, base_folder, task_name='', patience=10, output_names=[]):
+    def __init__(self, base_folder, task_name='', patience=10, output_names=[], calc_training_acc=False):
         self.base_folder = base_folder
         self.task_name = task_name
         self.patience = patience
         self.output_names = output_names
+        self.calc_training_acc = calc_training_acc
         
     def on_train_begin(self, logs={}):
         if len(self.output_names) == 0:
@@ -59,16 +60,22 @@ class GraphMonitor(keras.callbacks.Callback):
         self.val_losses.append(logs.get('val_loss'))
         self.epochs.append(epoch)
         
-        probabs_train = self.model.predict(self.X_train, verbose=0)
+        if self.calc_training_acc:
+            probabs_train = self.model.predict(self.X_train, verbose=0)
         probabs_val = self.model.predict(self.X_val, verbose=0)
         
         for out_layer in self.output_names:            
             acc_val = self.accuracy(probabs_val, self.y_val[out_layer], out_layer)
-            acc_train = self.accuracy(probabs_train, self.y_train[out_layer] , out_layer)
-            print('train_acc: ' + str(acc_train) + ', val_acc: ' + str(acc_val))
-        
             self.val_accs[out_layer].append(acc_val)
-            self.train_accs[out_layer].append(acc_train)
+
+
+            if self.calc_training_acc:
+                acc_train = self.accuracy(probabs_train, self.y_train[out_layer] , out_layer)
+                print('train_acc: ' + str(acc_train) + ', val_acc: ' + str(acc_val))
+                self.train_accs[out_layer].append(acc_train)
+            else:
+                print('val_acc: ' + str(acc_val))
+        
             
             host = host_subplot(111)
             par = host.twinx()
@@ -77,22 +84,26 @@ class GraphMonitor(keras.callbacks.Callback):
             par.set_ylabel("overall loss")
     
             p1, = host.plot(self.epochs, self.val_accs[out_layer], label='Validation accuracy')
-            p2, = host.plot(self.epochs, self.train_accs[out_layer], label='Training accuracy')
+            if self.calc_training_acc:
+                p2, = host.plot(self.epochs, self.train_accs[out_layer], label='Training accuracy')
             p3, = par.plot(self.epochs, self.val_losses, label="Validation loss")
             
             leg = plt.legend(loc='lower left')
     
             host.yaxis.get_label().set_color(p1.get_color())
             leg.texts[0].set_color(p1.get_color())
-            leg.texts[1].set_color(p2.get_color())
+            
+            if self.calc_training_acc:
+                leg.texts[1].set_color(p2.get_color())
             
             par.yaxis.get_label().set_color(p3.get_color())
-            leg.texts[2].set_color(p3.get_color())
+            leg.texts[2 if self.calc_training_acc else 1].set_color(p3.get_color())
             
             plt.title('Accuracy by epoch on validation set for layer ' + out_layer)
             plt.savefig(self.base_folder + self.task_name + '_epochs_' + out_layer + '.png')
             plt.close()
             
+            # early stopping
             if acc_val > self.max_val_acc:
                 self.max_val_acc = acc_val
                 self.max_epoch = epoch
