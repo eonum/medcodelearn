@@ -45,7 +45,7 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit(X_train, y_train,
               nb_epoch=50,
-              batch_size=128,
+              batch_size=64,
               show_accuracy=True,
               validation_data=(X_validation, y_validation),
               verbose=2,
