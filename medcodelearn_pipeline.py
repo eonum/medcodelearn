@@ -187,7 +187,7 @@ if __name__ == '__main__':
         'use-all-tokens-in-embedding' : False,
         # maximum sequence length for training
         'maxlen' : 32,
-        'lstm-layers' : [{'output-size' : 128, 'dropout' : 0.1}] }
+        'lstm-layers' : [{'output-size' : 64, 'dropout' : 0.1}] }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
