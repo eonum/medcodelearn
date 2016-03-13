@@ -92,6 +92,17 @@ if __name__ == '__main__':
     options = []
     
     baseline = run(config)
+    
+    inits = ['uniform', 'lecun_uniform', 'normal', 'identity', 'orthogonal', 'zero',
+              'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform']
+    activations = ['linear', 'tanh', 'sigmoid', 'hard_sigmoid', 'relu', 'softplus']
+    
+    for init in inits:
+        config['lstm-init'] = init
+        score = run(config)
+        scores.append(score - baseline)
+        options.append('lstm-init-' + init)
+        visualize(scores, options)
         
     for bool_var in ['use-all-tokens-in-embedding', 'use-descriptions', 
                      'use-training-data-for-word2vec', 'shuffle-word2vec-traindata',

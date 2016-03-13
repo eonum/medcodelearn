@@ -28,10 +28,12 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     model = Sequential()
     model.add(Embedding(n_symbols, config['word2vec-dim-size'], input_length=config['maxlen'], mask_zero=True, weights=[embedding_weights]))
     for i, layer in enumerate(config['lstm-layers']):
-        model.add(LSTM(output_dim=layer['output-size'], activation='sigmoid', inner_activation='hard_sigmoid',  return_sequences=i != len(config['lstm-layers']) - 1))
+        model.add(LSTM(output_dim=layer['output-size'], activation=config['lstm-activation'], 
+                       inner_activation=config['lstm-inner-activation'], init=config['lstm-init'],
+                       inner_init=config['lstm-inner-init'],  return_sequences=i != len(config['lstm-layers']) - 1))
         model.add(Dropout(layer['dropout']))
     
-    model.add(Dense(output_dim, activation='softmax'))
+    model.add(Dense(output_dim, activation='softmax', init=config['outlayer-init']))
     
     model.compile(loss='categorical_crossentropy',
                   class_mode='categorical',

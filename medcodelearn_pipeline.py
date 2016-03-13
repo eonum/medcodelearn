@@ -142,7 +142,7 @@ if __name__ == '__main__':
     config = {
         'base_folder' : base_folder,
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
-        'skip-word2vec' : False,
+        'skip-word2vec' : True,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net), 'lstm', 'lstm-embedding'
         'classifier' : 'lstm-embedding',
         # Store all intermediate results. 
@@ -187,7 +187,12 @@ if __name__ == '__main__':
         'use-all-tokens-in-embedding' : False,
         # maximum sequence length for training
         'maxlen' : 32,
-        'lstm-layers' : [{'output-size' : 64, 'dropout' : 0.1}] }
+        'lstm-layers' : [{'output-size' : 10, 'dropout' : 0.1}],
+        'outlayer-init' : 'glorot_uniform',
+        'lstm-init' : 'glorot_uniform',
+        'lstm-inner-init' : 'orthogonal',
+        'lstm-activation' : 'sigmoid',
+        'lstm-inner-activation' : 'hard_sigmoid' }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
