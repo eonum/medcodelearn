@@ -2,6 +2,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 from mpl_toolkits.axes_grid1 import host_subplot
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def adjust_score(model, scaler, X_test, classes, targets_test, excludes_test):
@@ -52,7 +53,6 @@ def plot_oracle(config, task, model, scaler, X_test, classes, targets_test, excl
     oracle = [x/len(targets_test) for x in oracle]
     
     host = host_subplot(111)
-    host.twinx()
     host.set_xlabel('Ranks')
     host.set_ylabel("Recognition Rate")
     
@@ -64,11 +64,9 @@ def plot_oracle(config, task, model, scaler, X_test, classes, targets_test, excl
     plt.close()
     return oracle
 
-def plot_classification_confidence_histograms(config, task, model, scaler, X_test, classes, targets_test, excludes_test):
-    best_confidence_hist = [0] * len(classes)
-    best_confidence_divisors = [1] * len(classes)
-    true_confidence_hist = [0] * len(classes)
-    true_confidence_divisors = [1] * len(classes)
+def plot_classification_confidence_histograms(config, task, model, scaler, X_test, classes, targets_test, excludes_test):    
+    best_confidence_hist = {}
+    true_confidence_hist = {}
     if scaler != None:
         X_test = scaler.transform(X_test)
     probabs = model.predict_proba(X_test, verbose=0)
@@ -83,24 +81,22 @@ def plot_classification_confidence_histograms(config, task, model, scaler, X_tes
         best = 0
         while best < len(adjusted_classes_and_probabs_sorted):
             if adjusted_classes_and_probabs_sorted[best][0] == targets_test[i]:
-                if true_confidence_hist[best] > 0: true_confidence_divisors[best] += 1
                 probab = adjusted_classes_and_probabs_sorted[best][1]
-                true_confidence_hist[best] += probab
+                if not probab in true_confidence_hist: true_confidence_hist[probab] = 0
+                true_confidence_hist[float(probab)] += 1
                 break
             else:
                 best += 1
-    true_confidence_hist = [x/true_confidence_divisors[i] for i, x in enumerate(true_confidence_hist)]
     
-    plt.hist(true_confidence_hist)
-
-    plt.xlabel('Classes')
-    plt.ylabel('Probability')
-    plt.title('True Confidence Histogram')
-    plt.axis([0, 20, 0, max(true_confidence_hist)])
-    #plt.grid(True)
+    host = host_subplot(111)
+    host.set_xlabel('Confidence')
+    host.set_ylabel("Probability")
+    divisor = sum(true_confidence_hist.values())
+    host.plot(np.array(sorted(true_confidence_hist)), np.array([true_confidence_hist[x]/divisor for x in sorted(true_confidence_hist)]), label='Frequency')
     
+    plt.title('True Confidence Hist')
     plt.savefig(config['base_folder'] + 'classification/true_confidence_hist_' + task + '.png')
     print("Saving true confidence histogram to " + config['base_folder'] + 'classification/true_confidence_hist_' + task + '.png')
-    print(true_confidence_hist)
+
         
      
