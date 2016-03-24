@@ -65,8 +65,8 @@ def plot_oracle(config, task, model, scaler, X_test, classes, targets_test, excl
     return oracle
 
 def plot_classification_confidence_histograms(config, task, model, scaler, X_test, classes, targets_test, excludes_test):    
-    best_confidence_hist = {}
-    true_confidence_hist = {}
+    best_confidence_hist = [0 for i in range(101)]
+    true_confidence_hist = [0 for i in range(101)]
     if scaler != None:
         X_test = scaler.transform(X_test)
     probabs = model.predict_proba(X_test, verbose=0)
@@ -78,14 +78,15 @@ def plot_classification_confidence_histograms(config, task, model, scaler, X_tes
             probab = probabs[i][classes_sorted[j]]
             if classname not in excludes_test[i]:
                 adjusted_classes_and_probabs_sorted.append((classname, probab))
-        if not probab in best_confidence_hist: best_confidence_hist[probab] = 0
-        best_confidence_hist[float(probab)] += 1
+        probab = adjusted_classes_and_probabs_sorted[0][1]
+        best_confidence_hist[int(round(100*probab))] += 1
         best = 0
         while best < len(adjusted_classes_and_probabs_sorted):
             if adjusted_classes_and_probabs_sorted[best][0] == targets_test[i]:
                 probab = adjusted_classes_and_probabs_sorted[best][1]
-                if not probab in true_confidence_hist: true_confidence_hist[probab] = 0
-                true_confidence_hist[float(probab)] += 1
+                print("tc "+str(int(round(probab*100)))+ " " + str(probab))
+
+                true_confidence_hist[int(round(100*probab))] += 1
                 break
             else:
                 best += 1
@@ -93,19 +94,19 @@ def plot_classification_confidence_histograms(config, task, model, scaler, X_tes
     host = host_subplot(111)
     host.set_xlabel('Confidence')
     host.set_ylabel("Probability")
-    divisor = sum(true_confidence_hist.values())
-    host.plot(np.array(sorted(true_confidence_hist)), np.array([true_confidence_hist[x]/divisor for x in sorted(true_confidence_hist)]), label='Probability')
+    divisor = sum(true_confidence_hist)
+    host.plot(np.array(range(101)), np.array([x/divisor for x in true_confidence_hist]), label='Probability')
     
     plt.title('True Confidence Hist')
     plt.savefig(config['base_folder'] + 'classification/true_confidence_hist_' + task + '.png')
-    plt.close(fig)
+    plt.close()
     print("Saving true confidence histogram to " + config['base_folder'] + 'classification/true_confidence_hist_' + task + '.png')
 
     host = host_subplot(111)
     host.set_xlabel('Confidence')
     host.set_ylabel("Probability")
-    divisor = sum(best_confidence_hist.values())
-    host.plot(np.array(sorted(best_confidence_hist)), np.array([best_confidence_hist[x]/divisor for x in sorted(best_confidence_hist)]), label='Probability')
+    divisor = sum(best_confidence_hist)
+    host.plot(np.array(range(101)), np.array([x/divisor for x in best_confidence_hist]), label='Probability')
     
     plt.title('Best Confidence Hist')
     plt.savefig(config['base_folder'] + 'classification/best_confidence_hist_' + task + '.png')
