@@ -10,7 +10,7 @@ from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 from keras.layers.embeddings import Embedding
 
-def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab, vector_by_token):
+def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab, vector_by_token, vector_by_code):
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
     
@@ -21,17 +21,19 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     embedding_weights = np.zeros((n_symbols, config['word2vec-dim-size']), dtype=np.float32)
     for index, word in enumerate(vocab):
         # skip first item 'mask'
-        if index == 0:
+        if index == 0 or word == '':
             continue
-        embedding_weights[index,:] = vector_by_token[word]
+        embedding_weights[index,:] = vector_by_token[word] if config['use-all-tokens-in-embedding'] or word not in vector_by_code else vector_by_code[word]
        
     model = Sequential()
-    model.add(Embedding(n_symbols, config['word2vec-dim-size'], input_length=150, mask_zero=True, weights=[embedding_weights]))
+    model.add(Embedding(n_symbols, config['word2vec-dim-size'], input_length=config['maxlen'], mask_zero=True, weights=[embedding_weights]))
     for i, layer in enumerate(config['lstm-layers']):
-        model.add(LSTM(output_dim=layer['output-size'], activation='sigmoid', inner_activation='hard_sigmoid',  return_sequences=i != len(config['lstm-layers']) - 1))
+        model.add(LSTM(output_dim=layer['output-size'], activation=config['lstm-activation'], 
+                       inner_activation=config['lstm-inner-activation'], init=config['lstm-init'],
+                       inner_init=config['lstm-inner-init'],  return_sequences=i != len(config['lstm-layers']) - 1))
         model.add(Dropout(layer['dropout']))
     
-    model.add(Dense(output_dim, activation='softmax'))
+    model.add(Dense(output_dim, activation='softmax', init=config['outlayer-init']))
     
     model.compile(loss='categorical_crossentropy',
                   class_mode='categorical',
@@ -45,7 +47,7 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit(X_train, y_train,
               nb_epoch=50,
-              batch_size=128,
+              batch_size=64,
               show_accuracy=True,
               validation_data=(X_validation, y_validation),
               verbose=2,

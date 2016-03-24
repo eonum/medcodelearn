@@ -54,8 +54,7 @@ def read_code_vectors(vector_by_token, code_token_file, encoding="utf-8"):
             vector_by_code[ts[0]] = unitvec(v)
     return {'vectors' : vectors, 'tokens' : tokens, 'vector_by_code' : vector_by_code} 
 
-
-def create_word2vec_training_data(train_file, token_by_code_file, out_file_name, encoding="utf-8", do_shuffle=False, use_n_times=1):
+def create_word2vec_training_data(train_file, token_by_code_file, out_file_name, encoding="utf-8", do_shuffle=False, use_n_times=1, use_demographic_tokens=False):
     tokens_by_code = {}
     out_file = open(out_file_name, 'w')
 
@@ -79,15 +78,54 @@ def create_word2vec_training_data(train_file, token_by_code_file, out_file_name,
             diags = list(map(lambda x: 'ICD_' + x.replace('.', '').upper(), diags))
             diagproc = diags + procs
             diagproc = [p for p in diagproc if p in tokens_by_code]
+            alltokens = diagproc + demographic_tokens(row) if use_demographic_tokens else diagproc
             
             for i in range(use_n_times):
                 random.seed(i)
                 r = random.random()
                 if do_shuffle:
-                    random.shuffle(diagproc, lambda: r)
-                for d in diagproc:
-                    for t in tokens_by_code[d]:
-                        out_file.write(t + ' ')         
+                    random.shuffle(alltokens, lambda: r)
+                for d in alltokens:
+                    if d in tokens_by_code:
+                        for t in tokens_by_code[d]:
+                            out_file.write(t + ' ') 
+                    else:
+                        out_file.write(d + ' ')        
                 out_file.write("\n")
 
     out_file.close()
+    
+
+def demographic_tokens(row):
+    tokens = []
+    tokens.append('SEP_' + row['sep'])
+    tokens.append('ADM_' + row['adm'])
+    tokens.append('SEX_' + row['sex'])
+    days = int(row['ageDays'])
+    if days > 0:
+        tokens.append('AGE_DAYS_' + str(days if days < 30 else days - (days % 10)))
+        
+    years = int(row['ageYears'])
+    if years > 0:
+        tokens.append('AGE_YEARS_' + str(years))
+        tokens.append('AGE_DECADE_' + str(years - (years % 10)))
+        
+    los = int(row['los'])
+    tokens.append('LOS_' + str(min(los, 50)))
+    
+    weight = int(row['admWeight'])
+    if weight > 0:
+        for t in [750, 1000, 1250, 1500, 2000, 2500, 10000]:
+            if weight < t:
+                tokens.append('WEIGHT_LT_' + str(t))
+                break
+                
+    hmv = int(row['hmv'])
+    if hmv > 0:
+        for t in [500, 480, 240, 180, 95, 60, 48, 0]:
+            if hmv >= t:
+                tokens.append('HMV_GT_' + str(t))
+                break
+    
+    return tokens
+

@@ -3,6 +3,7 @@ mpl.use('Agg')
 from mpl_toolkits.axes_grid1 import host_subplot
 import matplotlib.pyplot as plt
 import keras
+import sys
 
 class LossHistoryVisualisation(keras.callbacks.Callback):
     def __init__(self, filename):
@@ -38,3 +39,6 @@ class LossHistoryVisualisation(keras.callbacks.Callback):
         plt.title('Accuracy by epoch on validation set')
         plt.savefig(self.filename)
         plt.close()
+        
+        # Do also flush STDOUT
+        sys.stdout.flush()
