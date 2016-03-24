@@ -142,6 +142,7 @@ if __name__ == '__main__':
     base_folder = 'data/pipelinetest/'
     config = {
         'base_folder' : base_folder,
+        'tokenizer-german-split-compound-words': True, 
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
         'skip-word2vec' : True,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net), 'lstm', 'lstm-embedding'

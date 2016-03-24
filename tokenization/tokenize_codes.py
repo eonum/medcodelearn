@@ -45,7 +45,7 @@ def output_vocab(vocab_filename, vocab):
             print(word, file=out_file)
     
 def tokenize_catalogs(config):
-    tokenizer = GermanTokenizer()
+    tokenizer = GermanTokenizer(config['tokenizer-german-split-compound-words'])
 
     vocab_de = set()
     # You have to install the stopwords corpus by executing nltk.download()
