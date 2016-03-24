@@ -127,7 +127,8 @@ def run (config):
                                                                   vector_by_code)
             score = adjust_score(model, None, X_test, classes, targets_test, excludes_test)
             plot_oracle(config, task, model, None, X_test, classes, targets_test, excludes_test)
-        
+            plot_classification_confidence_histograms(config, task, model, scaler, X_test, classes, targets_test, excludes_test)
+
         total_score += score
         if config['store-everything']:
             joblib.dump(model, base_folder + 'classification/' + config['classifier'] + '.pkl')

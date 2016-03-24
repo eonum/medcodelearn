@@ -84,7 +84,6 @@ def plot_classification_confidence_histograms(config, task, model, scaler, X_tes
         while best < len(adjusted_classes_and_probabs_sorted):
             if adjusted_classes_and_probabs_sorted[best][0] == targets_test[i]:
                 probab = adjusted_classes_and_probabs_sorted[best][1]
-                print("tc "+str(int(round(probab*100)))+ " " + str(probab))
 
                 true_confidence_hist[int(round(100*probab))] += 1
                 break
