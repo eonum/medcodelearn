@@ -127,7 +127,7 @@ def run (config):
                                                                   vector_by_code)
             score = adjust_score(model, None, X_test, classes, targets_test, excludes_test)
             plot_oracle(config, task, model, None, X_test, classes, targets_test, excludes_test)
-            plot_classification_confidence_histograms(config, task, model, scaler, X_test, classes, targets_test, excludes_test)
+            plot_classification_confidence_histograms(config, task, model, None, X_test, classes, targets_test, excludes_test)
 
         total_score += score
         if config['store-everything']:
@@ -189,10 +189,10 @@ if __name__ == '__main__':
         # maximum sequence length for training
         'maxlen' : 32,
         'lstm-layers' : [{'output-size' : 64, 'dropout' : 0.1}],
-        'outlayer-init' : 'glorot_uniform',
+        'outlayer-init' : 'he_uniform',
         'lstm-init' : 'glorot_uniform',
         'lstm-inner-init' : 'orthogonal',
-        'lstm-activation' : 'sigmoid',
+        'lstm-activation' : 'tanh',
         'lstm-inner-activation' : 'hard_sigmoid' }
     
     if not os.path.exists(base_folder):

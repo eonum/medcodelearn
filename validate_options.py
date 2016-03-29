@@ -82,10 +82,10 @@ if __name__ == '__main__':
         # maximum sequence length for training
         'maxlen' : 32,
         'lstm-layers' : [{'output-size' : 64, 'dropout' : 0.1}],
-        'outlayer-init' : 'glorot_uniform',
+        'outlayer-init' : 'he_uniform',
         'lstm-init' : 'glorot_uniform',
         'lstm-inner-init' : 'orthogonal',
-        'lstm-activation' : 'sigmoid',
+        'lstm-activation' : 'tanh',
         'lstm-inner-activation' : 'hard_sigmoid' }
     
     if not os.path.exists(base_folder):
