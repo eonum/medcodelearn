@@ -34,12 +34,12 @@ def visualize(scores, options):
     plt.close()
 
 if __name__ == '__main__':
-    base_folder = 'data/validate-options/'
+    base_folder = 'data/validate_activations/'
     
     config = {
         'base_folder' : base_folder,
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
-        'skip-word2vec' : False,
+        'skip-word2vec' : True,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net) or 'lstm' (long short term memory, coming soon)
         'classifier' : 'lstm-embedding',
         # Store all intermediate results. 
@@ -81,7 +81,12 @@ if __name__ == '__main__':
         'use-all-tokens-in-embedding' : False,
         # maximum sequence length for training
         'maxlen' : 32,
-        'lstm-layers' : [{'output-size' : 64, 'dropout' : 0.1}] }
+        'lstm-layers' : [{'output-size' : 64, 'dropout' : 0.1}],
+        'outlayer-init' : 'glorot_uniform',
+        'lstm-init' : 'glorot_uniform',
+        'lstm-inner-init' : 'orthogonal',
+        'lstm-activation' : 'sigmoid',
+        'lstm-inner-activation' : 'hard_sigmoid' }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
@@ -93,15 +98,15 @@ if __name__ == '__main__':
     
     baseline = run(config)
     
-    inits = ['uniform', 'lecun_uniform', 'normal', 'identity', 'orthogonal', 'zero',
-              'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform']
+    inits = ['zero', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'uniform', 'lecun_uniform', 'normal', ]
+    init_inner = ['identity', 'orthogonal']
     activations = ['linear', 'tanh', 'sigmoid', 'hard_sigmoid', 'relu', 'softplus']
     
-    for init in inits:
-        config['lstm-init'] = init
+    for activation in activations:
+        config['lstm-activation'] = activation
         score = run(config)
         scores.append(score - baseline)
-        options.append('lstm-init-' + init)
+        options.append('lstm-activation-' + activation)
         visualize(scores, options)
         
     for bool_var in ['use-all-tokens-in-embedding', 'use-descriptions', 

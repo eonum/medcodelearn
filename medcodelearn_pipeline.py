@@ -187,7 +187,7 @@ if __name__ == '__main__':
         'use-all-tokens-in-embedding' : False,
         # maximum sequence length for training
         'maxlen' : 32,
-        'lstm-layers' : [{'output-size' : 10, 'dropout' : 0.1}],
+        'lstm-layers' : [{'output-size' : 64, 'dropout' : 0.1}],
         'outlayer-init' : 'glorot_uniform',
         'lstm-init' : 'glorot_uniform',
         'lstm-inner-init' : 'orthogonal',
