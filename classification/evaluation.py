@@ -6,7 +6,6 @@ import numpy as np
 
 
 def adjust_score(model, scaler, X_test, classes, targets_test, excludes_test):
-    # TODO: this method can also be used for an Oracle
     if scaler != None:
         X_test = scaler.transform(X_test)
     probabs = model.predict_proba(X_test, verbose=0)
@@ -79,13 +78,19 @@ def plot_classification_confidence_histograms(config, task, model, scaler, X_tes
             if classname not in excludes_test[i]:
                 adjusted_classes_and_probabs_sorted.append((classname, probab))
         probab = adjusted_classes_and_probabs_sorted[0][1]
-        best_confidence_hist[int(round(100*probab))] += 1
+        
+        try:
+            best_confidence_hist[int(round(100*probab))] += 1
+        except ValueError:
+            return
         best = 0
         while best < len(adjusted_classes_and_probabs_sorted):
             if adjusted_classes_and_probabs_sorted[best][0] == targets_test[i]:
                 probab = adjusted_classes_and_probabs_sorted[best][1]
-
-                true_confidence_hist[int(round(100*probab))] += 1
+                try:
+                    true_confidence_hist[int(round(100*probab))] += 1
+                except ValueError:
+                    return
                 break
             else:
                 best += 1
