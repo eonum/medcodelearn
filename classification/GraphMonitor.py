@@ -6,6 +6,7 @@ import keras
 import sys
 import numpy as np
 
+# This class is deprecated as it is based upon the deprecated Graph API from Keras < 1.0
 class GraphMonitor(keras.callbacks.Callback):
     
     def __init__(self, base_folder, task_name='', patience=10, output_names=[], calc_training_acc=False):

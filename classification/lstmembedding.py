@@ -6,8 +6,6 @@ from keras.utils import np_utils
 from keras.layers import Dropout, Dense, Input, LSTM, Embedding
 from keras.models import Model
 
-from classification.GraphMonitor import GraphMonitor
-
 from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 
