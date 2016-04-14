@@ -36,8 +36,8 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     model.add(Dense(output_dim, activation='softmax', init=config['outlayer-init']))
     
     model.compile(loss='categorical_crossentropy',
-                  class_mode='categorical',
-                  optimizer=config['optimizer'])
+                  optimizer=config['optimizer'],
+                  metrics=['accuracy'])
     
     json.dump(json.loads(model.to_json()), 
               open(config['base_folder'] + 'classification/model_lstm_' + task + '.json','w'), indent=4, sort_keys=True)   
@@ -48,13 +48,12 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     model.fit(X_train, y_train,
               nb_epoch=50,
               batch_size=64,
-              show_accuracy=True,
               validation_data=(X_validation, y_validation),
               verbose=2,
               callbacks=[early_stopping, visualizer])
     
     print("Prediction using LSTM..")
-    score = model.evaluate(X_test, y_test, show_accuracy=True, verbose=0)
+    score = model.evaluate(X_test, y_test, verbose=0)
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  
 

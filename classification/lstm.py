@@ -13,21 +13,21 @@ def train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
     
-    X_train = pad_sequences(X_train, maxlen=17, dim=len(X_train[0][0]))
-    X_test = pad_sequences(X_test, maxlen=17, dim=len(X_train[0][0]))
+    X_train = pad_sequences(X_train, maxlen=config['maxlen'], dim=len(X_train[0][0]))
+    X_test = pad_sequences(X_test, maxlen=config['maxlen'], dim=len(X_train[0][0]))
     
     X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.15, random_state=23)
    
     # TODO normalization
     
     model = Sequential()
-    model.add(LSTM(output_dim=128, input_dim=X_train.shape[2], activation='sigmoid', inner_activation='hard_sigmoid'))
+    model.add(LSTM(output_dim=128, input_dim=X_train.shape[2], input_length=config['maxlen'], activation='sigmoid', inner_activation='hard_sigmoid'))
     model.add(Dropout(0.5))
     model.add(Dense(output_dim, activation='softmax'))
     
     model.compile(loss='categorical_crossentropy',
-                  class_mode='categorical',
-                  optimizer=config['optimizer'])
+                  optimizer=config['optimizer'],
+                  metrics=['accuracy'])
     
     json.dump(json.loads(model.to_json()), 
               open(config['base_folder'] + 'classification/model_lstm_' + task + '.json','w'), indent=4, sort_keys=True)   
@@ -38,13 +38,12 @@ def train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim
     model.fit(X_train, y_train,
               nb_epoch=100,
               batch_size=64,
-              show_accuracy=True,
               validation_data=(X_validation, y_validation),
               verbose=2,
               callbacks=[early_stopping, visualizer])
     
     print("Prediction using LSTM..")
-    score = model.evaluate(X_test, y_test, show_accuracy=True, verbose=0)
+    score = model.evaluate(X_test, y_test, verbose=0)
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  
 

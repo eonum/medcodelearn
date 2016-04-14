@@ -113,7 +113,7 @@ def run (config):
             print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])) + " | " + str(len(X[0][0])))
             print('Train LSTM Neural Net for ' + reader.code_type + ' classification task..')
             model, scaler, score = train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim, task)
-            X_test = pad_sequences(X_test, maxlen=17, dim=len(X_train[0][0]))
+            X_test = pad_sequences(X_test, maxlen=config['maxlen'], dim=len(X_train[0][0]))
             score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
         elif config['classifier'] == 'lstm-embedding':
             print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])))
@@ -171,8 +171,8 @@ if __name__ == '__main__':
         'word2vec-vocab': base_folder + 'vectorization/vocab.csv',
         'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json',
         'training-set-word2vec' : 'data/2015/trainingData2015_20151001.csv.last',
-        'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
-        'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.small.out',
+        'training-set' : '/home/tim/medcodelearn/data/2015/tiny.txt',
+        'training-set-drgs' : '/home/tim/medcodelearn/data/2015/tiny.txt.out',
         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
         'num-cores' : 8,
         # which demographic variables should be used.

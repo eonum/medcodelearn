@@ -26,8 +26,8 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     
     # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.8, nesterov=True)
     model.compile(loss='categorical_crossentropy',
-                  class_mode='categorical',
-                  optimizer='adadelta')
+                  optimizer='adadelta',
+                  metrics=['accuracy'])
     
     json.dump(json.loads(model.to_json()), 
               open(config['base_folder'] + 'classification/model_' + task + '.json','w'), indent=4, sort_keys=True)   
@@ -38,13 +38,12 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     model.fit(X_train, y_train,
               nb_epoch=100,
               batch_size=128,
-              show_accuracy=True,
               validation_data=(X_validation, y_validation),
               verbose=2,
               callbacks=[early_stopping, visualizer])
     
     print("Prediction using FFNN..")
-    score = model.evaluate(X_test, y_test, show_accuracy=True, verbose=0)
+    score = model.evaluate(X_test, y_test, verbose=0)
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  
     

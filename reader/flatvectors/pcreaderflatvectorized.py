@@ -91,7 +91,7 @@ class FlatVectorizedPCReader(DRGReader):
         raise ValueError('code_type should be one of "drg", "pdx", "sdx" or "srg" but was ' + self.code_type)
     
     def instance(self, row, diags, procs, gt):
-        data = np.zeros(self.word2vec_dims / 2, dtype=np.float32)
+        data = np.zeros(int(self.word2vec_dims / 2), dtype=np.float32)
         excludes = []
         # sum over all vectors (first vector is the code token)
         for diag in diags:
@@ -101,7 +101,7 @@ class FlatVectorizedPCReader(DRGReader):
                 data += t
         data = unitvec(data)
         
-        data_procedures = np.zeros(self.word2vec_dims / 2, dtype=np.float32)
+        data_procedures = np.zeros(int(self.word2vec_dims / 2), dtype=np.float32)
         for proc in procs:
             if self.code_type == 'srg':
                 excludes.append(proc)
