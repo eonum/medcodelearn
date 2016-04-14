@@ -1,14 +1,11 @@
 import numpy as np
-from keras.utils import np_utils
-
-from sklearn.cross_validation import train_test_split
-from keras.models import Graph
-from keras.layers.recurrent import LSTM
-from keras.layers.core import Dropout, Dense
 import json
-from keras.callbacks import EarlyStopping
-from classification.LossHistoryVisualization import LossHistoryVisualisation
-from keras.layers.embeddings import Embedding
+from sklearn.cross_validation import train_test_split
+
+from keras.utils import np_utils
+from keras.layers import Dropout, Dense, Input, LSTM, Embedding
+from keras.models import Model
+
 from classification.GraphMonitor import GraphMonitor
 
 
@@ -27,43 +24,39 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
             continue
         embedding_weights[index,:] = vector_by_token[word] if config['use-all-tokens-in-embedding'] or word not in vector_by_code else vector_by_code[word]
        
-    model = Graph()
-    model.add_input(name='codes_input', input_shape=(config['maxlen'],), dtype='int')
-    model.add_node(Embedding(n_symbols, config['word2vec-dim-size'], input_length=config['maxlen'], 
-                             mask_zero=True, weights=[embedding_weights]), 
-                             name='embedding', input='codes_input')
-    node = 'embedding'
+
+    codes_input = Input(shape=(config['maxlen'],), dtype='int32', name='codes_input')
+    embedding = Embedding(n_symbols, config['word2vec-dim-size'], input_length=config['maxlen'], 
+                             mask_zero=True, weights=[embedding_weights])(codes_input)
+    node = embedding
     for i, layer in enumerate(config['lstm-layers']):
-        inputnode = node
-        node = 'lstm' + str(i)
-        model.add_node(LSTM(output_dim=layer['output-size'], activation='sigmoid', 
+        node = LSTM(output_dim=layer['output-size'], activation='sigmoid', 
                             inner_activation='hard_sigmoid',
-                            return_sequences=i != len(config['lstm-layers']) - 1),
-                            name=node, input=inputnode)
-        inputnode = node
-        node = 'dropout' + str(i)
-        model.add_node(Dropout(layer['dropout']), name=node, input=inputnode)
+                            return_sequences=i != len(config['lstm-layers']) - 1)(node)
+        node = Dropout(layer['dropout'])(node)
     
-    model.add_node(Dense(output_dim, activation='softmax'), name='softmax', input=node)
-    model.add_output(name='output', input='softmax')
+    output = Dense(output_dim, activation='softmax', name='output')(node)
+    
+    model = Model(input=[codes_input], output=[output])
     
     model.compile(loss={'output' : 'categorical_crossentropy'},
-                  optimizer=config['optimizer'])
+                  optimizer=config['optimizer'],
+                  metrics=['accuracy'])
     
     json.dump(json.loads(model.to_json()), 
               open(config['base_folder'] + 'classification/model_lstm_' + task + '.json','w'), indent=4, sort_keys=True)   
 
     
     graphmonitor = GraphMonitor(config['base_folder'] + 'classification/', task_name=task, patience=10, output_names=['output'])
-    model.fit({'codes_input':X_train, 'output':y_train},
+    model.fit({'codes_input':X_train}, {'output':y_train},
               nb_epoch=50,
               batch_size=128,
-              validation_data={'codes_input':X_validation, 'output':y_validation},
+              validation_data=({'codes_input':X_validation}, {'output':y_validation}),
               verbose=2,
-              callbacks=[graphmonitor])
+              callbacks=[])
     
     print("Prediction using LSTM..")
-    score = model.evaluate({'codes_input':X_test, 'output':y_test}, verbose=0)
+    score = model.evaluate({'codes_input':X_test}, {'output':y_test}, verbose=0)
     print('Test score:', score)
 
     return [model, score]
