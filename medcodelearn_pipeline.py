@@ -142,7 +142,7 @@ if __name__ == '__main__':
     config = {
         'base_folder' : base_folder,
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
-        'skip-word2vec' : False,
+        'skip-word2vec' : True,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net), 'lstm', 'lstm-embedding'
         'classifier' : 'lstm-embedding',
         # Store all intermediate results. 

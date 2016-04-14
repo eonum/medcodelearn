@@ -31,7 +31,6 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     
     # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.8, nesterov=True)
     model.compile(loss='categorical_crossentropy',
-                  class_mode='categorical',
                   optimizer='adadelta')
     
     json.dump(json.loads(model.to_json()), 
@@ -43,7 +42,6 @@ def train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim
     model.fit(X_train, y_train,
               nb_epoch=100,
               batch_size=128,
-              show_accuracy=True,
               validation_data=(X_validation, y_validation),
               verbose=2,
               callbacks=[early_stopping, visualizer])
@@ -60,7 +58,8 @@ def adjust_score(model, scaler, X_test, classes, targets_test, excludes_test):
     # TODO: this method can also be used for an Oracle
     if scaler != None:
         X_test = scaler.transform(X_test)
-    probabs = model.predict({'codes_input':X_test}, verbose=0)['output']
+    # adapt here if the model has multiple outputs. Append '[0]'
+    probabs = model.predict({'codes_input':X_test}, verbose=0)
     score = 0.0
     for i in range(0, probabs.shape[0]):
         classes_sorted = probabs[i].argsort()[::-1]
@@ -83,7 +82,8 @@ def plot_oracle(config, task, model, scaler, X_test, classes, targets_test, excl
     oracle = [0] * len(classes)
     if scaler != None:
         X_test = scaler.transform(X_test)
-    probabs = model.predict({'codes_input':X_test}, verbose=0)['output']
+    # adapt here if the model has multiple outputs. Append '[0]'
+    probabs = model.predict({'codes_input':X_test}, verbose=0)
     for i in range(0, probabs.shape[0]):
         classes_sorted = probabs[i].argsort()[::-1]
         adjusted_classes_sorted = []
