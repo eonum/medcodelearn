@@ -31,12 +31,14 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
                              mask_zero=True, weights=[embedding_weights])(codes_input)
     node = embedding
     for i, layer in enumerate(config['lstm-layers']):
-        node = LSTM(output_dim=layer['output-size'], activation='sigmoid', 
-                            inner_activation='hard_sigmoid',
+        node = LSTM(output_dim=layer['output-size'], activation=config['lstm-activation'], 
+                            inner_activation=config['lstm-inner-activation'], init=config['lstm-init'],
+                            inner_init=config['lstm-inner-init'],
                             return_sequences=i != len(config['lstm-layers']) - 1)(node)
         node = Dropout(layer['dropout'])(node)
     
-    output = Dense(output_dim, activation='softmax', name='output')(node)
+    output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(node)
+        
     
     model = Model(input=[codes_input], output=[output])
     
@@ -52,13 +54,15 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit({'codes_input':X_train}, {'output':y_train},
               nb_epoch=50,
-              batch_size=128,
               validation_data=({'codes_input':X_validation}, {'output':y_validation}),
+              batch_size=64,
               verbose=2,
               callbacks=[early_stopping, visualizer])
     
     print("Prediction using LSTM..")
     score = model.evaluate({'codes_input':X_test}, {'output':y_test}, verbose=0)
-    print('Test score:', score)
+    
+    print('Test score:', score[0])
+    print('Test accuracy:', score[1])  
 
-    return [model, score]
+    return [model, score[1]]

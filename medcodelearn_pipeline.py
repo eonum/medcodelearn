@@ -10,8 +10,7 @@ import numpy as np
 from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
 from classification.random_forest import train_and_evaluate_random_forest
 from classification.ffnn import train_and_evaluate_ffnn
-from classification.ffnn import adjust_score
-from classification.ffnn import plot_oracle
+from classification.evaluation import adjust_score, plot_oracle, plot_classification_confidence_histograms
 from reader.sequencevectors.pcreadersequencevectorized import SequenceVectorizedPCReader
 from classification.lstm import train_and_evaluate_lstm, pad_sequences
 from classification.lstmembedding import train_and_evaluate_lstm_with_embedding
@@ -109,11 +108,12 @@ def run (config):
             model, scaler, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task)
             score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
             plot_oracle(config, task, model, scaler, X_test, classes, targets_test, excludes_test)
+            plot_classification_confidence_histograms(config, task, model, scaler, X_test, classes, targets_test, excludes_test)
         elif config['classifier'] == 'lstm':
             print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])) + " | " + str(len(X[0][0])))
             print('Train LSTM Neural Net for ' + reader.code_type + ' classification task..')
             model, scaler, score = train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim, task)
-            X_test = pad_sequences(X_test, maxlen=17, dim=len(X_train[0][0]))
+            X_test = pad_sequences(X_test, maxlen=config['maxlen'], dim=len(X_train[0][0]))
             score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
         elif config['classifier'] == 'lstm-embedding':
             print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])))
@@ -127,7 +127,8 @@ def run (config):
                                                                   vector_by_code)
             score = adjust_score(model, None, X_test, classes, targets_test, excludes_test)
             plot_oracle(config, task, model, None, X_test, classes, targets_test, excludes_test)
-        
+            plot_classification_confidence_histograms(config, task, model, None, X_test, classes, targets_test, excludes_test)
+
         total_score += score
         if config['store-everything']:
             joblib.dump(model, base_folder + 'classification/' + config['classifier'] + '.pkl')
@@ -187,7 +188,12 @@ if __name__ == '__main__':
         'use-all-tokens-in-embedding' : False,
         # maximum sequence length for training
         'maxlen' : 32,
-        'lstm-layers' : [{'output-size' : 128, 'dropout' : 0.1}] }
+        'lstm-layers' : [{'output-size' : 64, 'dropout' : 0.1}],
+        'outlayer-init' : 'he_uniform',
+        'lstm-init' : 'glorot_uniform',
+        'lstm-inner-init' : 'orthogonal',
+        'lstm-activation' : 'tanh',
+        'lstm-inner-activation' : 'hard_sigmoid' }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)

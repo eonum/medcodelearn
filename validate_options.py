@@ -34,12 +34,12 @@ def visualize(scores, options):
     plt.close()
 
 if __name__ == '__main__':
-    base_folder = 'data/validate-options/'
+    base_folder = 'data/validate_activations/'
     
     config = {
         'base_folder' : base_folder,
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
-        'skip-word2vec' : False,
+        'skip-word2vec' : True,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net) or 'lstm' (long short term memory, coming soon)
         'classifier' : 'lstm-embedding',
         # Store all intermediate results. 
@@ -51,6 +51,7 @@ if __name__ == '__main__':
         'drg-tokenizations' : base_folder + 'tokenization/drgs_tokenized.csv',
         'icd-tokenizations' : base_folder + 'tokenization/icd_codes_tokenized.csv',
         'chop-tokenizations' : base_folder + 'tokenization/chop_codes_tokenized.csv',
+        'use_demographic_tokens' : True,
         # use skip grams (0) or CBOW (1) for word2vec
         'word2vec-cbow' : True,
         # Use the code descriptions for tokenization
@@ -77,7 +78,15 @@ if __name__ == '__main__':
                                                'sep-normal', 'sep-dead', 'sep-doctor',
                                                'sep-unknown', 'sep-transfer'],
 	    'optimizer' : 'adam',
-        'use-all-tokens-in-embedding' : False }
+        'use-all-tokens-in-embedding' : False,
+        # maximum sequence length for training
+        'maxlen' : 32,
+        'lstm-layers' : [{'output-size' : 64, 'dropout' : 0.1}],
+        'outlayer-init' : 'he_uniform',
+        'lstm-init' : 'glorot_uniform',
+        'lstm-inner-init' : 'orthogonal',
+        'lstm-activation' : 'tanh',
+        'lstm-inner-activation' : 'hard_sigmoid' }
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
@@ -88,8 +97,21 @@ if __name__ == '__main__':
     options = []
     
     baseline = run(config)
+    
+    inits = ['zero', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'uniform', 'lecun_uniform', 'normal', ]
+    init_inner = ['identity', 'orthogonal']
+    activations = ['linear', 'tanh', 'sigmoid', 'hard_sigmoid', 'relu', 'softplus']
+    
+    for activation in activations:
+        config['lstm-activation'] = activation
+        score = run(config)
+        scores.append(score - baseline)
+        options.append('lstm-activation-' + activation)
+        visualize(scores, options)
         
-    for bool_var in ['use-all-tokens-in-embedding', 'use-descriptions', 'use-training-data-for-word2vec', 'shuffle-word2vec-traindata', 'word2vec-cbow']:
+    for bool_var in ['use-all-tokens-in-embedding', 'use-descriptions', 
+                     'use-training-data-for-word2vec', 'shuffle-word2vec-traindata',
+                     'word2vec-cbow', 'use_demographic_tokens', 'use-all-tokens-in-embedding']:
         validate_bool_var(bool_var, scores, options, baseline)
         
     
@@ -105,6 +127,15 @@ if __name__ == '__main__':
     
     visualize(scores, options)
     
+    temp = config['word2vec-dim-size']
+    config['word2vec-dim-size'] = 120
+    score = run(config)
+    config['num-shuffles'] = temp
+    scores.append(score - baseline)
+    options.append('word2vec-dim-size=120')
+    
+    visualize(scores, options)
+    
     config['skip-word2vec'] = True
 
     for optimizer in ['adam', 'rmsprop']:
@@ -114,20 +145,21 @@ if __name__ == '__main__':
         options.append(optimizer)
         visualize(scores, options)
 
-    config['demo-variables'] = []
-    baseline_demo = run(config)
-    scores.append(baseline - baseline_demo)
-    options.append('all-demo-variables')
-    
-    for demovar in ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 
-                                               'ageDays', 'adm-normal', 'adm-transfer', 
-                                               'adm-transfer-short', 'adm-unknown',
-                                               'sep-normal', 'sep-dead', 'sep-doctor',
-                                               'sep-unknown', 'sep-transfer']:
-        config['demo-variables'] = [demovar]
-        score = run(config)
-        scores.append(score - baseline_demo)
-        options.append(demovar)
-        visualize(scores, options)
+
+#     config['demo-variables'] = []
+#     baseline_demo = run(config)
+#     scores.append(baseline - baseline_demo)
+#     options.append('all-demo-variables')
+#     
+#     for demovar in ['admWeight', 'hmv', 'sex', 'los', 'ageYears', 
+#                                                'ageDays', 'adm-normal', 'adm-transfer', 
+#                                                'adm-transfer-short', 'adm-unknown',
+#                                                'sep-normal', 'sep-dead', 'sep-doctor',
+#                                                'sep-unknown', 'sep-transfer']:
+#         config['demo-variables'] = [demovar]
+#         score = run(config)
+#         scores.append(score - baseline_demo)
+#         options.append(demovar)
+#         visualize(scores, options)
 
     

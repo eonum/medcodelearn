@@ -14,11 +14,11 @@ def plot_scores(params, scores):
     plt.savefig(base_folder + 'word2vec_dimensions_validation.pdf')
 
 if __name__ == '__main__':
-    base_folder = 'data/validate-word2vec-dimsize/'
+    base_folder = 'data/lstm-hiddennodesize/'
     config = {
         'base_folder' : base_folder,
         # skip the word2vec vectorization step. Only possible if vectors have already been calculated.
-        'skip-word2vec' : False,
+        'skip-word2vec' : True,
         # classifier, one of 'random-forest', 'ffnn' (feed forward neural net), 'lstm', 'lstm-embedding'
         'classifier' : 'lstm-embedding',
         # Store all intermediate results. 
@@ -63,7 +63,7 @@ if __name__ == '__main__':
         'use-all-tokens-in-embedding' : False,
         # maximum sequence length for training
         'maxlen' : 32,
-        'lstm-layers' : [{'output-size' : 128, 'dropout' : 0.1}] }
+        'lstm-layers' : [{'output-size' : 64, 'dropout' : 0.1}] }
 
     
     if not os.path.exists(base_folder):
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     params = []
     for i in range(1, 250, 10):
         print("Validate parameter " + str(i))
-        config['word2vec-dim-size'] = i
+        config['lstm-layers'][0]['output-size'] = i
         score = run(config)
         scores.append(score)
         params.append(i)
