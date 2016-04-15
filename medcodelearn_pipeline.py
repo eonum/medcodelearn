@@ -86,48 +86,50 @@ def run (config):
         else:
             reader = FlatVectorizedPCReader(config['training-set'])
         reader.read_from_file(vectors_by_code, task, drg_out_file=config['training-set-drgs'], demo_variables_to_use=config['demo-variables'])
-        X = reader.data
+        codes = reader.data
         targets = reader.targets
         excludes = reader.excludes
+        demo_data = reader.demo_data
         classes = list(set(targets))
-        y = np.zeros(len(X), dtype=np.uint)
+        y = np.zeros(len(codes), dtype=np.uint)
         for i, target in enumerate(targets):
             y[i] = classes.index(target)
-        X_train, X_test, y_train, y_test, _, targets_test, _, excludes_test = train_test_split(X, y, targets, excludes, test_size=0.33, random_state=42)
+        codes_train, codes_test, demo_train, demo_test, y_train, y_test, _, targets_test, _, excludes_test = train_test_split(codes, demo_data, y, targets, excludes, test_size=0.33, random_state=42)
         output_dim = len(set(targets))
         print('Number of classes: ' + str(output_dim))
         
         model, score = None, 0
         if config['classifier'] == 'random-forest':
-            print("Training data dimensionality: " + str(X.shape))
+            print("Training data dimensionality: " + str(codes.shape))
             print('Train Random Forest for ' + reader.code_type + ' classification task..')
-            model, score = train_and_evaluate_random_forest(config, X_train, X_test, y_train, y_test)
+            model, score = train_and_evaluate_random_forest(config, codes_train, codes_test, y_train, y_test)
         elif config['classifier'] == 'ffnn':
-            print("Training data dimensionality: " + str(X.shape))
+            print("Training data dimensionality: " + str(codes.shape))
             print('Train Feed Forward Neural Net for ' + reader.code_type + ' classification task..')
-            model, scaler, score = train_and_evaluate_ffnn(config, X_train, X_test, y_train, y_test, output_dim, task)
-            score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
-            plot_oracle(config, task, model, scaler, X_test, classes, targets_test, excludes_test)
-            plot_classification_confidence_histograms(config, task, model, scaler, X_test, classes, targets_test, excludes_test)
+            model, scaler, score = train_and_evaluate_ffnn(config, codes_train, codes_test, y_train, y_test, output_dim, task)
+            score = adjust_score(model, scaler, codes_test, classes, targets_test, excludes_test)
+            plot_oracle(config, task, model, scaler, codes_test, classes, targets_test, excludes_test)
+            plot_classification_confidence_histograms(config, task, model, scaler, codes_test, classes, targets_test, excludes_test)
         elif config['classifier'] == 'lstm':
-            print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])) + " | " + str(len(X[0][0])))
+            print("Training data dimensionality: " + str(len(codes)) + " | " + str(len(codes[0])) + " | " + str(len(codes[0][0])))
             print('Train LSTM Neural Net for ' + reader.code_type + ' classification task..')
-            model, scaler, score = train_and_evaluate_lstm(config, X_train, X_test, y_train, y_test, output_dim, task)
-            X_test = pad_sequences(X_test, maxlen=config['maxlen'], dim=len(X_train[0][0]))
-            score = adjust_score(model, scaler, X_test, classes, targets_test, excludes_test)
+            model, scaler, score = train_and_evaluate_lstm(config, codes_train, codes_test, y_train, y_test, output_dim, task)
+            codes_test = pad_sequences(codes_test, maxlen=config['maxlen'], dim=len(codes_train[0][0]))
+            score = adjust_score(model, scaler, codes_test, classes, targets_test, excludes_test)
         elif config['classifier'] == 'lstm-embedding':
-            print("Training data dimensionality: " + str(len(X)) + " | " + str(len(X[0])))
+            print("Training data dimensionality: " + str(len(codes)) + " | " + str(len(codes[0])))
             print('Train LSTM Neural Net with Embedding for ' + reader.code_type + ' classification task..')
             vocab = reader.vocab
-            X_train = keras.preprocessing.sequence.pad_sequences(X_train, maxlen=config['maxlen'], dtype='int', truncating='pre')
-            X_test = keras.preprocessing.sequence.pad_sequences(X_test, maxlen=config['maxlen'], dtype='int', truncating='pre')
+            codes_train = keras.preprocessing.sequence.pad_sequences(codes_train, maxlen=config['maxlen'], dtype='int', truncating='pre')
+            codes_test = keras.preprocessing.sequence.pad_sequences(codes_test, maxlen=config['maxlen'], dtype='int', truncating='pre')
                  
-            model, score = train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab, 
+            model, score = train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, output_dim, task, vocab, 
                                                                   vector_by_token,
                                                                   vector_by_code)
-            score = adjust_score(model, None, X_test, classes, targets_test, excludes_test)
-            plot_oracle(config, task, model, None, X_test, classes, targets_test, excludes_test)
-            plot_classification_confidence_histograms(config, task, model, None, X_test, classes, targets_test, excludes_test)
+            input_test = {'codes_input':codes_test, 'demo_input':demo_test}
+            score = adjust_score(model, None, input_test, classes, targets_test, excludes_test)
+            plot_oracle(config, task, model, None, input_test, classes, targets_test, excludes_test)
+            plot_classification_confidence_histograms(config, task, model, None, input_test, classes, targets_test, excludes_test)
 
         total_score += score
         if config['store-everything']:

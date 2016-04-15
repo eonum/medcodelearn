@@ -47,6 +47,7 @@ class FlatVectorizedPCReader(DRGReader):
                     dataset.append(instance)
                     
         self.data = self.empty_input(dataset)
+        self.demo_data = np.empty((len(dataset), len(self.demo_variables_to_use)), dtype=np.float32)
         self.targets = []
         self.excludes = []
         
@@ -54,6 +55,8 @@ class FlatVectorizedPCReader(DRGReader):
             self.data[i] = instance[0]
             self.targets.append(instance[1])
             self.excludes.append(instance[2])
+            if len(instance) > 3:
+                self.demo_data[i] = instance[3]
         
         if self.invalid_pdx > 0:
             print('Skipped patient cases due to invalid PDX: ' + str(self.invalid_pdx))
