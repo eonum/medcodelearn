@@ -1,6 +1,7 @@
 from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
 from vectorize import demographic_tokens
 import numpy as np
+from sklearn import preprocessing
 
 # Sequence to Flat classification
 class SequencePCReader(FlatVectorizedPCReader):
@@ -23,6 +24,10 @@ class SequencePCReader(FlatVectorizedPCReader):
             for code in codes:
                 code_indices.append(self.vocab.index(code))
             self.data[i] = code_indices
+            
+        # norm demo data
+        scaler = preprocessing.MaxAbsScaler().fit(self.demo_data)
+        self.demo_data = scaler.transform(self.demo_data)
      
     def empty_input(self, dataset):
         # Use this if padding is done in the reader
