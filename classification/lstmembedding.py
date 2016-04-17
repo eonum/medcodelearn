@@ -39,6 +39,7 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     
     demo_input = Input(shape=(len(config['demo-variables']),), name='demo_input')
     node = merge([node, demo_input], mode='concat')
+    node = Dense(64, activation='relu')(node)
 
     output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(node)
         
