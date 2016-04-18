@@ -8,12 +8,19 @@ class SequencePCReader(FlatVectorizedPCReader):
     tokens_by_code = None
     use_demographic_tokens = False
     vocab = None
+    fix_vocab = False
     
     def init(self):
         pass
     
     def finalize(self):
         # replace codes with indices
+        if not self.fix_vocab:
+            input_set = set()
+            for sample in self.data:
+                for code in sample:
+                    input_set.add(code)
+            self.vocab = ['mask'] + list(input_set)
         for i, codes in enumerate(self.data):
             code_indices = []
             for code in codes:

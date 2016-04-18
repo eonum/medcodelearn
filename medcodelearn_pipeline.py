@@ -50,7 +50,7 @@ def run (config):
     print("\nRead vectors. Assign vectors to codes..")
     # one vector for each token in the vocabulary
     vector_by_token = read_vectors(config['all-vectors'])
-    vocab = ['mask'] + list(vector_by_token.keys())
+    vocab = vector_by_token.keys()
     
     if config['store-everything']:
         json.dump({k: v.tolist() for k, v in vector_by_token.items()}, open(config['all-vectors'] + '.json','w'), indent=4, sort_keys=True)
@@ -63,6 +63,16 @@ def run (config):
     tokens_by_code = res['tokens']
     # for each code a vector that is the normalized sum of all vectors from all tokens from this code.
     vector_by_code = res['vector_by_code']
+    
+    # reduce vocab to codes used in the 'drg' task. Those codes are a superset of the codes used in code proposals tasks.
+    if config['classifier'] == 'lstm-embedding':
+        reader = SequencePCReader(config['training-set'])
+        reader.tokens_by_code = tokens_by_code
+        reader.vocab = vocab
+        reader.use_demographic_tokens = config['use_demographic_tokens']
+        reader.use_all_tokens = config['use-all-tokens-in-embedding']
+        reader.read_from_file(vectors_by_code, 'drg', drg_out_file=config['training-set-drgs'], demo_variables_to_use=config['demo-variables'])
+        vocab = reader.vocab
     
     if config['store-everything']:
         json.dump({k: v.tolist() for k, v in vectors_by_code.items()}, open(config['code-vectors'],'w'), sort_keys=True)
@@ -80,6 +90,7 @@ def run (config):
             reader = SequenceVectorizedPCReader(config['training-set'])
         elif config['classifier'] == 'lstm-embedding':
             reader = SequencePCReader(config['training-set'])
+            reader.fix_vocab = True
             reader.tokens_by_code = tokens_by_code
             reader.vocab = vocab
             reader.use_demographic_tokens = config['use_demographic_tokens']
