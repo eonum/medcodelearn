@@ -10,48 +10,53 @@ from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 
 
-def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test,
-                                            y_train, y_test, output_dim, task, vocab, vector_by_token, 
-                                            vector_by_code, pretrained_weights=None):
+def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, 
+                                           output_dim, task, vocab, vector_by_token, vector_by_code, layers=None):
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
     
     
     codes_train, codes_validation, demo_train, demo_validation, y_train, y_validation = train_test_split(codes_train, demo_train, y_train, test_size=0.15, random_state=23)
     
-    n_symbols = len(vocab)
-    embedding_weights = None
-    if pretrained_weights == None:
+    model1 = None
+    codes_input = None
+    demo_input = None
+    output = None
+    if layers != None:
+        codes_input = Input(shape=(config['maxlen'],), dtype='int32', name='codes_input')
+        demo_input = Input(shape=(len(config['demo-variables']),), name='demo_input')
+        model1 = layers['node']([codes_input, demo_input])
+        output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(model1)
+    else:   
+        n_symbols = len(vocab)
         embedding_weights = np.zeros((n_symbols, config['word2vec-dim-size']), dtype=np.float32)
         for index, word in enumerate(vocab):
             # skip first item 'mask'
             if index == 0 or word == '':
                 continue
             embedding_weights[index,:] = vector_by_token[word] if config['use-all-tokens-in-embedding'] or word not in vector_by_code else vector_by_code[word]
-    else:
-        embedding_weights = pretrained_weights[0]   
-
-    codes_input = Input(shape=(config['maxlen'],), dtype='int32', name='codes_input')
+           
     
-    embedding = Embedding(n_symbols, config['word2vec-dim-size'], input_length=config['maxlen'], 
-                             mask_zero=True, weights=[embedding_weights])
-    node = embedding(codes_input)
-    lstms = []
-    for i, layer in enumerate(config['lstm-layers']):
-        lstm = LSTM(output_dim=layer['output-size'], activation=config['lstm-activation'], 
-                            inner_activation=config['lstm-inner-activation'], init=config['lstm-init'],
-                            inner_init=config['lstm-inner-init'],
-                            return_sequences=i != len(config['lstm-layers']) - 1)
-        if pretrained_weights != None:
-            lstm.set_weights(pretrained_weights[1 + i])
-        lstms.append(lstm)
-        node = lstm(node)
-        node = Dropout(layer['dropout'])(node)
+        codes_input = Input(shape=(config['maxlen'],), dtype='int32', name='codes_input')
+        embedding = Embedding(n_symbols, config['word2vec-dim-size'], input_length=config['maxlen'], 
+                                 mask_zero=True, weights=[embedding_weights])(codes_input)
+        node = embedding
+        for i, layer in enumerate(config['lstm-layers']):
+            node = LSTM(output_dim=layer['output-size'], activation=config['lstm-activation'], 
+                                inner_activation=config['lstm-inner-activation'], init=config['lstm-init'],
+                                inner_init=config['lstm-inner-init'],
+                                return_sequences=i != len(config['lstm-layers']) - 1)(node)
+            node = Dropout(layer['dropout'])(node)
+        
+        demo_input = Input(shape=(len(config['demo-variables']),), name='demo_input')
+        node = merge([node, demo_input], mode='concat')
+        
+        final = Dense(64, activation='relu', name='final')(node)
+        model1 = Model(input=[codes_input, demo_input], output=[final])
+        model1.compile(loss={'final' : 'categorical_crossentropy'},
+                  optimizer=config['optimizer'])
     
-    demo_input = Input(shape=(len(config['demo-variables']),), name='demo_input')
-    node = merge([node, demo_input], mode='concat')
-
-    output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(node)
+        output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(model1.layers[-1].output)
         
     
     model = Model(input=[codes_input, demo_input], output=[output])
@@ -69,7 +74,7 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     model.fit({'codes_input':codes_train, 'demo_input':demo_train}, {'output':y_train},
               nb_epoch=50,
               validation_data=({'codes_input':codes_validation, 'demo_input':demo_validation}, {'output':y_validation}),
-              batch_size=64,
+              batch_size=2,
               verbose=2,
               callbacks=[early_stopping, visualizer])
     
@@ -78,9 +83,5 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  
-    
-    pretrained_weights = [embedding.get_weights()[0]]
-    for lstm in lstms:
-        pretrained_weights.append(lstm.get_weights()[0])
 
-    return [model, score[1], pretrained_weights]
+    return [model, score[1], {'node' : model1, 'codes_input' : codes_input, 'demo_input' : demo_input}]
