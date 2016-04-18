@@ -3,7 +3,7 @@ import json
 from sklearn.cross_validation import train_test_split
 
 from keras.utils import np_utils
-from keras.layers import Dropout, Dense, Input, LSTM, Embedding, merge, Lambda
+from keras.layers import Dropout, Dense, Input, LSTM, Embedding, merge
 from keras.models import Model
 
 from keras.callbacks import EarlyStopping
@@ -21,14 +21,8 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     codes_input = Input(shape=(config['maxlen'],), dtype='int32', name='codes_input')
     demo_input = Input(shape=(len(config['demo-variables']),), name='demo_input')
     
-    noop_layer = None
-    shared_tensors = None
-    if shared_model != None:
-        codes_input = shared_model['codes_input'] 
-        demo_input = shared_model['demo_input'] 
-        noop_layer = shared_model['noop_layer']
-        noop_layer.outbound_nodes = []  
-        shared_tensors = noop_layer.output  
+    if shared_model != None:     
+        shared_layers = shared_model([codes_input, demo_input])
     else:   
         n_symbols = len(vocab)
         embedding_weights = np.zeros((n_symbols, config['word2vec-dim-size']), dtype=np.float32)
@@ -49,11 +43,12 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
                                 return_sequences=i != len(config['lstm-layers']) - 1)(node)
             node = Dropout(layer['dropout'])(node)
         
-        node = merge([node, demo_input], mode='concat') 
-        noop_layer = Lambda(lambda x: x)           
-        shared_tensors = noop_layer(node)
+        node = merge([node, demo_input], mode='concat')        
+        shared_model = Model(input=[codes_input, demo_input], output=[node])
     
-    output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(shared_tensors)    
+        shared_layers = shared_model.layers[-1].output
+    
+    output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(shared_layers)    
     
     model = Model(input=[codes_input, demo_input], output=[output])
     
@@ -70,7 +65,7 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     model.fit({'codes_input':codes_train, 'demo_input':demo_train}, {'output':y_train},
               nb_epoch=50,
               validation_data=({'codes_input':codes_validation, 'demo_input':demo_validation}, {'output':y_validation}),
-              batch_size=2,
+              batch_size=64,
               verbose=2,
               callbacks=[early_stopping, visualizer])
     
@@ -80,4 +75,4 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  
 
-    return [model, score[1], {'noop_layer' : noop_layer, 'demo_input' : demo_input, 'codes_input' : codes_input}]
+    return [model, score[1], shared_model]
