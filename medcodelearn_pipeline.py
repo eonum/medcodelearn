@@ -185,8 +185,8 @@ if __name__ == '__main__':
         'word2vec-vocab': base_folder + 'vectorization/vocab.csv',
         'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json',
         'training-set-word2vec' : 'data/2015/trainingData2015_20151001.csv.last',
-        'training-set' : 'data/2015/tiny.txt',
-        'training-set-drgs' : 'data/2015/tiny.txt.out',
+        'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
+        'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.small.out',
         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
         'num-cores' : 8,
         # which demographic variables should be used.
