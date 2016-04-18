@@ -50,7 +50,7 @@ def run (config):
     print("\nRead vectors. Assign vectors to codes..")
     # one vector for each token in the vocabulary
     vector_by_token = read_vectors(config['all-vectors'])
-    vocab = vector_by_token.keys()
+    vocab = ['mask'] + list(vector_by_token.keys())
     
     if config['store-everything']:
         json.dump({k: v.tolist() for k, v in vector_by_token.items()}, open(config['all-vectors'] + '.json','w'), indent=4, sort_keys=True)
@@ -120,7 +120,6 @@ def run (config):
         elif config['classifier'] == 'lstm-embedding':
             print("Training data dimensionality: " + str(len(codes)) + " | " + str(len(codes[0])))
             print('Train LSTM Neural Net with Embedding for ' + reader.code_type + ' classification task..')
-            vocab = reader.vocab
             codes_train = keras.preprocessing.sequence.pad_sequences(codes_train, maxlen=config['maxlen'], dtype='int', truncating='pre')
             codes_test = keras.preprocessing.sequence.pad_sequences(codes_test, maxlen=config['maxlen'], dtype='int', truncating='pre')
                  
@@ -175,8 +174,8 @@ if __name__ == '__main__':
         'word2vec-vocab': base_folder + 'vectorization/vocab.csv',
         'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json',
         'training-set-word2vec' : 'data/2015/trainingData2015_20151001.csv.last',
-        'training-set' : 'data/2015/tiny.txt',
-        'training-set-drgs' : 'data/2015/tiny.txt.out',
+        'training-set' : 'data/2015//home/tim/medcodelearn/data/2015/trainingData2015_20151001.csv.small',
+        'training-set-drgs' : 'data/2015//home/tim/medcodelearn/data/2015/trainingData2015_20151001.csv.small.out',
         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
         'num-cores' : 8,
         # which demographic variables should be used.
