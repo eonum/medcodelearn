@@ -43,11 +43,9 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
                                 return_sequences=i != len(config['lstm-layers']) - 1)(node)
             node = Dropout(layer['dropout'])(node)
         
-        node = merge([node, demo_input], mode='concat')
-        
-        final = Dense(64, activation='relu', name='final')(node)
-        shared_model = Model(input=[codes_input, demo_input], output=[final])
-        shared_model.compile(loss={'final' : 'categorical_crossentropy'},
+        node = merge([node, demo_input], mode='concat', name='merge')        
+        shared_model = Model(input=[codes_input, demo_input], output=[node])
+        shared_model.compile(loss={'merge' : 'categorical_crossentropy'},
                   optimizer=config['optimizer'])
     
         shared_layers = shared_model.layers[-1].output
