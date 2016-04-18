@@ -72,7 +72,7 @@ def run (config):
         os.makedirs(base_folder + 'classification')
     total_score = 0.0 
     tasks = ['pdx', 'sdx', 'srg', 'drg']   
-    node = None
+    shared_model = None
     for task in tasks:
         print('\n==== ' + task + ' ====')
         reader = None
@@ -124,10 +124,10 @@ def run (config):
             codes_train = keras.preprocessing.sequence.pad_sequences(codes_train, maxlen=config['maxlen'], dtype='int', truncating='pre')
             codes_test = keras.preprocessing.sequence.pad_sequences(codes_test, maxlen=config['maxlen'], dtype='int', truncating='pre')
                  
-            model, score, node = train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, output_dim, task, vocab, 
+            model, score, shared_model = train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, output_dim, task, vocab, 
                                                                   vector_by_token,
                                                                   vector_by_code,
-                                                                  layers=node)
+                                                                  shared_model=shared_model)
             input_test = {'codes_input':codes_test, 'demo_input':demo_test}
             score = adjust_score(model, None, input_test, classes, targets_test, excludes_test)
             plot_oracle(config, task, model, None, input_test, classes, targets_test, excludes_test)
