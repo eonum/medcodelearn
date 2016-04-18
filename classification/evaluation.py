@@ -8,7 +8,7 @@ def adjust_score(model, scaler, X_test, classes, targets_test, excludes_test):
     if scaler != None:
         X_test = scaler.transform(X_test)
     # adapt here if the model has multiple outputs. Append '[0]'
-    probabs = model.predict({'codes_input':X_test}, verbose=0)
+    probabs = model.predict(X_test, verbose=0)
    
     score = 0.0
     for i in range(0, probabs.shape[0]):
@@ -33,7 +33,7 @@ def plot_oracle(config, task, model, scaler, X_test, classes, targets_test, excl
     if scaler != None:
         X_test = scaler.transform(X_test)
     # adapt here if the model has multiple outputs. Append '[0]'
-    probabs = model.predict({'codes_input':X_test}, verbose=0)
+    probabs = model.predict(X_test, verbose=0)
     for i in range(0, probabs.shape[0]):
         classes_sorted = probabs[i].argsort()[::-1]
         adjusted_classes_sorted = []
@@ -70,7 +70,7 @@ def plot_classification_confidence_histograms(config, task, model, scaler, X_tes
     true_confidence_hist = [0 for i in range(101)]
     if scaler != None:
         X_test = scaler.transform(X_test)
-    probabs = model.predict({'codes_input':X_test}, verbose=0)
+    probabs = model.predict(X_test, verbose=0)
     for i in range(0, probabs.shape[0]):
         classes_sorted = probabs[i].argsort()[::-1]
         adjusted_classes_and_probabs_sorted = []

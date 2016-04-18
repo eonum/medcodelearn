@@ -1,5 +1,7 @@
 from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
 from vectorize import demographic_tokens
+import numpy as np
+from sklearn import preprocessing
 
 # Sequence to Flat classification
 class SequencePCReader(FlatVectorizedPCReader):
@@ -22,6 +24,10 @@ class SequencePCReader(FlatVectorizedPCReader):
             for code in codes:
                 code_indices.append(self.vocab.index(code))
             self.data[i] = code_indices
+            
+        # norm demo data
+        scaler = preprocessing.MaxAbsScaler().fit(self.demo_data)
+        self.demo_data = scaler.transform(self.demo_data)
      
     def empty_input(self, dataset):
         # Use this if padding is done in the reader
@@ -33,11 +39,9 @@ class SequencePCReader(FlatVectorizedPCReader):
         # remove tokens that have not been in the training set for word2vec
         sequence = [t for t in sequence if t in self.vocab]
         
-        #demographic = np.zeros(len(self.demo_variables_to_use), dtype=np.float32)
-        #for i, var in enumerate(self.demo_variables_to_use):
-        #    demographic[i] = self.convert_demographic_variable(row, var)
-        #sequence.append(demographic)
-        #self.demo_vars.append(demographic)
+        demographic = np.zeros(len(self.demo_variables_to_use), dtype=np.float32)
+        for i, var in enumerate(self.demo_variables_to_use):
+            demographic[i] = self.convert_demographic_variable(row, var)
         
         excludes = []
         for diag in diags:
@@ -58,5 +62,5 @@ class SequencePCReader(FlatVectorizedPCReader):
             else:
                 sequence.append(self.tokens_by_code['CHOP_' + proc][0])
         
-        return [sequence, gt, excludes]
+        return [sequence, gt, excludes, demographic]
     

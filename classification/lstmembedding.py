@@ -3,19 +3,19 @@ import json
 from sklearn.cross_validation import train_test_split
 
 from keras.utils import np_utils
-from keras.layers import Dropout, Dense, Input, LSTM, Embedding
+from keras.layers import Dropout, Dense, Input, LSTM, Embedding, merge
 from keras.models import Model
 
 from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 
 
-def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_test, output_dim, task, vocab, vector_by_token, vector_by_code):
+def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, output_dim, task, vocab, vector_by_token, vector_by_code):
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
     
     
-    X_train, X_validation, y_train, y_validation = train_test_split(X_train, y_train, test_size=0.15, random_state=23)
+    codes_train, codes_validation, demo_train, demo_validation, y_train, y_validation = train_test_split(codes_train, demo_train, y_train, test_size=0.15, random_state=23)
     
     n_symbols = len(vocab)
     embedding_weights = np.zeros((n_symbols, config['word2vec-dim-size']), dtype=np.float32)
@@ -37,10 +37,14 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
                             return_sequences=i != len(config['lstm-layers']) - 1)(node)
         node = Dropout(layer['dropout'])(node)
     
+    demo_input = Input(shape=(len(config['demo-variables']),), name='demo_input')
+    node = merge([node, demo_input], mode='concat')
+    node = Dense(64, activation='relu')(node)
+
     output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(node)
         
     
-    model = Model(input=[codes_input], output=[output])
+    model = Model(input=[codes_input, demo_input], output=[output])
     
     model.compile(loss={'output' : 'categorical_crossentropy'},
                   optimizer=config['optimizer'],
@@ -52,15 +56,15 @@ def train_and_evaluate_lstm_with_embedding(config, X_train, X_test, y_train, y_t
     
     early_stopping = EarlyStopping(monitor='val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
-    model.fit({'codes_input':X_train}, {'output':y_train},
+    model.fit({'codes_input':codes_train, 'demo_input':demo_train}, {'output':y_train},
               nb_epoch=50,
-              validation_data=({'codes_input':X_validation}, {'output':y_validation}),
+              validation_data=({'codes_input':codes_validation, 'demo_input':demo_validation}, {'output':y_validation}),
               batch_size=64,
               verbose=2,
               callbacks=[early_stopping, visualizer])
     
     print("Prediction using LSTM..")
-    score = model.evaluate({'codes_input':X_test}, {'output':y_test}, verbose=0)
+    score = model.evaluate({'codes_input':codes_test, 'demo_input':demo_test}, {'output':y_test}, verbose=0)
     
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  

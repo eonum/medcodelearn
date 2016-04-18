@@ -12,14 +12,15 @@ Tasks
 
 Algorithms
 * classical machine learning algorithms (FFNNs, RF, PCA, RBM)
-* deep learning (deep autoencoder, stacked RBMs, LSTMs)
+* deep learning (especially LSTMs)
 * word2vec
+* ..
 
 Libraries
 * scikit-learn
+* Keras
 * Theano
-* PDNN
-* Pylearn2
+* TensorFlow
 * nltk
 * ..
 * 
