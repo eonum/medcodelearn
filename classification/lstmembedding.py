@@ -12,13 +12,13 @@ from classification.LossHistoryVisualization import LossHistoryVisualisation
 
 def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test,
                                             y_train, y_test, output_dim, task, vocab, vector_by_token, 
-                                            vector_by_code, pretrained_weights=None):
+                                            vector_by_code, shared_model=None):
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
     
     
     codes_train, codes_validation, demo_train, demo_validation, y_train, y_validation = train_test_split(codes_train, demo_train, y_train, test_size=0.15, random_state=23)
-    
+    pretrained_weights = shared_model    
     n_symbols = len(vocab)
     embedding_weights = None
     if pretrained_weights == None:
@@ -42,14 +42,16 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
                             inner_activation=config['lstm-inner-activation'], init=config['lstm-init'],
                             inner_init=config['lstm-inner-init'],
                             return_sequences=i != len(config['lstm-layers']) - 1)
-        if pretrained_weights != None:
-            lstm.set_weights(pretrained_weights[1 + i])
         lstms.append(lstm)
         node = lstm(node)
         node = Dropout(layer['dropout'])(node)
     
     demo_input = Input(shape=(len(config['demo-variables']),), name='demo_input')
     node = merge([node, demo_input], mode='concat')
+
+    if pretrained_weights != None:
+        for lstm in lstms:
+            lstm.set_weights(pretrained_weights[1 + i])
 
     output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(node)
         
@@ -81,6 +83,6 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     
     pretrained_weights = [embedding.get_weights()[0]]
     for lstm in lstms:
-        pretrained_weights.append(lstm.get_weights()[0])
+        pretrained_weights.append(lstm.get_weights())
 
     return [model, score[1], pretrained_weights]
