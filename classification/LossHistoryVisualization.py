@@ -16,7 +16,7 @@ class LossHistoryVisualisation(keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs={}):
         self.val_losses.append(logs.get('val_loss'))
-        self.val_accs.append(logs.get('val_acc'))
+        self.val_accs.append(logs.get('val_output_acc'))
         self.epochs.append(epoch)
         
         host = host_subplot(111)
