@@ -80,7 +80,7 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
               open(config['base_folder'] + 'classification/model_lstm_' + task + '.json','w'), indent=4, sort_keys=True)   
 
     
-    early_stopping = EarlyStopping(monitor='val_acc', patience=10)
+    early_stopping = EarlyStopping(monitor='val_output_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit({'codes_input':codes_train, 'demo_input':demo_train}, out_train,
               nb_epoch=50,
