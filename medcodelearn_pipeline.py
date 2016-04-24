@@ -88,12 +88,23 @@ def run (config):
         reader.read_from_file(vectors_by_code, task, drg_out_file=config['training-set-drgs'], demo_variables_to_use=config['demo-variables'])
         codes = reader.data
         targets = reader.targets
+        targets_hierarchical = reader.targets_hierarchicaly
         excludes = reader.excludes
         demo_data = reader.demo_data
         classes = list(set(targets))
         y = np.zeros(len(codes), dtype=np.uint)
         for i, target in enumerate(targets):
             y[i] = classes.index(target)
+            
+        classes_heriarchicaly = []
+        y_hierarchical = []
+        for t, sub_targets in enumerate(targets_hierarchical):
+            classes_heriarchicaly.append(list(set(sub_targets)))
+            y_hierarchical[t] = np.zeros(len(classes_heriarchicaly[t]), dtype=np.uint)
+            for i, target in enumerate(sub_targets):
+                y_hierarchical[t][i] = classes.index(target)
+            
+            
         codes_train, codes_test, demo_train, demo_test, y_train, y_test, _, targets_test, _, excludes_test = train_test_split(codes, demo_data, y, targets, excludes, test_size=0.33, random_state=42)
         output_dim = len(set(targets))
         print('Number of classes: ' + str(output_dim))

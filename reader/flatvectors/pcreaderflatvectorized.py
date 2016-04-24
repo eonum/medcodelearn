@@ -49,11 +49,15 @@ class FlatVectorizedPCReader(DRGReader):
         self.data = self.empty_input(dataset)
         self.demo_data = np.empty((len(dataset), len(self.demo_variables_to_use)), dtype=np.float32)
         self.targets = []
+        self.targets_hierarchicaly = [[], [], [], []]
         self.excludes = []
         
         for i, instance in enumerate(dataset):
             self.data[i] = instance[0]
             self.targets.append(instance[1])
+            for l in range(1, 5):
+                self.targets_hierarchicaly[l - 1].append(instance[1][0:l])
+                
             self.excludes.append(instance[2])
             if len(instance) > 3:
                 self.demo_data[i] = instance[3]
