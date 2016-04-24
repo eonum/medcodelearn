@@ -10,7 +10,7 @@ from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 
 
-def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, output_dim, task, vocab, vector_by_token, vector_by_code):
+def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test,  y_h_train, y_h_test, output_dim, task, vocab, vector_by_token, vector_by_code):
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
     

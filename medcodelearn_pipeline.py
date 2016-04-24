@@ -96,16 +96,24 @@ def run (config):
         for i, target in enumerate(targets):
             y[i] = classes.index(target)
             
-        classes_heriarchicaly = []
+        classes_heriarchical = []
         y_hierarchical = []
         for t, sub_targets in enumerate(targets_hierarchical):
-            classes_heriarchicaly.append(list(set(sub_targets)))
-            y_hierarchical[t] = np.zeros(len(classes_heriarchicaly[t]), dtype=np.uint)
+            classes_heriarchical.append(list(set(sub_targets)))
+            y_hierarchical.append(np.zeros(len(codes), dtype=np.uint))
             for i, target in enumerate(sub_targets):
-                y_hierarchical[t][i] = classes.index(target)
+                y_hierarchical[t][i] = classes_heriarchical[t].index(target)
             
+        random_state = 42
+        test_size = 0.33
+        codes_train, codes_test, demo_train, demo_test, y_train, y_test, _, targets_test, _, excludes_test = train_test_split(codes, demo_data, y, targets, excludes, test_size=test_size, random_state=random_state)
+        y_h_train = []
+        y_h_test = []
+        for targets in y_hierarchical:
+            train, test = train_test_split(targets, test_size=test_size, random_state=random_state)
+            y_h_train.append(train)
+            y_h_test.append(test)
             
-        codes_train, codes_test, demo_train, demo_test, y_train, y_test, _, targets_test, _, excludes_test = train_test_split(codes, demo_data, y, targets, excludes, test_size=0.33, random_state=42)
         output_dim = len(set(targets))
         print('Number of classes: ' + str(output_dim))
         
@@ -134,7 +142,7 @@ def run (config):
             codes_train = keras.preprocessing.sequence.pad_sequences(codes_train, maxlen=config['maxlen'], dtype='int', truncating='pre')
             codes_test = keras.preprocessing.sequence.pad_sequences(codes_test, maxlen=config['maxlen'], dtype='int', truncating='pre')
                  
-            model, score = train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, output_dim, task, vocab, 
+            model, score = train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, y_h_train, y_h_test, output_dim, task, vocab, 
                                                                   vector_by_token,
                                                                   vector_by_code)
             input_test = {'codes_input':codes_test, 'demo_input':demo_test}
@@ -184,8 +192,8 @@ if __name__ == '__main__':
         'word2vec-vocab': base_folder + 'vectorization/vocab.csv',
         'code-vectors' : base_folder + 'vectorization/all_vectors_by_code.json',
         'training-set-word2vec' : 'data/2015/trainingData2015_20151001.csv.last',
-        'training-set' : 'data/2015/trainingData2015_20151001.csv.small',
-        'training-set-drgs' : 'data/2015/trainingData2015_20151001.csv.small.out',
+        'training-set' : 'data/2015/tiny.txt',
+        'training-set-drgs' : 'data/2015/tiny.txt.out',
         # word2vec is deterministic only if non-parallelized. (Set num-cores to 1)
         'num-cores' : 8,
         # which demographic variables should be used.
