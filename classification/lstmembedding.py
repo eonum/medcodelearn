@@ -10,12 +10,25 @@ from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
 
 
-def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test,  y_h_train, y_h_test, output_dim, task, vocab, vector_by_token, vector_by_code):
+def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test,
+                                           y_h_train, y_h_test, classes_heriarchical, output_dim, task, vocab, vector_by_token, vector_by_code):
     y_train = np_utils.to_categorical(y_train, output_dim)
     y_test = np_utils.to_categorical(y_test, output_dim)
+    for i, train in enumerate(y_h_train):
+        y_h_train[i] = np_utils.to_categorical(train, len(classes_heriarchical[i]))
+        y_h_test[i] = np_utils.to_categorical(y_h_test[i], len(classes_heriarchical[i]))
     
     
-    codes_train, codes_validation, demo_train, demo_validation, y_train, y_validation = train_test_split(codes_train, demo_train, y_train, test_size=0.15, random_state=23)
+    test_size = 0.15
+    random_state = 23
+    codes_train, codes_validation, demo_train, demo_validation, y_train, y_validation = train_test_split(codes_train, demo_train, y_train, test_size=test_size, random_state=random_state)
+    y_h_train_temp = []
+    y_h_validation = []
+    for targets in y_h_train:
+        train, validation = train_test_split(targets, test_size=test_size, random_state=random_state)
+        y_h_train_temp.append(train)
+        y_h_validation.append(validation)
+    y_h_train = y_h_train_temp
     
     n_symbols = len(vocab)
     embedding_weights = np.zeros((n_symbols, config['word2vec-dim-size']), dtype=np.float32)
@@ -42,11 +55,24 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     node = Dense(64, activation='relu')(node)
 
     output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(node)
+    
+    hierarchical_outputs = []
+    loss={'output' : 'categorical_crossentropy'}
+    out_train = {'output':y_train}
+    out_validation = {'output':y_validation}
+    out_test = {'output':y_test}
+    for i, sub_classes in enumerate(classes_heriarchical):
+        name = 'output_h' + str(i)
+        hierarchical_outputs.append(Dense(len(sub_classes), activation='softmax', init=config['outlayer-init'], name=name)(node))
+        loss[name] = 'categorical_crossentropy'
+        out_train[name] = y_h_train[i]
+        out_validation[name] = y_h_validation[i]
+        out_test[name] = y_h_test[i]
         
     
-    model = Model(input=[codes_input, demo_input], output=[output])
+    model = Model(input=[codes_input, demo_input], output=[output] + hierarchical_outputs)
     
-    model.compile(loss={'output' : 'categorical_crossentropy'},
+    model.compile(loss=loss,
                   optimizer=config['optimizer'],
                   metrics=['accuracy'])
     
@@ -56,15 +82,15 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     
     early_stopping = EarlyStopping(monitor='val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
-    model.fit({'codes_input':codes_train, 'demo_input':demo_train}, {'output':y_train},
+    model.fit({'codes_input':codes_train, 'demo_input':demo_train}, out_train,
               nb_epoch=50,
-              validation_data=({'codes_input':codes_validation, 'demo_input':demo_validation}, {'output':y_validation}),
+              validation_data=({'codes_input':codes_validation, 'demo_input':demo_validation}, out_validation),
               batch_size=64,
               verbose=2,
               callbacks=[early_stopping, visualizer])
     
     print("Prediction using LSTM..")
-    score = model.evaluate({'codes_input':codes_test, 'demo_input':demo_test}, {'output':y_test}, verbose=0)
+    score = model.evaluate({'codes_input':codes_test, 'demo_input':demo_test}, out_test, verbose=0)
     
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  

@@ -114,7 +114,7 @@ def run (config):
             y_h_train.append(train)
             y_h_test.append(test)
             
-        output_dim = len(set(targets))
+        output_dim = len(classes)
         print('Number of classes: ' + str(output_dim))
         
         model, score = None, 0
@@ -142,7 +142,8 @@ def run (config):
             codes_train = keras.preprocessing.sequence.pad_sequences(codes_train, maxlen=config['maxlen'], dtype='int', truncating='pre')
             codes_test = keras.preprocessing.sequence.pad_sequences(codes_test, maxlen=config['maxlen'], dtype='int', truncating='pre')
                  
-            model, score = train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, y_h_train, y_h_test, output_dim, task, vocab, 
+            model, score = train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test,
+                                                                  y_h_train, y_h_test, classes_heriarchical, output_dim, task, vocab, 
                                                                   vector_by_token,
                                                                   vector_by_code)
             input_test = {'codes_input':codes_test, 'demo_input':demo_test}
