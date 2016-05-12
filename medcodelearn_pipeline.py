@@ -14,6 +14,7 @@ from classification.evaluation import adjust_score, plot_oracle, plot_classifica
 from reader.sequencevectors.pcreadersequencevectorized import SequenceVectorizedPCReader
 from classification.lstm import train_and_evaluate_lstm, pad_sequences
 from classification.lstmembedding import train_and_evaluate_lstm_with_embedding
+from load_config import load_config
 from reader.sequence.pcreadersequence import SequencePCReader
 import keras.preprocessing.sequence
 
@@ -141,8 +142,9 @@ def run (config):
     
     
 if __name__ == '__main__':
-    base_folder = 'data/pipelinetest/'
-    config = json.load(open('configuration.json', 'r'))
+    config = load_config()
+    base_folder = config['base_folder']
+    
     
     if not os.path.exists(base_folder):
         os.makedirs(base_folder)
