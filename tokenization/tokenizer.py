@@ -17,8 +17,9 @@ class Tokenizer:
         return self.process_words(words)
        
 class GermanTokenizer(Tokenizer):
-    def __init__(self):
+    def __init__(self, split_compound_words=False):
         super()
+        self.split_compound_words = split_compound_words
 # Hack (Using a Java library). This is only a prototype. Should choose one language later.    
     def split_compound_words(self, words, basepath=''): 
         try:
@@ -44,8 +45,10 @@ class GermanTokenizer(Tokenizer):
         
         
     def process_words(self, words):
-        split_compound_words = words # skipping self.split_compound_words(words) for now
-        stemmed_words = self.stem_words(split_compound_words)
+        if self.split_compound_words:
+            words  = self.split_compound_words(words) 
+    
+        stemmed_words = self.stem_words(words)
         
         return stemmed_words
         

@@ -57,4 +57,5 @@
     "word2vec-cbow": true,
     "word2vec-dim-size": 50,
     "word2vec-vocab": "data/pipelinetest/vectorization/vocab.csv"
+    "tokenizer-german-split-compound-words" : false
 }
