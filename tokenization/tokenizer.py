@@ -4,19 +4,9 @@ from nltk.stem.snowball import GermanStemmer
 import os
 import csv
 
-class Tokenizer:
-    def __init__(self):
-        pass
 
-    def split_to_words(self, s, delimiter=' '):
-        s = re.sub(r'[^\w\s]','',s)
-        return s.split(delimiter)
     
-    def tokenize(self, sentence):
-        words = self.split_to_words(sentence)
-        return self.process_words(words)
-       
-class GermanTokenizer(Tokenizer):
+class SimpleGermanTokenizer():
     def __init__(self, split_compound_words=False):
         super()
         self.split_compound_words = split_compound_words
@@ -43,8 +33,11 @@ class GermanTokenizer(Tokenizer):
             pass  
         return split_compound_words
         
-        
-    def process_words(self, words):
+    def split_to_words(self, s, delimiter=' '):
+        s = re.sub(r'[^\w\s]','',s)
+        return s.split(delimiter)
+    
+    def tokenize(self, words):
         if self.split_compound_words:
             words  = self.split_compound_words(words) 
     
@@ -58,6 +51,10 @@ class GermanTokenizer(Tokenizer):
         for word in words:
             stemmed_words.append(stemmer.stem(word))
         return stemmed_words
+    
+    
+    
+    
         
     
 
