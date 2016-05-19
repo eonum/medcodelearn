@@ -51,7 +51,6 @@ class SimpleGermanTokenizer():
             stemmed_words.append(stemmer.stem(word))
         return stemmed_words
 
-
 class TextBlobDeTokenizer():
     def __init__(self):
         self.lemmatizer = PatternParserLemmatizer()

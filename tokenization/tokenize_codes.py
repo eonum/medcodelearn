@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from reader.csvreader import CSVReader
 from tokenization.tokenizer import SimpleGermanTokenizer
+from tokenization.tokenizer import TextBlobDeTokenizer
 from nltk.corpus import stopwords
 
 import re
@@ -45,7 +46,10 @@ def output_vocab(vocab_filename, vocab):
             print(word, file=out_file)
     
 def tokenize_catalogs(config):
-    tokenizer = SimpleGermanTokenizer(config['tokenizer-german-split-compound-words'])
+    if config['use-textblob-de']:
+        tokenizer = TextBlobDeTokenizer()
+    else:
+        tokenizer = SimpleGermanTokenizer(config['tokenizer-german-split-compound-words'])
 
     vocab_de = set()
     # You have to install the stopwords corpus by executing nltk.download()
