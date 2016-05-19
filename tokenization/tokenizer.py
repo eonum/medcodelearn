@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 import re
 from nltk.stem.snowball import GermanStemmer
+from textblob_de.lemmatizers import PatternParserLemmatizer
 import os
 import csv
 
-
-    
 class SimpleGermanTokenizer():
     def __init__(self, split_compound_words=False):
-        super()
         self.split_compound_words = split_compound_words
 # Hack (Using a Java library). This is only a prototype. Should choose one language later.    
     def split_compound_words(self, words, basepath=''): 
@@ -37,7 +35,8 @@ class SimpleGermanTokenizer():
         s = re.sub(r'[^\w\s]','',s)
         return s.split(delimiter)
     
-    def tokenize(self, words):
+    def tokenize(self, s):
+        words = self.split_compound_words(s)
         if self.split_compound_words:
             words  = self.split_compound_words(words) 
     
@@ -51,9 +50,14 @@ class SimpleGermanTokenizer():
         for word in words:
             stemmed_words.append(stemmer.stem(word))
         return stemmed_words
-    
-    
-    
+
+
+class TextBlobDeTokenizer():
+    def __init__(self):
+        self.lemmatizer = PatternParserLemmatizer()
+        
+    def tokenize(self, s):
+        return [lemma[0] for lemma in self.lemmatizer.lemmatize(s)]    
     
         
     
