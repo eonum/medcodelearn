@@ -10,9 +10,9 @@ def tokenize_code(code, prefix):
     code = re.sub(r'[^\w\s]','',code)
     return [prefix + '_' + code[0:x] for x in reversed(range(1,len(code)+1))]
 
-def tokenize_and_output(csv_filename, tokenizer, output_filename, key_of_code,
-                         key_of_description, vocab, delimiter, code_prefix,
-                          use_description=True, stop_words=None):
+def tokenize_and_output(csv_filename, tokenizers_by_key_of_description, output_filename, key_of_code,
+                         keys_of_descriptions, vocab, delimiter, code_prefix,
+                          use_descriptions=True, stop_words=None):
     reader = CSVReader(csv_filename, delimiter)
     dataset = reader.read_from_file()
     try:
@@ -24,7 +24,11 @@ def tokenize_and_output(csv_filename, tokenizer, output_filename, key_of_code,
 
     with open(output_filename, 'w+') as out_file:
         for record in dataset:
-            tokenized_record = tokenizer.tokenize(record[key_of_description]) if use_description else []
+            tokenized_record = []
+            if use_descriptions:
+                for key_of_description in keys_of_descriptions:
+                    tokenizer = tokenizers_by_key_of_description[key_of_description]    
+                    tokenized_record.extend(tokenizer.tokenize(record[key_of_description])) 
             if stop_words != None:
                 tokenized_record = [w for w in tokenized_record if w.lower() not in stop_words]
                 
@@ -46,23 +50,24 @@ def output_vocab(vocab_filename, vocab):
             print(word, file=out_file)
     
 def tokenize_catalogs(config):
+    tokenizers_by_key_of_description = {}
     if config['use-textblob-de']:
-        tokenizer = TextBlobDeTokenizer()
+        tokenizers_by_key_of_description['text_de'] = TextBlobDeTokenizer()
     else:
-        tokenizer = SimpleGermanTokenizer(config['tokenizer-german-split-compound-words'])
+        tokenizers_by_key_of_description['text_de'] = SimpleGermanTokenizer(config['tokenizer-german-split-compound-words'])
 
-    vocab_de = set()
+    vocab = set()
     # You have to install the stopwords corpus by executing nltk.download()
     # and install Corpora -> stopwords
     stop_words = stopwords.words('german')
-    tokenize_and_output(config['drg-catalog'], tokenizer, config['drg-tokenizations'],
-                         'code', 'text_de', vocab_de, ',', 'DRG',
+    tokenize_and_output(config['drg-catalog'], tokenizers_by_key_of_description, config['drg-tokenizations'],
+                         'code', ['text_de'], vocab, ',', 'DRG',
                           config['use-descriptions'], stop_words)
-    tokenize_and_output(config['chop-catalog'], tokenizer, config['chop-tokenizations'], 
-                        'code', 'text_de', vocab_de, ',', 'CHOP',
+    tokenize_and_output(config['chop-catalog'], tokenizers_by_key_of_description, config['chop-tokenizations'], 
+                        'code', ['text_de'], vocab, ',', 'CHOP',
                          config['use-descriptions'], stop_words)
-    tokenize_and_output(config['icd-catalog'], tokenizer, config['icd-tokenizations'], 
-                        'code', 'text_de', vocab_de, ',', 
+    tokenize_and_output(config['icd-catalog'], tokenizers_by_key_of_description, config['icd-tokenizations'], 
+                        'code', ['text_de'], vocab, ',', 
                         'ICD', config['use-descriptions'], stop_words)
     combine_files([config['drg-tokenizations'], config['chop-tokenizations'], config['icd-tokenizations']],  config['all-tokens'])
-    output_vocab(config['all-vocab'], vocab_de)
+    output_vocab(config['all-vocab'], vocab)
