@@ -6,8 +6,8 @@ import os
 import csv
 
 class SimpleGermanTokenizer():
-    def __init__(self, split_compound_words=False):
-        self.split_compound_words = split_compound_words
+    def __init__(self, do_split_compound_words=False):
+        self.do_split_compound_words = do_split_compound_words
 # Hack (Using a Java library). This is only a prototype. Should choose one language later.    
     def split_compound_words(self, words, basepath=''): 
         try:
@@ -37,7 +37,7 @@ class SimpleGermanTokenizer():
     
     def tokenize(self, s):
         words = self.split_compound_words(s)
-        if self.split_compound_words:
+        if self.do_split_compound_words:
             words  = self.split_compound_words(words) 
     
         stemmed_words = self.stem_words(words)
