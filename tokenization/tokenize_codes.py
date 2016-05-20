@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from reader.csvreader import CSVReader
 from tokenization.tokenizer import SimpleGermanTokenizer
+from tokenization.tokenizer import SimpleFrenchTokenizer
+from tokenization.tokenizer import SimpleItalianTokenizer
 from tokenization.tokenizer import TextBlobDeTokenizer
 from nltk.corpus import stopwords
 
@@ -50,7 +52,7 @@ def output_vocab(vocab_filename, vocab):
     
 def tokenize_catalogs(config):
     keys_of_descriptions = []
-    tokenizers_by_key_of_description = {'text_de': TextBlobDeTokenizer() if config['use-textblob-de'] else SimpleGermanTokenizer(config['tokenizer-german-split-compound-words']), 'text_fr': None, 'text_it': None}
+    tokenizers_by_key_of_description = {'text_de': TextBlobDeTokenizer() if config['use-textblob-de'] else SimpleGermanTokenizer(config['tokenizer-german-split-compound-words']), 'text_fr': SimpleFrenchTokenizer(), 'text_it': SimpleItalianTokenizer()}
     if config["only-fr-descriptions"]:
         keys_of_descriptions = ['text_fr']
     elif config["only-it-descriptions"]:

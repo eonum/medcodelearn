@@ -2,6 +2,7 @@
 import re
 from nltk.stem.snowball import GermanStemmer
 from nltk.stem.snowball import FrenchStemmer
+from nltk.stem.snowball import ItalianStemmer
 from textblob_de.lemmatizers import PatternParserLemmatizer
 from textblob import TextBlob
 import textblob_fr
@@ -77,5 +78,17 @@ class SimpleFrenchTokenizer(SimpleTokenizer):
             stemmed_words = self.stem_words(words)  
             return stemmed_words
     
-
+class SimpleItalianTokenizer(SimpleTokenizer):
+        def stem_words(self, words):
+            stemmer = ItalianStemmer()
+            stemmed_words = []        
+            for word in words:
+                stemmed_words.append(stemmer.stem(word))
+            return stemmed_words
+        
+        def tokenize(self, s):
+            words = self.split_to_words(s)
+            stemmed_words = self.stem_words(words)  
+            return stemmed_words
+    
 
