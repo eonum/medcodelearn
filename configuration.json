@@ -58,5 +58,11 @@
     "word2vec-dim-size": 50,
     "word2vec-vocab": "data/pipelinetest/vectorization/vocab.csv",
     "tokenizer-german-split-compound-words" : false,
-    "use-textblob-de" : false
+    "use-textblob-de" : false,
+    "only-fr-descriptions" : false,
+    "only-it-descriptions" : false,
+    "only-de-fr-descriptions" : false,
+    "only-de-it-descriptions" : false,
+    "only-fr-it-descriptions" : false,
+    "only-de-fr-it-descriptions" : false 
 }

@@ -26,6 +26,10 @@ from vectorize import read_code_vectors, read_vectors, create_word2vec_training_
 def run (config):
     base_folder = config['base_folder']
     
+    if config["only-fr-descriptions"] + config["only-it-descriptions"] + config["only-de-fr-descriptions"] + config["only-de-it-descriptions"] + config["only-fr-it-descriptions"] + config["only-de-fr-it-descriptions"] > 1:
+        print("You can't select more than one language option.")
+        return   
+    
     if not config['skip-word2vec']:
         print("Tokenize catalogs..")
         if not os.path.exists(base_folder + 'tokenization'):

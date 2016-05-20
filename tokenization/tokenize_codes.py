@@ -21,7 +21,6 @@ def tokenize_and_output(csv_filename, tokenizers_by_key_of_description, output_f
     except OSError:
         pass  
     
-
     with open(output_filename, 'w+') as out_file:
         for record in dataset:
             tokenized_record = []
@@ -50,24 +49,35 @@ def output_vocab(vocab_filename, vocab):
             print(word, file=out_file)
     
 def tokenize_catalogs(config):
-    tokenizers_by_key_of_description = {}
-    if config['use-textblob-de']:
-        tokenizers_by_key_of_description['text_de'] = TextBlobDeTokenizer()
+    keys_of_descriptions = []
+    tokenizers_by_key_of_description = {'text_de': TextBlobDeTokenizer() if config['use-textblob-de'] else SimpleGermanTokenizer(config['tokenizer-german-split-compound-words']), 'text_fr': None, 'text_it': None}
+    if config["only-fr-descriptions"]:
+        keys_of_descriptions = ['text_fr']
+    elif config["only-it-descriptions"]:
+        keys_of_descriptions = ['text_it']
+    elif config["only-de-fr-descriptions"]:
+        keys_of_descriptions = ['text_de', 'text_fr']
+    elif config["only-de-it-descriptions"]:
+        keys_of_descriptions = ['text_de', 'text_it']
+    elif config["only-fr-it-descriptions"]:
+        keys_of_descriptions = ['text_fr', 'text_it']
+    elif config["only-de-fr-it-descriptions"]:
+        keys_of_descriptions = ['text_de', 'text_fr', 'text_it']
     else:
-        tokenizers_by_key_of_description['text_de'] = SimpleGermanTokenizer(config['tokenizer-german-split-compound-words'])
-
+        keys_of_descriptions = ['text_de']
+        
     vocab = set()
     # You have to install the stopwords corpus by executing nltk.download()
     # and install Corpora -> stopwords
     stop_words = stopwords.words('german')
     tokenize_and_output(config['drg-catalog'], tokenizers_by_key_of_description, config['drg-tokenizations'],
-                         'code', ['text_de'], vocab, ',', 'DRG',
+                         'code', keys_of_descriptions, vocab, ',', 'DRG',
                           config['use-descriptions'], stop_words)
     tokenize_and_output(config['chop-catalog'], tokenizers_by_key_of_description, config['chop-tokenizations'], 
-                        'code', ['text_de'], vocab, ',', 'CHOP',
+                        'code', keys_of_descriptions, vocab, ',', 'CHOP',
                          config['use-descriptions'], stop_words)
     tokenize_and_output(config['icd-catalog'], tokenizers_by_key_of_description, config['icd-tokenizations'], 
-                        'code', ['text_de'], vocab, ',', 
+                        'code', keys_of_descriptions, vocab, ',', 
                         'ICD', config['use-descriptions'], stop_words)
     combine_files([config['drg-tokenizations'], config['chop-tokenizations'], config['icd-tokenizations']],  config['all-tokens'])
     output_vocab(config['all-vocab'], vocab)
