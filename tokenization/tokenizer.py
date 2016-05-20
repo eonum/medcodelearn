@@ -1,12 +1,21 @@
 # -*- coding: utf-8 -*-
 import re
 from nltk.stem.snowball import GermanStemmer
+from nltk.stem.snowball import FrenchStemmer
 from textblob_de.lemmatizers import PatternParserLemmatizer
+from textblob import TextBlob
+import textblob_fr
 import os
 import csv
 
-class SimpleGermanTokenizer():
+class SimpleTokenizer():
+    def split_to_words(self, s, delimiter=' '):
+        s = re.sub(r'[^\w\s]','',s)
+        return s.split(delimiter)
+
+class SimpleGermanTokenizer(SimpleTokenizer):
     def __init__(self, do_split_compound_words=False):
+        super()
         self.do_split_compound_words = do_split_compound_words
 # Hack (Using a Java library). This is only a prototype. Should choose one language later.    
     def split_compound_words(self, words, basepath=''): 
@@ -30,13 +39,10 @@ class SimpleGermanTokenizer():
         except OSError:
             pass  
         return split_compound_words
-        
-    def split_to_words(self, s, delimiter=' '):
-        s = re.sub(r'[^\w\s]','',s)
-        return s.split(delimiter)
     
     def tokenize(self, s):
-        words = self.split_compound_words(s)
+        words = self.split_to_words(s)
+        words = self.split_compound_words(words)
         if self.do_split_compound_words:
             words  = self.split_compound_words(words) 
     
@@ -58,7 +64,18 @@ class TextBlobDeTokenizer():
     def tokenize(self, s):
         return [lemma[0] for lemma in self.lemmatizer.lemmatize(s)]    
     
+class SimpleFrenchTokenizer(SimpleTokenizer):
+        def stem_words(self, words):
+            stemmer = FrenchStemmer()
+            stemmed_words = []        
+            for word in words:
+                stemmed_words.append(stemmer.stem(word))
+            return stemmed_words
         
+        def tokenize(self, s):
+            words = self.split_to_words(s)
+            stemmed_words = self.stem_words(words)  
+            return stemmed_words
     
 
 
