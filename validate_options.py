@@ -59,7 +59,7 @@ if __name__ == '__main__':
         options.append('lstm-activation-' + activation)
         visualize(scores, options)
         
-    for bool_var in ['tokenizer-german-split-compound-words']: # ['use-all-tokens-in-embedding', 'use-descriptions', 'use-training-data-for-word2vec', 'shuffle-word2vec-traindata',  'word2vec-cbow', 'use_demographic_tokens', 'use-all-tokens-in-embedding']:
+    for bool_var in ['tokenizer-german-split-compound-words', 'use-textblob-de', "only-fr-descriptions", "only-it-descriptions", "only-de-fr-descriptions", "only-de-it-descriptions", "only-fr-it-descriptions", "only-de-fr-it-descriptions"]: 
         validate_bool_var(bool_var, scores, options, baseline)
         
     
