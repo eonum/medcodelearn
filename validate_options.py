@@ -48,50 +48,50 @@ if __name__ == '__main__':
     
     baseline = run(config)
     
-    inits = ['zero', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'uniform', 'lecun_uniform', 'normal', ]
-    init_inner = ['identity', 'orthogonal']
-    activations = ['linear', 'tanh', 'sigmoid', 'hard_sigmoid', 'relu', 'softplus']
-    
-    for activation in activations:
-        config['lstm-activation'] = activation
-        score = run(config)
-        scores.append(score - baseline)
-        options.append('lstm-activation-' + activation)
-        visualize(scores, options)
+#     inits = ['zero', 'glorot_uniform', 'glorot_normal', 'he_normal', 'he_uniform', 'uniform', 'lecun_uniform', 'normal', ]
+#     init_inner = ['identity', 'orthogonal']
+#     activations = ['linear', 'tanh', 'sigmoid', 'hard_sigmoid', 'relu', 'softplus']
+#     
+#     for activation in activations:
+#         config['lstm-activation'] = activation
+#         score = run(config)
+#         scores.append(score - baseline)
+#         options.append('lstm-activation-' + activation)
+#         visualize(scores, options)
         
     for bool_var in ['tokenizer-german-split-compound-words', 'use-textblob-de', "only-fr-descriptions", "only-it-descriptions", "only-de-fr-descriptions", "only-de-it-descriptions", "only-fr-it-descriptions", "only-de-fr-it-descriptions"]: 
         validate_bool_var(bool_var, scores, options, baseline)
         
     
     
-    temp = config['num-shuffles']
-    config['num-shuffles'] = 1
-    score1 = run(config)
-    config['num-shuffles'] = 10
-    score2 = run(config)
-    scores.append(score2 - score1)
-    options.append('num-shuffles=10')
-    config['num-shuffles'] = temp
-    
-    visualize(scores, options)
-    
-    temp = config['word2vec-dim-size']
-    config['word2vec-dim-size'] = 120
-    score = run(config)
-    config['num-shuffles'] = temp
-    scores.append(score - baseline)
-    options.append('word2vec-dim-size=120')
-    
-    visualize(scores, options)
-    
-    config['skip-word2vec'] = True
-
-    for optimizer in ['adam', 'rmsprop']:
-        config['optimizer'] = optimizer
-        score = run(config)
-        scores.append(score - baseline)
-        options.append(optimizer)
-        visualize(scores, options)
+#     temp = config['num-shuffles']
+#     config['num-shuffles'] = 1
+#     score1 = run(config)
+#     config['num-shuffles'] = 10
+#     score2 = run(config)
+#     scores.append(score2 - score1)
+#     options.append('num-shuffles=10')
+#     config['num-shuffles'] = temp
+#     
+#     visualize(scores, options)
+#     
+#     temp = config['word2vec-dim-size']
+#     config['word2vec-dim-size'] = 120
+#     score = run(config)
+#     config['num-shuffles'] = temp
+#     scores.append(score - baseline)
+#     options.append('word2vec-dim-size=120')
+#     
+#     visualize(scores, options)
+#     
+#     config['skip-word2vec'] = True
+# 
+#     for optimizer in ['adam', 'rmsprop']:
+#         config['optimizer'] = optimizer
+#         score = run(config)
+#         scores.append(score - baseline)
+#         options.append(optimizer)
+#         visualize(scores, options)
 
 
 #     config['demo-variables'] = []
