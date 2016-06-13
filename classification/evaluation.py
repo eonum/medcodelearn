@@ -114,5 +114,6 @@ def plot_classification_confidence_histograms(config, task, model, scaler, X_tes
     
     plt.title('Best Confidence Hist')
     plt.savefig(config['base_folder'] + 'classification/best_confidence_hist_' + task + '.png')
-    print("Saving true confidence histogram to " + config['base_folder'] + 'classification/best_confidence_hist_' + task + '.png')   
+    print("Saving true confidence histogram to " + config['base_folder'] + 'classification/best_confidence_hist_' + task + '.png')
+    plt.close()   
      
