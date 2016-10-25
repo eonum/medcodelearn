@@ -90,26 +90,46 @@ def run (config):
     y = np.zeros(len(codes), dtype=np.float32)
     for i, target in enumerate(targets):
         y[i] = target
-    codes_train, codes_test, demo_train, demo_test, y_train, y_test, = train_test_split(codes, demo_data, y, test_size=0.33, random_state=42)
+
+    codes_train, codes_test, demo_train, demo_test, y_train, y_test = train_test_split(codes, demo_data, y, test_size=0.33, random_state=42)
     output_dim = 1
            
     print("Training data dimensionality: " + str(len(codes)) + " | " + str(len(codes[0])))
-    print('Train LSTM Neural Net with Embedding task..')
+    print('Train LSTM Neural Net with Embedding..')
     vocab = reader.vocab
     codes_train = keras.preprocessing.sequence.pad_sequences(codes_train, maxlen=config['maxlen'], dtype='int', truncating='pre')
     codes_test = keras.preprocessing.sequence.pad_sequences(codes_test, maxlen=config['maxlen'], dtype='int', truncating='pre')
                  
-    model, score = train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, output_dim, 'los', vocab, 
+    model, _ = train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, output_dim, 'los', vocab, 
                                                                   vector_by_token,
                                                                   vector_by_code)
-    # input_test = {'codes_input':codes_test, 'demo_input':demo_test}
-    # TODO test with test set
+
+
+    predictions = model.predict({'codes_input':codes_test, 'demo_input':demo_test}, verbose=0)
+   
+    mse = 0.0
+    mape = 0.0
+    mae = 0.0
+    print(y_test)
+    print(predictions)
+    for i in range(0, predictions.shape[0]):
+        prediction = predictions[i]
+        mse += np.square(prediction - y_test[i])
+        mape += np.abs(prediction - y_test[i]) / y_test[i] 
+        mae += np.abs(prediction - y_test[i])     
+        
+    
+    mse /= y_test.shape[0]
+    mape /= y_test.shape[0]
+    mae /= y_test.shape[0]
 
     if config['store-everything']:
         joblib.dump(model, base_folder + 'classification/' + config['classifier'] + '.pkl')
     
-    print('Total score over: ' + str(score))
-    return score
+    print('Total test MAPE: ' + str(mape))
+    print('Total test MSE: ' + str(mse))
+    print('Total test MAE: ' + str(mae))
+    return mse
     
     
 if __name__ == '__main__':
