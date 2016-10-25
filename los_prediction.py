@@ -17,7 +17,6 @@ from classification.lstmembedding import train_and_evaluate_lstm_with_embedding
 from load_config import load_config
 from reader.sequence.pcreadersequence import SequencePCReader
 import keras.preprocessing.sequence
-from asyncio.windows_events import NULL
 
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
@@ -84,7 +83,7 @@ def run (config):
     reader.use_demographic_tokens = config['use_demographic_tokens']
     reader.use_all_tokens = config['use-all-tokens-in-embedding']
 
-    reader.read_from_file(vectors_by_code, 'los', NULL, demo_variables_to_use=config['demo-variables'])
+    reader.read_from_file(vectors_by_code, 'los', None, demo_variables_to_use=config['demo-variables'])
     codes = reader.data
     targets = reader.targets
     demo_data = reader.demo_data
@@ -95,7 +94,7 @@ def run (config):
     output_dim = 1
            
     print("Training data dimensionality: " + str(len(codes)) + " | " + str(len(codes[0])))
-    print('Train LSTM Neural Net with Embedding for ' + reader.code_type + ' classification task..')
+    print('Train LSTM Neural Net with Embedding task..')
     vocab = reader.vocab
     codes_train = keras.preprocessing.sequence.pad_sequences(codes_train, maxlen=config['maxlen'], dtype='int', truncating='pre')
     codes_test = keras.preprocessing.sequence.pad_sequences(codes_test, maxlen=config['maxlen'], dtype='int', truncating='pre')

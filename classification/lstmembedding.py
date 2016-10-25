@@ -11,8 +11,9 @@ from classification.LossHistoryVisualization import LossHistoryVisualisation
 
 
 def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo_train, demo_test, y_train, y_test, output_dim, task, vocab, vector_by_token, vector_by_code):
-    y_train = np_utils.to_categorical(y_train, output_dim)
-    y_test = np_utils.to_categorical(y_test, output_dim)
+    if task != 'los':
+        y_train = np_utils.to_categorical(y_train, output_dim)
+        y_test = np_utils.to_categorical(y_test, output_dim)
     
     
     codes_train, codes_validation, demo_train, demo_validation, y_train, y_validation = train_test_split(codes_train, demo_train, y_train, test_size=0.15, random_state=23)
@@ -42,7 +43,7 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     node = Dense(64, activation='relu')(node)
 
     if task == 'los':
-        output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(node)
+        output = Dense(1, init=config['outlayer-init'], name='output')(node)
     else:
         output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(node)
         
@@ -51,7 +52,8 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     
     if task == 'los':
         model.compile(loss={'output' : 'mse'},
-                  optimizer='rmsprop')
+                  optimizer=config['optimizer'],
+                  metrics=['mean_absolute_percentage_error'])
     else:
         model.compile(loss={'output' : 'categorical_crossentropy'},
                   optimizer=config['optimizer'],
@@ -72,6 +74,7 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     
     print("Prediction using LSTM..")
     score = model.evaluate({'codes_input':codes_test, 'demo_input':demo_test}, {'output':y_test}, verbose=0)
+    
     
     print('Test score:', score[0])
     print('Test accuracy:', score[1])  
