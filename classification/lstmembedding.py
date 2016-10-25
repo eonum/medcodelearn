@@ -52,9 +52,9 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     
     if task == 'los':
         additional_metric_name = 'mean_absolute_percentage_error'
-        model.compile(loss={'output' : 'mse'},
+        model.compile(loss={'output' : 'mae'},
                   optimizer=config['optimizer'],
-                  metrics=[additional_metric_name])
+                  metrics=[additional_metric_name, 'mse'])
     else:
         additional_metric_name = 'accuracy'
         model.compile(loss={'output' : 'categorical_crossentropy'},
@@ -68,7 +68,7 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     early_stopping = EarlyStopping(monitor='val_loss' if task == 'los' else 'val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png', additional_metric_name='val_' + additional_metric_name)
     model.fit({'codes_input':codes_train, 'demo_input':demo_train}, {'output':y_train},
-              nb_epoch=2,
+              nb_epoch=50,
               validation_data=({'codes_input':codes_validation, 'demo_input':demo_validation}, {'output':y_validation}),
               batch_size=64,
               verbose=2,

@@ -17,12 +17,7 @@
         "adm-normal",
         "adm-transfer",
         "adm-transfer-short",
-        "adm-unknown",
-        "sep-normal",
-        "sep-dead",
-        "sep-doctor",
-        "sep-unknown",
-        "sep-transfer"
+        "adm-unknown"
     ],
     "drg-catalog": "data/2015/drgs.csv",
     "drg-tokenizations": "data/pipelinetest/tokenization/drgs_tokenized.csv",
