@@ -83,7 +83,7 @@ def run (config):
     reader.use_demographic_tokens = config['use_demographic_tokens']
     reader.use_all_tokens = config['use-all-tokens-in-embedding']
 
-    reader.read_from_file(vectors_by_code, 'los', None, demo_variables_to_use=config['demo-variables'])
+    reader.read_from_file(vectors_by_code, 'los', drg_out_file=config['training-set-drgs'], demo_variables_to_use=config['demo-variables'])
     codes = reader.data
     targets = reader.targets
     demo_data = reader.demo_data

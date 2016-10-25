@@ -6,8 +6,9 @@ import keras
 import sys
 
 class LossHistoryVisualisation(keras.callbacks.Callback):
-    def __init__(self, filename):
+    def __init__(self, filename, additional_metric_name=None):
         self.filename = filename
+        self.additional_metric_name = additional_metric_name
         
     def on_train_begin(self, logs={}):
         self.val_losses = []
@@ -16,7 +17,7 @@ class LossHistoryVisualisation(keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs={}):
         self.val_losses.append(logs.get('val_loss'))
-        self.val_accs.append(logs.get('val_acc'))
+        self.val_accs.append(logs.get(self.additional_metric_name))
         self.epochs.append(epoch)
         
         host = host_subplot(111)
@@ -25,8 +26,8 @@ class LossHistoryVisualisation(keras.callbacks.Callback):
         host.set_ylabel("Accuracy")
         par.set_ylabel("Loss")
 
-        p1, = host.plot(self.epochs, self.val_accs, label='Accuracy')
-        p2, = par.plot(self.epochs, self.val_losses, label="Loss")
+        p1, = host.plot(self.epochs, self.val_accs, label=self.additional_metric_name)
+        p2, = par.plot(self.epochs, self.val_losses, label="Validation Loss")
         
         leg = plt.legend(loc='lower left')
 
@@ -36,7 +37,7 @@ class LossHistoryVisualisation(keras.callbacks.Callback):
         par.yaxis.get_label().set_color(p2.get_color())
         leg.texts[1].set_color(p2.get_color())
         
-        plt.title('Accuracy by epoch on validation set')
+        plt.title('Metrics by epoch')
         plt.savefig(self.filename)
         plt.close()
         

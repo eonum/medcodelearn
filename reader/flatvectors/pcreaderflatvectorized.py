@@ -34,7 +34,7 @@ class FlatVectorizedPCReader(DRGReader):
         
         self.init();
         
-        if self.code_type == 'drg':
+        if self.code_type == 'drg' or self.code_type == 'los':
             if self.drg_out_file == None:
                 raise ValueError('You must specify a corresponding DRG output file for the "drg" classification task')
             self.drg_by_id = self.read_drg_output()

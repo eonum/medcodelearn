@@ -51,20 +51,22 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     model = Model(input=[codes_input, demo_input], output=[output])
     
     if task == 'los':
+        additional_metric_name = 'mean_absolute_percentage_error'
         model.compile(loss={'output' : 'mse'},
                   optimizer=config['optimizer'],
-                  metrics=['mean_absolute_percentage_error'])
+                  metrics=[additional_metric_name])
     else:
+        additional_metric_name = 'accuracy'
         model.compile(loss={'output' : 'categorical_crossentropy'},
                   optimizer=config['optimizer'],
-                  metrics=['accuracy'])
+                  metrics=[additional_metric_name])
     
     json.dump(json.loads(model.to_json()), 
               open(config['base_folder'] + 'classification/model_lstm_' + task + '.json','w'), indent=4, sort_keys=True)   
 
     
     early_stopping = EarlyStopping(monitor='val_loss' if task == 'los' else 'val_acc', patience=10)
-    visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
+    visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png', additional_metric_name='val_' + additional_metric_name)
     model.fit({'codes_input':codes_train, 'demo_input':demo_train}, {'output':y_train},
               nb_epoch=50,
               validation_data=({'codes_input':codes_validation, 'demo_input':demo_validation}, {'output':y_validation}),
