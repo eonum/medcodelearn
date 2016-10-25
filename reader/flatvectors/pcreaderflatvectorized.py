@@ -90,6 +90,8 @@ class FlatVectorizedPCReader(DRGReader):
             return [self.instance(row, diags + [pdx], [proc for proc in procs if proc != gt], gt) for gt in procs]
         elif self.code_type == 'drg':
             return [self.instance(row, diags + [pdx], procs, self.drg_by_id[row['id']])]
+        elif self.code_type == 'los':
+            return [self.instance(row, diags + [pdx], procs, 'los')]
 
         raise ValueError('code_type should be one of "drg", "pdx", "sdx" or "srg" but was ' + self.code_type)
     

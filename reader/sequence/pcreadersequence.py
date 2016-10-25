@@ -61,6 +61,9 @@ class SequencePCReader(FlatVectorizedPCReader):
                     sequence.append(t)
             else:
                 sequence.append(self.tokens_by_code['CHOP_' + proc][0])
+                
+        if gt == 'los':
+            gt = self.convert_demographic_variable(row, 'los')
         
         return [sequence, gt, excludes, demographic]
     

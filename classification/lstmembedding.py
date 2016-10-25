@@ -41,12 +41,19 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     node = merge([node, demo_input], mode='concat')
     node = Dense(64, activation='relu')(node)
 
-    output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(node)
+    if task == 'los':
+        output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(node)
+    else:
+        output = Dense(output_dim, activation='softmax', init=config['outlayer-init'], name='output')(node)
         
     
     model = Model(input=[codes_input, demo_input], output=[output])
     
-    model.compile(loss={'output' : 'categorical_crossentropy'},
+    if task == 'los':
+        model.compile(loss={'output' : 'mse'},
+                  optimizer='rmsprop')
+    else:
+        model.compile(loss={'output' : 'categorical_crossentropy'},
                   optimizer=config['optimizer'],
                   metrics=['accuracy'])
     
@@ -54,7 +61,7 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
               open(config['base_folder'] + 'classification/model_lstm_' + task + '.json','w'), indent=4, sort_keys=True)   
 
     
-    early_stopping = EarlyStopping(monitor='val_acc', patience=10)
+    early_stopping = EarlyStopping(monitor='val_loss' if task == 'los' else 'val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png')
     model.fit({'codes_input':codes_train, 'demo_input':demo_train}, {'output':y_train},
               nb_epoch=50,
