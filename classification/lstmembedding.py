@@ -68,7 +68,7 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     early_stopping = EarlyStopping(monitor='val_loss' if task == 'los' else 'val_acc', patience=10)
     visualizer = LossHistoryVisualisation(config['base_folder'] + 'classification/epochs_' + task + '.png', additional_metric_name='val_' + additional_metric_name)
     model.fit({'codes_input':codes_train, 'demo_input':demo_train}, {'output':y_train},
-              nb_epoch=50,
+              nb_epoch=3,
               validation_data=({'codes_input':codes_validation, 'demo_input':demo_validation}, {'output':y_validation}),
               batch_size=64,
               verbose=2,
@@ -78,7 +78,7 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
     score = model.evaluate({'codes_input':codes_test, 'demo_input':demo_test}, {'output':y_test}, verbose=0)
     
     
-    print('Test MSE:', score[0])
+    print('Test MAE:', score[0])
     print('Test MAPE:', score[1])  
 
     return [model, score[1]]

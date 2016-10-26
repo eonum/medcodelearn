@@ -107,21 +107,10 @@ def run (config):
 
     predictions = model.predict({'codes_input':codes_test, 'demo_input':demo_test}, verbose=0)
    
-    mse = 0.0
-    mape = 0.0
-    mae = 0.0
-    print(y_test)
-    print(predictions)
-    for i in range(0, predictions.shape[0]):
-        prediction = predictions[i]
-        mse += np.square(prediction - y_test[i])
-        mape += np.abs(prediction - y_test[i]) / y_test[i] 
-        mae += np.abs(prediction - y_test[i])     
-        
-    
-    mse /= y_test.shape[0]
-    mape /= y_test.shape[0]
-    mae /= y_test.shape[0]
+    error = predictions[:,0] - y_test
+    mse = np.square(error).mean()
+    mape = np.abs(error / y_test).mean()
+    mae = np.abs(error).mean()
 
     if config['store-everything']:
         joblib.dump(model, base_folder + 'classification/' + config['classifier'] + '.pkl')
