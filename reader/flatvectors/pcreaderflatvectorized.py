@@ -40,11 +40,15 @@ class FlatVectorizedPCReader(DRGReader):
             self.drg_by_id = self.read_drg_output()
         
         dataset = []
+        self.drgs = []
         with open(self.filename, 'r') as csvFile:
             reader = csv.DictReader(csvFile, fieldnames=self.FIELDNAMES, restkey=self.RESTKEY, delimiter=';')
             for row in reader:
                 for instance in self.get_instances_from_row(row):
                     dataset.append(instance)
+                    if self.drg_by_id != None:
+                        self.drgs.append(self.drg_by_id[row['id']])
+                    
                     
         self.data = self.empty_input(dataset)
         self.demo_data = np.empty((len(dataset), len(self.demo_variables_to_use)), dtype=np.float32)

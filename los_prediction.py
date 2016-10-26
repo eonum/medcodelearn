@@ -22,6 +22,35 @@ encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
 from vectorize import read_code_vectors, read_vectors, create_word2vec_training_data
 
+def calculate_drg_baseline(y_train, y_test, drgs_train, drgs_test):
+    averages_by_drg = {}
+    global_average = y_train.mean()
+    for i in range(0, y_train.shape[0]):
+        drg = drgs_train[i]
+        if not drg in averages_by_drg:
+            averages_by_drg[drg] = []
+        averages_by_drg[drg].append(y_train[i])
+    for drg in averages_by_drg:
+        averages_by_drg[drg] = np.mean(np.array(averages_by_drg[drg]))
+    
+    predictions = np.zeros(y_test.shape[0])
+    for i in range(0, y_test.shape[0]):
+        drg = drgs_test[i]
+        predictions[i] = averages_by_drg[drg] if drg in averages_by_drg else global_average
+    
+    error = predictions - y_test
+    mse = np.square(error).mean()
+    mape = np.abs(error / y_test).mean()
+    mae = np.abs(error).mean()
+    
+    print(averages_by_drg)
+    print(global_average)
+
+    print('Total test MAPE DRG baseline: ' + str(mape))
+    print('Total test MSE DRG baseline: ' + str(mse))
+    print('Total test MAE DRG baseline: ' + str(mae))
+    
+
 
 def run (config):
     base_folder = config['base_folder']
@@ -76,7 +105,6 @@ def run (config):
     if not os.path.exists(base_folder + 'classification'):
         os.makedirs(base_folder + 'classification')
     
-    
     reader = SequencePCReader(config['training-set'])
     reader.tokens_by_code = tokens_by_code
     reader.vocab = vocab
@@ -87,11 +115,13 @@ def run (config):
     codes = reader.data
     targets = reader.targets
     demo_data = reader.demo_data
+    drgs = reader.drgs
     y = np.zeros(len(codes), dtype=np.float32)
     for i, target in enumerate(targets):
         y[i] = target
 
-    codes_train, codes_test, demo_train, demo_test, y_train, y_test = train_test_split(codes, demo_data, y, test_size=0.33, random_state=42)
+    codes_train, codes_test, demo_train, demo_test, y_train, y_test, drgs_train, drgs_test = train_test_split(codes, demo_data, y, drgs, test_size=0.33, random_state=42)
+    calculate_drg_baseline(y_train, y_test, drgs_train, drgs_test)
     output_dim = 1
            
     print("Training data dimensionality: " + str(len(codes)) + " | " + str(len(codes[0])))
