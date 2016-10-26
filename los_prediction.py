@@ -4,19 +4,15 @@ from subprocess import call
 import json
 from json import encoder
 from sklearn.cross_validation import train_test_split
-from sklearn.externals import joblib
 import numpy as np
 
-from reader.flatvectors.pcreaderflatvectorized import FlatVectorizedPCReader
-from classification.random_forest import train_and_evaluate_random_forest
-from classification.ffnn import train_and_evaluate_ffnn
-from classification.evaluation import adjust_score, plot_oracle, plot_classification_confidence_histograms
-from reader.sequencevectors.pcreadersequencevectorized import SequenceVectorizedPCReader
-from classification.lstm import train_and_evaluate_lstm, pad_sequences
+from classification.evaluation import plot_histogram
 from classification.lstmembedding import train_and_evaluate_lstm_with_embedding
 from load_config import load_config
 from reader.sequence.pcreadersequence import SequencePCReader
 import keras.preprocessing.sequence
+
+from sklearn.externals import joblib
 
 encoder.FLOAT_REPR = lambda o: format(o, '.8f')
 
@@ -38,13 +34,21 @@ def calculate_drg_baseline(y_train, y_test, drgs_train, drgs_test):
         drg = drgs_test[i]
         predictions[i] = averages_by_drg[drg] if drg in averages_by_drg else global_average
     
+    
+    error = y_test - global_average
+    mse = np.square(error).mean()
+    mape = np.abs(error / y_test).mean()
+    mae = np.abs(error).mean()
+
+    print('Global average LOS: ' + str(global_average))
+    print('Total test MAPE global average baseline: ' + str(mape))
+    print('Total test MSE global average baseline: ' + str(mse))
+    print('Total test MAE global average baseline: ' + str(mae))
+    
     error = predictions - y_test
     mse = np.square(error).mean()
     mape = np.abs(error / y_test).mean()
     mae = np.abs(error).mean()
-    
-    print(averages_by_drg)
-    print(global_average)
 
     print('Total test MAPE DRG baseline: ' + str(mape))
     print('Total test MSE DRG baseline: ' + str(mse))
@@ -138,6 +142,11 @@ def run (config):
     predictions = model.predict({'codes_input':codes_test, 'demo_input':demo_test}, verbose=0)
    
     error = predictions[:,0] - y_test
+    
+    plot_histogram(config, y_test, 'ACTUAL_LOS')
+    plot_histogram(config, predictions[:,0], 'PREDICTED_LOS')
+    plot_histogram(config, error, 'ERROR')
+    
     mse = np.square(error).mean()
     mape = np.abs(error / y_test).mean()
     mae = np.abs(error).mean()

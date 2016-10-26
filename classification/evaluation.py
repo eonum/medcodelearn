@@ -117,4 +117,15 @@ def plot_classification_confidence_histograms(config, task, model, scaler, X_tes
     plt.title('Best Confidence Hist')
     plt.savefig(config['base_folder'] + 'classification/best_confidence_hist_' + task + '.png')
     print("Saving true confidence histogram to " + config['base_folder'] + 'classification/best_confidence_hist_' + task + '.png')   
+    
+def plot_histogram(config, data, name, bins=100):
+    # the histogram of the data
+    plt.hist(data, bins, facecolor='green', alpha=0.75)
+
+    plt.ylabel('Probability')
+    plt.grid(True)
+
+    plt.title(name)
+    plt.savefig(config['base_folder'] + name + '.png')
+    plt.close()
      
