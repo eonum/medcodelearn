@@ -96,9 +96,8 @@ def create_word2vec_training_data(train_file, token_by_code_file, out_file_name,
     out_file.close()
     
 
-def demographic_tokens(row):
-    tokens = []
-    tokens.append('SEP_' + row['sep'])
+def demographic_tokens(row, skip_exit_data=False):
+    tokens = []  
     tokens.append('ADM_' + row['adm'])
     tokens.append('SEX_' + row['sex'])
     days = int(row['ageDays'])
@@ -110,8 +109,10 @@ def demographic_tokens(row):
         tokens.append('AGE_YEARS_' + str(years))
         tokens.append('AGE_DECADE_' + str(years - (years % 10)))
         
-    los = int(row['los'])
-    tokens.append('LOS_' + str(min(los, 50)))
+    if not skip_exit_data:
+        tokens.append('SEP_' + row['sep'])
+        los = int(row['los'])
+        tokens.append('LOS_' + str(min(los, 50)))
     
     weight = int(row['admWeight'])
     if weight > 0:

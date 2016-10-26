@@ -35,7 +35,7 @@ class SequencePCReader(FlatVectorizedPCReader):
         return [None] * len(dataset)
     
     def instance(self, row, diags, procs, gt):
-        sequence = demographic_tokens(row) if self.use_demographic_tokens else []
+        sequence = demographic_tokens(row, self.code_type == 'los') if self.use_demographic_tokens else []
         # remove tokens that have not been in the training set for word2vec
         sequence = [t for t in sequence if t in self.vocab]
         
