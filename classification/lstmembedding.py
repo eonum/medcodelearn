@@ -5,6 +5,9 @@ from sklearn.cross_validation import train_test_split
 from keras.utils import np_utils
 from keras.layers import Dropout, Dense, Input, LSTM, Embedding, merge
 from keras.models import Model
+from keras.utils.visualize_util import plot
+
+import os
 
 from keras.callbacks import EarlyStopping
 from classification.LossHistoryVisualization import LossHistoryVisualisation
@@ -60,6 +63,11 @@ def train_and_evaluate_lstm_with_embedding(config, codes_train, codes_test, demo
         model.compile(loss={'output' : 'categorical_crossentropy'},
                   optimizer=config['optimizer'],
                   metrics=[additional_metric_name])
+    
+    # if this fails execute:
+    # pip install pydot
+    # sudo apt-get install graphviz
+    plot(model, to_file=os.path.join(config['base_folder'], 'classification/model_lstm_' + task + '.png'))
     
     json.dump(json.loads(model.to_json()), 
               open(config['base_folder'] + 'classification/model_lstm_' + task + '.json','w'), indent=4, sort_keys=True)   
